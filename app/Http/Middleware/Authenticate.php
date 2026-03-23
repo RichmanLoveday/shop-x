@@ -114,7 +114,6 @@ class Authenticate implements AuthenticatesRequests
      */
     protected function redirectTo(Request $request, array $guards): ?string
     {
-
         foreach ($guards as $guard) {
             if ($guard == 'admin') {
                 foreach (['admin.login', 'admin.auth.login'] as $uri) {
