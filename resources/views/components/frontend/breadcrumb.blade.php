@@ -1,3 +1,13 @@
-<div>
-    <!-- If you do not have a consistent goal in life, you can not live it in a consistent way. - Marcus Aurelius -->
+<div class="page-header breadcrumb-wrap">
+    <div class="container">
+        <div class="breadcrumb">
+            @foreach ($items as $item)
+                @if (!$loop->last)
+                    <a href="{{ $item['url'] }}" rel="nofollow"><i class="fi-rs-home mr-5"></i>{{ $item['label'] }}</a>
+                @else
+                    <span> {{ $item['label'] }}</span>
+                @endif
+            @endforeach
+        </div>
+    </div>
 </div>

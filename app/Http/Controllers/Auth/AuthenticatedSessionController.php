@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
+use App\Services\Contracts\User\Auth\HcaptchaServiceInterface;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -11,6 +12,8 @@ use Illuminate\View\View;
 
 class AuthenticatedSessionController extends Controller
 {
+
+    public function __construct(private HcaptchaServiceInterface $hcaptchaService) {}
     /**
      * Display the login view.
      */
@@ -24,7 +27,13 @@ class AuthenticatedSessionController extends Controller
      */
     public function store(LoginRequest $request): RedirectResponse
     {
+        // dd($request->all());
         $request->authenticate();
+
+        // verify hcaptcha security
+        if (!$this->hcaptchaService->verify($request->input('h-captcha-response'))) {
+            return redirect()->back()->with('error', 'Invalid hCaptcha response.');
+        }
 
         $request->session()->regenerate();
 

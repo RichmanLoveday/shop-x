@@ -51,69 +51,108 @@
 
 
 @extends('frontend.layout.app')
+
 @section('contents')
-    <div class="page-header breadcrumb-wrap">
-        <div class="container">
-            <div class="breadcrumb">
-                <a href="index.html" rel="nofollow"><i class="fi-rs-home mr-5"></i>Home</a>
-                <span></span> Pages <span></span> My Account
-            </div>
-        </div>
-    </div>
+    <x-frontend.breadcrumb :items="[['url' => '/', 'label' => 'Home'], ['url' => route('login'), 'label' => 'Login']]" />
+
     <div class="page-content pt-150 pb-135">
         <div class="container">
             <div class="row">
                 <div class="col-xl-8 col-lg-10 col-md-12 m-auto">
                     <div class="row">
+
+                        <!-- Left Image -->
                         <div class="col-lg-6 pr-30 d-none d-lg-block">
                             <img class="border-radius-15" src="{{ asset('assets/frontend/imgs/page/login-1.png') }}"
-                                alt="" />
+                                alt="Login" />
                         </div>
+
+                        <!-- Login Form -->
                         <div class="col-lg-6 col-md-8">
+                            <x-auth-session-status class="mb-4" :status="session('status')" />
+                            <x-auth-session-status class="mb-4" :status="session('error')" />
+
                             <div class="login_wrap widget-taber-content background-white">
                                 <div class="padding_eight_all bg-white">
+
                                     <div class="heading_s1">
                                         <h1 class="mb-5">Login</h1>
-                                        <p class="mb-30">Don't have an account? <a href="page-register.html">Create
-                                                here</a></p>
+                                        <p class="mb-30">Don't have an account?
+                                            <a href="{{ route('register') }}">Create here</a>
+                                        </p>
                                     </div>
-                                    <form method="post">
+
+                                    <!-- Google Login -->
+                                    <div class="mb-4">
+                                        <a href="{{ route('google.redirect') }}"
+                                            class="btn btn-default w-100 d-flex align-items-center justify-content-center gap-2">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                                stroke-linecap="round" stroke-linejoin="round">
+                                                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                                <path
+                                                    d="M20.945 11a9 9 0 1 1 -3.284 -5.997l-2.655 2.392a5.5 5.5 0 1 0 2.119 6.605h-4.125v-3h7.945">
+                                                </path>
+                                            </svg>
+                                            Log in with Google
+                                        </a>
+                                    </div>
+
+                                    <div class="text-center my-4">
+                                        <span class="px-3 bg-white text-muted">OR</span>
+                                        <hr class="mt-2">
+                                    </div>
+
+                                    <!-- Login Form -->
+                                    <form id="loginForm" method="POST" action="{{ route('login') }}">
+                                        @csrf
+
                                         <div class="form-group">
-                                            <input type="text" required="" name="email"
-                                                placeholder="Username or Email *" />
+                                            <input type="email" class="form-control" name="email"
+                                                placeholder="Username or Email *" value="{{ old('email') }}" required />
+                                            <x-input-error :messages="$errors->get('email')" class="mt-2" />
                                         </div>
+
                                         <div class="form-group">
-                                            <input required="" type="password" name="password"
-                                                placeholder="Your password *" />
+                                            <input type="password" class="form-control" name="password"
+                                                placeholder="Your password *" required />
+                                            <x-input-error :messages="$errors->get('password')" class="mt-2" />
                                         </div>
-                                        <div class="login_footer form-group">
-                                            <div class="chek-form">
-                                                <input type="text" required="" name="email"
-                                                    placeholder="Security code *" />
+
+                                        <!-- hCaptcha -->
+                                        <div class="form-group mt-4">
+                                            <div id="hcaptcha" class="h-captcha"
+                                                data-sitekey="{{ config('services.captcha.sitekey') }}"></div>
+
+                                            <div id="captcha-error" class="text-danger mt-2" style="display: none;">
+                                                Please complete the security verification
                                             </div>
-                                            <span class="security-code">
-                                                <b class="text-new">8</b>
-                                                <b class="text-hot">6</b>
-                                                <b class="text-sale">7</b>
-                                                <b class="text-best">5</b>
-                                            </span>
+
+                                            <x-input-error :messages="$errors->get('h-captcha-response')" class="mt-2" />
                                         </div>
-                                        <div class="login_footer form-group mb-50">
+
+                                        <div class="login_footer form-group mb-50 mt-4">
                                             <div class="chek-form">
                                                 <div class="custome-checkbox">
-                                                    <input class="form-check-input" type="checkbox" name="checkbox"
-                                                        id="exampleCheckbox1" value="" />
-                                                    <label class="form-check-label" for="exampleCheckbox1"><span>Remember
-                                                            me</span></label>
+                                                    <input class="form-check-input" type="checkbox" name="remember"
+                                                        id="remember" />
+                                                    <label class="form-check-label" for="remember">
+                                                        <span>Remember me</span>
+                                                    </label>
                                                 </div>
                                             </div>
-                                            <a class="text-muted" href="#">Forgot password?</a>
+                                            <a class="text-muted" href="{{ route('password.request') }}">Forgot
+                                                password?</a>
                                         </div>
+
                                         <div class="form-group">
-                                            <button type="submit" class="btn btn-heading btn-block hover-up"
-                                                name="login">Log in</button>
+                                            <button type="submit" id="loginBtn"
+                                                class="btn btn-heading btn-block hover-up">
+                                                Log in
+                                            </button>
                                         </div>
                                     </form>
+
                                 </div>
                             </div>
                         </div>
@@ -122,4 +161,36 @@
             </div>
         </div>
     </div>
+
+    @push('scripts')
+        <script src="https://js.hcaptcha.com/1/api.js" async defer></script>
+
+        <script>
+            $(document).ready(function() {
+                const form = $('#loginForm');
+                const loginBtn = $('#loginBtn');
+                const captchaError = $('#captcha-error');
+
+                console.log(captchaError);
+
+                form.on('submit', function(e) {
+                    const response = hcaptcha.getResponse();
+                    captchaError.show();
+
+                    if (response.length === 0) {
+                        e.preventDefault(); // Stop form submission
+                        captchaError.show(); // Show error message
+                        return false;
+                    } else {
+                        captchaError.hide(); // Hide error if captcha is solved
+                    }
+                });
+
+                // Optional: Reset error when user starts solving captcha
+                window.onHcaptchaVerify = function() {
+                    captchaError.hide();
+                };
+            });
+        </script>
+    @endpush
 @endsection

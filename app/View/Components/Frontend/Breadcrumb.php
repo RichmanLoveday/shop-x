@@ -8,12 +8,14 @@ use Illuminate\View\Component;
 
 class Breadcrumb extends Component
 {
+    public array $items = [];
+
     /**
      * Create a new component instance.
      */
-    public function __construct()
+    public function __construct(array $items = [])
     {
-        //
+        $this->items = $items;
     }
 
     /**

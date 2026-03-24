@@ -1,25 +1,91 @@
-<x-guest-layout>
-    <div class="mb-4 text-sm text-gray-600 dark:text-gray-400">
-        {{ __('Forgot your password? No problem. Just let us know your email address and we will email you a password reset link that will allow you to choose a new one.') }}
+@extends('frontend.layout.app')
+
+@section('contents')
+    <x-frontend.breadcrumb :items="[['url' => '/', 'label' => 'Home'], ['url' => route('login'), 'label' => 'Reset Password']]" />
+
+    <div class="page-content pt-150 pb-140">
+        <div class="container">
+            <div class="row">
+                <div class="col-xl-5 col-lg-6 col-md-12 m-auto">
+                    <div class="login_wrap widget-taber-content background-white">
+                        <x-auth-session-status class="mb-4" :status="session('status')" />
+                        <div class="padding_eight_all bg-white">
+                            <div class="heading_s1">
+                                <img class="border-radius-15" src="assets/imgs/page/forgot_password.svg" alt="" />
+                                <h2 class="mb-15 mt-15">Forgot your password?</h2>
+                                <p class="mb-30">Not to worry, we got you! Let’s get you a new password. Please
+                                    enter your email address.</p>
+                            </div>
+                            <form method="post" action="{{ route('password.email') }}" id="loginForm">
+                                @csrf
+                                <div class="form-group">
+                                    <input type="text" required="" name="email" placeholder="Email *" />
+                                    <x-input-error :messages="$errors->get('email')" class="mt-2" />
+                                </div>
+                                <!-- hCaptcha -->
+                                <div class="form-group mt-4">
+                                    <div id="hcaptcha" class="h-captcha"
+                                        data-sitekey="{{ config('services.captcha.sitekey') }}">
+                                    </div>
+
+                                    <div id="captcha-error" class="text-danger mt-2" style="display: none;">
+                                        Please complete the security verification
+                                    </div>
+
+                                    <x-input-error :messages="$errors->get('h-captcha-response')" class="mt-2" />
+                                </div>
+                                {{-- <div class="login_footer form-group mb-50">
+                                    <div class="chek-form">
+                                        <div class="custome-checkbox">
+                                            <input class="form-check-input" type="checkbox" name="checkbox"
+                                                id="exampleCheckbox1" value="" />
+                                            <label class="form-check-label" for="exampleCheckbox1"><span>I agree to
+                                                    terms & Policy.</span></label>
+                                        </div>
+                                    </div>
+                                    <a class="text-muted" href="#">Learn more</a>
+                                </div> --}}
+                                <div class="form-group">
+                                    <button type="submit" class="btn btn-heading btn-block hover-up" name="login">Reset
+                                        password</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <!-- Session Status -->
-    <x-auth-session-status class="mb-4" :status="session('status')" />
+    @push('scripts')
+        <script src="https://js.hcaptcha.com/1/api.js" async defer></script>
 
-    <form method="POST" action="{{ route('password.email') }}">
-        @csrf
+        <script>
+            $(document).ready(function() {
+                const form = $('#loginForm');
+                const loginBtn = $('#loginBtn');
+                const captchaError = $('#captcha-error');
 
-        <!-- Email Address -->
-        <div>
-            <x-input-label for="email" :value="__('Email')" />
-            <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autofocus />
-            <x-input-error :messages="$errors->get('email')" class="mt-2" />
-        </div>
+                console.log(captchaError);
 
-        <div class="flex items-center justify-end mt-4">
-            <x-primary-button>
-                {{ __('Email Password Reset Link') }}
-            </x-primary-button>
-        </div>
-    </form>
-</x-guest-layout>
+                form.on('submit', function(e) {
+                    const response = hcaptcha.getResponse();
+                    captchaError.show();
+
+                    if (response.length === 0) {
+                        e.preventDefault(); // Stop form submission
+                        captchaError.show(); // Show error message
+                        return false;
+                    } else {
+                        captchaError.hide(); // Hide error if captcha is solved
+                    }
+                });
+
+                // Optional: Reset error when user starts solving captcha
+                window.onHcaptchaVerify = function() {
+                    captchaError.hide();
+                };
+            });
+        </script>
+    @endpush
+@endsection
