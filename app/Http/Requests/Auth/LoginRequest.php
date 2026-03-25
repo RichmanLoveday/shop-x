@@ -2,6 +2,8 @@
 
 namespace App\Http\Requests\Auth;
 
+use App\Services\Contracts\User\Auth\SocialAuthServiceInterface;
+use App\Services\User\Auth\SocialAuthService;
 use Illuminate\Auth\Events\Lockout;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
@@ -12,6 +14,10 @@ use Illuminate\Validation\ValidationException;
 
 class LoginRequest extends FormRequest
 {
+    public function __construct(
+        protected SocialAuthServiceInterface $service
+    ) {}
+
     /**
      * Determine if the user is authorized to make this request.
      */
@@ -42,7 +48,17 @@ class LoginRequest extends FormRequest
     {
         $this->ensureIsNotRateLimited();
 
-        if (! Auth::attempt($this->only('email', 'password'), $this->boolean('remember'))) {
+        // check if user has signed in with a provider anytime
+        $user = $this->service->checkIfUserLoggedInWithProvider($this->email);
+        // dd($user);
+
+        if ($user) {
+            throw ValidationException::withMessages([
+                'email' => "Please login with {$user->provider} provider",
+            ]);
+        }
+
+        if (!Auth::attempt($this->only('email', 'password'), $this->boolean('remember'))) {
             RateLimiter::hit($this->throttleKey());
 
             throw ValidationException::withMessages([
@@ -60,7 +76,7 @@ class LoginRequest extends FormRequest
      */
     public function ensureIsNotRateLimited(): void
     {
-        if (! RateLimiter::tooManyAttempts($this->throttleKey(), 5)) {
+        if (!RateLimiter::tooManyAttempts($this->throttleKey(), 5)) {
             return;
         }
 
@@ -81,6 +97,6 @@ class LoginRequest extends FormRequest
      */
     public function throttleKey(): string
     {
-        return Str::transliterate(Str::lower($this->string('email')).'|'.$this->ip());
+        return Str::transliterate(Str::lower($this->string('email')) . '|' . $this->ip());
     }
 }

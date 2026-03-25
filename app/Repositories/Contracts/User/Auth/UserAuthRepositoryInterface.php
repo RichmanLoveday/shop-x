@@ -13,4 +13,8 @@ interface UserAuthRepositoryInterface
     public function createFromSocial(array $data): User;
 
     public function updateOrCreateFromSocial(string $provider, string $providerId, array $data): User;
+
+    public function updateProfile(User $user, array $data): User;
+
+    public function changePassword(User $user, string $currentPassword, string $newPassword): bool;
 }

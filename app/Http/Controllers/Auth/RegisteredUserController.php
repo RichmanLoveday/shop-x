@@ -16,8 +16,9 @@ use Illuminate\View\View;
 
 class RegisteredUserController extends Controller
 {
-
-    public function __construct(private HcaptchaServiceInterface $hcaptchaService) {}
+    public function __construct(
+        private HcaptchaServiceInterface $hcaptchaService
+    ) {}
 
     /**
      * Display the registration view.
@@ -34,7 +35,6 @@ class RegisteredUserController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
-
         // dd($request->all());
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
@@ -51,6 +51,7 @@ class RegisteredUserController extends Controller
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
+            'avatar' => asset('assets/defaults/avatar.png'),
         ]);
 
         event(new Registered($user));

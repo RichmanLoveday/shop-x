@@ -38,7 +38,7 @@
                                         @csrf
                                         <div class="form-group">
                                             <input type="text" required="" value="{{ old('name') }}" name="name"
-                                                placeholder="Username" />
+                                                placeholder="Name" />
                                             <x-input-error :messages="$errors->get('name')" class="mt-2" />
                                         </div>
 

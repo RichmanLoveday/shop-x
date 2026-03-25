@@ -9,10 +9,14 @@
         "php": "^8.2",
         "laravel/framework": "^12.0",
         "laravel/socialite": "^5.25",
-        "laravel/tinker": "^2.10.1"
+        "laravel/tinker": "^2.10.1",
+        "php-flasher/flasher-laravel": "^2.5",
+        "php-flasher/flasher-notyf-laravel": "^2.5",
+        "spatie/laravel-medialibrary": "^11.21"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",
+        "friendsofphp/php-cs-fixer": "^3.94",
         "laravel/breeze": "^2.4",
         "laravel/pail": "^1.2.2",
         "laravel/pint": "^1.24",

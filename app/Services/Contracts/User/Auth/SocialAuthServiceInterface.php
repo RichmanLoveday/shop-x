@@ -7,4 +7,6 @@ use App\Models\User;
 interface SocialAuthServiceInterface
 {
     public function handleGoogleCallback(): User;
+
+    public function checkIfUserLoggedInWithProvider(string $email): User|bool;
 }
