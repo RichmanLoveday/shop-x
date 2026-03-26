@@ -34,7 +34,7 @@
                                         <hr class="mt-2">
                                     </div>
 
-                                    <form method="post" action="{{ route('register') }}">
+                                    <form method="post" action="{{ route('register') }}" id="loginForm">
                                         @csrf
                                         <div class="form-group">
                                             <input type="text" required="" value="{{ old('name') }}" name="name"
@@ -58,6 +58,23 @@
                                             <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
                                         </div>
 
+                                        <div class="payment_option mb-30">
+                                            <div class="custome-radio">
+                                                <input class="form-check-input" required="" type="radio" checked name="role"
+                                                    id="exampleRadios3" value="user" />
+                                                <label class="form-check-label" for="exampleRadios3"
+                                                    data-bs-toggle="collapse" data-target="#bankTranfer"
+                                                    aria-controls="bankTranfer">I am a customer</label>
+                                            </div>
+                                            <div class="custome-radio">
+                                                <input class="form-check-input" required="" type="radio" name="role"
+                                                    id="exampleRadios4" value="vendor" />
+                                                <label class="form-check-label" for="exampleRadios4"
+                                                    data-bs-toggle="collapse" data-target="#checkPayment"
+                                                    aria-controls="checkPayment">I am a vendor</label>
+                                            </div>
+                                        </div>
+
                                         <!-- hCaptcha -->
                                         <div class="form-group mt-4">
                                             <div id="hcaptcha" class="h-captcha"
@@ -70,26 +87,10 @@
                                             <x-input-error :messages="$errors->get('h-captcha-response')" class="mt-2" />
                                         </div>
 
-                                        <div class="payment_option mb-30">
-                                            <div class="custome-radio">
-                                                <input class="form-check-input" required="" type="radio"
-                                                    name="payment_option" id="exampleRadios3" checked="" />
-                                                <label class="form-check-label" for="exampleRadios3"
-                                                    data-bs-toggle="collapse" data-target="#bankTranfer"
-                                                    aria-controls="bankTranfer">I am a customer</label>
-                                            </div>
-                                            <div class="custome-radio">
-                                                <input class="form-check-input" required="" type="radio"
-                                                    name="payment_option" id="exampleRadios4" checked="" />
-                                                <label class="form-check-label" for="exampleRadios4"
-                                                    data-bs-toggle="collapse" data-target="#checkPayment"
-                                                    aria-controls="checkPayment">I am a vendor</label>
-                                            </div>
-                                        </div>
                                         <div class="form-group mb-0">
-                                            <button type="submit"
-                                                class="btn btn-fill-out btn-block hover-up font-weight-bold"
-                                                name="login">Submit &amp; Register</button>
+                                            <button id="loginBtn" type="submit"
+                                                class="btn btn-fill-out btn-block hover-up font-weight-bold">Submit &amp;
+                                                Register</button>
                                         </div>
                                     </form>
                                 </div>

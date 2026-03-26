@@ -12,8 +12,10 @@ use Illuminate\View\View;
 
 class AuthenticatedSessionController extends Controller
 {
+    public function __construct(
+        private HcaptchaServiceInterface $hcaptchaService
+    ) {}
 
-    public function __construct(private HcaptchaServiceInterface $hcaptchaService) {}
     /**
      * Display the login view.
      */
@@ -36,6 +38,11 @@ class AuthenticatedSessionController extends Controller
         }
 
         $request->session()->regenerate();
+
+        // dd(auth('web')->user()->isVendor());
+        // if role is vendor, redirect to vendor dashboard
+        if (auth('web')->user()->isVendor())
+            return redirect()->route('vendor.dashboard');
 
         return redirect()->intended(route('dashboard', absolute: false));
     }
