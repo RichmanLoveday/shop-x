@@ -6,11 +6,11 @@ use Illuminate\Support\ServiceProvider;
 
 class ServicesServiceProvider extends ServiceProvider
 {
-
     public array $bindings = [
         \App\Services\Contracts\User\Auth\SocialAuthServiceInterface::class => \App\Services\User\Auth\SocialAuthService::class,
         \App\Services\Contracts\User\Auth\HcaptchaServiceInterface::class => \App\Services\User\Auth\HcaptchaService::class,
         \App\Services\Contracts\User\ProfileServiceInterface::class => \App\Services\User\ProfileService::class,
+        \App\Services\Contracts\Admin\ProfileServiceInterface::class => \App\Services\Admin\ProfileService::class
     ];
 
     /**

@@ -8,7 +8,9 @@ class RepositoryServiceProvider extends ServiceProvider
 {
     public array $bindings = [
         \App\Repositories\Contracts\User\Auth\UserAuthRepositoryInterface::class => \App\Repositories\Eloquent\User\Auth\UserAuthRepository::class,
+        \App\Repositories\Contracts\Admin\AdminRepositoryInterface::class => \App\Repositories\Eloquent\Admin\AdminRepository::class,
     ];
+
     /**
      * Register services.
      */

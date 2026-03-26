@@ -21,6 +21,7 @@
     <link href="{{ asset('assets/admin/css/tabler-themes.css?1750026893') }}" rel="stylesheet" />
     <!-- END PLUGINS STYLES -->
     <!-- BEGIN DEMO STYLES -->
+    <link rel="stylesheet" href="{{ asset('assets/global/upload-preview/upload-preview.css') }}">
     <link href="{{ asset('assets/admin/preview/css/demo.css?1750026893') }}" rel="stylesheet" />
     <!-- END DEMO STYLES -->
     <!-- BEGIN CUSTOM FONT -->
@@ -56,6 +57,8 @@
     <!-- BEGIN DEMO SCRIPTS -->
     <script src="{{ asset('assets/admin/preview/js/demo.min.js?1750026893') }}" defer></script>
     <!-- END DEMO SCRIPTS -->
+
+    @stack('scripts')
 </body>
 
 </html>

@@ -1,13 +1,11 @@
 <?php
 
-namespace App\Http\Controllers\Frontend;
+namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Services\Contracts\User\ProfileServiceInterface;
+use App\Services\Contracts\Admin\ProfileServiceInterface;
 use App\Traits\Alert;
 use Illuminate\Http\Request;
-
-use function Laravel\Prompts\notify;
 
 class ProfileController extends Controller
 {
@@ -19,14 +17,13 @@ class ProfileController extends Controller
 
     public function index()
     {
-        return view('frontend.dashboard.account-details.index');
+        return view('admin.profile.index');
     }
 
-    public function update(Request $request)
+    public function updateProfile(Request $request)
     {
         // dd($request->all());
 
-        // validate the request data
         $request->validate([
             'name' => 'required|string|max:50',
             'avatar' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
@@ -40,8 +37,9 @@ class ProfileController extends Controller
 
             // check if image file exist
             if ($request->hasFile('avatar')) {
-                $user = auth('web')->user();
-                $this->profileService->uploadAvatar($user, $request->file('avatar'));
+                // dd('yesss');
+                $admin = auth('admin')->user();
+                $this->profileService->uploadAvatar($admin, $request->file('avatar'));
             }
 
             $this->created('Profile updated successfully');

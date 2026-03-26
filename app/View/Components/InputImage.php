@@ -14,10 +14,9 @@ class InputImage extends Component
     public function __construct(
         public string|int $id,
         public string $name,
-        public string $image
-    ) {
-        //
-    }
+        public string|null $image,
+        public string $previewImage
+    ) {}
 
     /**
      * Get the view / contents that represent the component.

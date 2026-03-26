@@ -12,7 +12,10 @@
                         @csrf
                         @method('PUT')
 
-                        <x-input-image id="preview-image" name="avatar" :image="auth()->user()->avatar" />
+                        {{-- <x-input-image id="preview-image" name="avatar" :image="auth()->user()->avatar" /> --}}
+
+                        <x-input-image name="avatar" previewImage="preview-user-image" :image="auth()->user()->avatar"
+                            class="user-avatar" />
 
                         <div class="row mt-30">
                             <div class="form-group col-md-12">
@@ -82,8 +85,8 @@
             // });
 
             const $input = $('#image-upload');
-            const $preview = $('#preview-image');
-            const $card = $('.upload-card');
+            const $preview = $('.preview-user-image');
+            const $card = $('.user-avatar');
 
             $input.on('change', function() {
                 const file = this.files[0];

@@ -9,29 +9,28 @@ use App\Http\Controllers\Admin\Auth\PasswordController;
 use App\Http\Controllers\Admin\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Admin\Auth\RegisteredUserController;
 use App\Http\Controllers\Admin\Auth\VerifyEmailController;
+use App\Http\Controllers\Admin\ProfileController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('guest:admin')
     ->prefix('admin')
     ->as('admin.')
     ->group(function () {
-        Route::controller(AuthenticatedSessionController::class)->group(function() {
+        Route::controller(AuthenticatedSessionController::class)->group(function () {
             Route::get('login', 'create')->name('login');
             Route::post('login', 'store')->name('login');
         });
 
-        Route::controller(PasswordResetLinkController::class)->group(function() {
+        Route::controller(PasswordResetLinkController::class)->group(function () {
             Route::get('forgot-password', 'create')->name('password.request');
             Route::post('forgot-password', 'store')->name('password.email');
         });
 
-        Route::controller(NewPasswordController::class)->group(function() {
+        Route::controller(NewPasswordController::class)->group(function () {
             Route::get('reset-password/{token}', 'create')->name('password.reset');
             Route::post('reset-password', 'store')->name('password.store');
         });
     });
-
-
 
 Route::middleware('auth:admin')
     ->prefix('admin')
@@ -57,8 +56,14 @@ Route::middleware('auth:admin')
 
         Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])
             ->name('logout');
-    });
 
+        // Profile Controller Routes
+        Route::controller(ProfileController::class)->group(function () {
+            Route::get('/profile', 'index')->name('profile');
+            Route::put('/profile-update', 'updateProfile')->name('profile.update');
+            Route::put('/profile/password', 'changePassword')->name('profile.password.update');
+        });
+    });
 
 Route::get('/admin/dashboard', function () {
     return view('admin.dashboard.index');
