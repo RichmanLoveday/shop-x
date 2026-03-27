@@ -18,6 +18,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'guest' => \App\Http\Middleware\RedirectIfAuthenticated::class,
             'auth' => \App\Http\Middleware\Authenticate::class,
+            'kyc_verified' => \App\Http\Middleware\CheckKycStatus::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

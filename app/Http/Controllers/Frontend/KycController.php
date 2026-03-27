@@ -7,6 +7,7 @@ use App\Http\Requests\Frontend\KycCreateRequest;
 use App\Services\Contracts\Vendor\KycServiceInterface;
 use App\Traits\Alert;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class KycController extends Controller
 {
@@ -18,6 +19,12 @@ class KycController extends Controller
 
     public function index()
     {
+        // redirect to dashboard if kyc is pending or approved
+        $vendorKyc = $this->kycService->getCurrentVendorKyc();
+        if ($vendorKyc && $vendorKyc->canNotBeEditable()) {
+            return redirect()->route('vendor.dashboard');
+        }
+
         return view('frontend.pages.kyc');
     }
 

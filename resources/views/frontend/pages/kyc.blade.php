@@ -3,7 +3,7 @@
     <x-frontend.breadcrumb :items="[['url' => '/', 'label' => 'Home'], ['url' => route('kyc.index'), 'label' => 'Kyc Verification']]" />
 
     <div class="page-content pt-150 pb-140">
-        <div class="container">
+        <div class="container-xl">
             <div class="row">
                 <div class="col-xxl-8 col-xl-10 col-lg-12 col-md-9 m-auto">
                     <div class="row align-items-center justify-content-center">

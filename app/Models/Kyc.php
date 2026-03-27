@@ -5,6 +5,8 @@ namespace App\Models;
 use App\Enums\KycDocumentType;
 use App\Enums\KycGender;
 use App\Enums\KycStatus;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
@@ -33,6 +35,11 @@ class Kyc extends Model implements HasMedia
         'verified_at' => 'datetime',
     ];
 
+    public function vendor(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'user_id', 'id');
+    }
+
     public function canBeEditable(): bool
     {
         return $this->status->isEditable();
@@ -41,5 +48,10 @@ class Kyc extends Model implements HasMedia
     public function canNotBeEditable(): bool
     {
         return $this->status->isNotEditable();
+    }
+
+    public function isApproved(): bool
+    {
+        return $this->status->isApproved();
     }
 }
