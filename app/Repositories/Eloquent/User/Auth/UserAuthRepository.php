@@ -30,7 +30,7 @@ class UserAuthRepository implements UserAuthRepositoryInterface
             'provider_id' => $data['provider_id'],
             'avatar' => $data['avatar'] ?? null,
             'email_verified_at' => now(),
-            'password' => bcrypt(uniqid()),  // random password for social users
+            'password' => bcrypt(uniqid()),
         ]);
     }
 

@@ -20,6 +20,7 @@ class Kyc extends Model implements HasMedia
         'rejected_reason',
         'verified_at',
         'full_address',
+        'full_name',
         'gender',
         'document_type',
         'document_scan_copy',
@@ -31,4 +32,14 @@ class Kyc extends Model implements HasMedia
         'gender' => KycGender::class,
         'verified_at' => 'datetime',
     ];
+
+    public function canBeEditable(): bool
+    {
+        return $this->status->isEditable();
+    }
+
+    public function canNotBeEditable(): bool
+    {
+        return $this->status->isNotEditable();
+    }
 }
