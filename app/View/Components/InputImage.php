@@ -15,7 +15,8 @@ class InputImage extends Component
         public string|int $id,
         public string $name,
         public string|null $image,
-        public string $previewImage
+        public string $previewImage,
+        public string $imageUpload
     ) {}
 
     /**

@@ -19,6 +19,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'guest' => \App\Http\Middleware\RedirectIfAuthenticated::class,
             'auth' => \App\Http\Middleware\Authenticate::class,
             'kyc_verified' => \App\Http\Middleware\CheckKycStatus::class,
+            'role' => \App\Http\Middleware\Role::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

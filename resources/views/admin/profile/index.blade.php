@@ -13,8 +13,11 @@
                         @method('PUT')
                         <div class="row mb-5">
                             <div class="col-md-3">
-                                <x-input-image id="preview-image" name="avatar" previewImage="preview-admin-image"
-                                    :image="auth()->user()->avatar" class="admin-avatar" />
+                                <x-input-image imageUpload="adminAvatar" id="preview-image" name="avatar"
+                                    previewImage="preview-admin-image" :image="auth()->user()->avatar" class="admin-avatar" />
+
+                                {{-- <x-input-image name="avatar" imageUpload="adminAvatar" id="preview-image"
+                                    previewImage="preview-user-image" :image="auth()->user()->avatar" class="user-avatar" /> --}}
                             </div>
                             <div class="col-md-9">
                                 <div class="col-md-12">
@@ -88,7 +91,7 @@
 
     @push('scripts')
         <script>
-            const $input = $('#image-upload');
+            const $input = $('#adminAvatar');
             const $preview = $('.preview-admin-image');
             const $card = $('.admin-avatar');
 

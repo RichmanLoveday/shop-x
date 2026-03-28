@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\UserRole;
 use App\Http\Controllers\Frontend\KycController;
 use App\Http\Controllers\Frontend\ProfileController as FrontendProfileController;
 use App\Http\Controllers\Frontend\UserDashboardController;
@@ -11,7 +12,7 @@ Route::get('/', function () {
 });
 
 // User Grouped Routes
-Route::group(['middleware' => ['auth:web', 'verified']], function () {
+Route::group(['middleware' => ['auth:web', 'verified', 'role:' . UserRole::USER->value]], function () {
     Route::controller(UserDashboardController::class)->group(function () {
         Route::get('/dashboard', 'index')->name('dashboard');
     });

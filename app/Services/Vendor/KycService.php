@@ -91,7 +91,7 @@ class KycService implements KycServiceInterface
 
         try {
             // remove old document
-            $kyc->clearMediaCollection('avatar');
+            $kyc->clearMediaCollection('document_scan_copy');
 
             // upload new document
             $media = $kyc

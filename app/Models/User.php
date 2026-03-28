@@ -73,4 +73,9 @@ class User extends Authenticatable implements HasMedia
     {
         return $this->role->value === UserRole::VENDOR->value;
     }
+
+
+    public function store(): HasOne {
+        return $this->hasOne(Store::class, 'user_id');
+    }
 }

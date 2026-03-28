@@ -58,6 +58,9 @@
     <script src="{{ asset('assets/admin/preview/js/demo.min.js?1750026893') }}" defer></script>
     <!-- END DEMO SCRIPTS -->
 
+    <script src="{{ asset('assets/admin/js/tinymce/js/tinymce.min.js') }}"></script>
+    @include('admin.layout.scripts')
+
     @stack('scripts')
 </body>
 

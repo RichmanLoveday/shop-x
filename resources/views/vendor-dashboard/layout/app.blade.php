@@ -58,6 +58,8 @@
     <script src="{{ asset('assets/admin/preview/js/demo.min.js?1750026893') }}" defer></script>
     <!-- END DEMO SCRIPTS -->
 
+    <script src="{{ asset('assets/global/ckeditor/ckeditor.js') }}"></script>
+    @include('vendor-dashboard.layout.scripts')
     @stack('scripts')
 </body>
 
