@@ -6,6 +6,7 @@ use App\Enums\KycDocumentType;
 use App\Enums\KycGender;
 use App\Enums\KycStatus;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\MediaLibrary\HasMedia;
@@ -20,6 +21,7 @@ class Kyc extends Model implements HasMedia
         'reviewed_by',
         'status',
         'rejected_reason',
+        'dob',
         'verified_at',
         'full_address',
         'full_name',
@@ -38,6 +40,11 @@ class Kyc extends Model implements HasMedia
     public function vendor(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id', 'id');
+    }
+
+    public function reviewer(): BelongsTo
+    {
+        return $this->belongsTo(Admin::class, 'reviewed_by');
     }
 
     public function canBeEditable(): bool

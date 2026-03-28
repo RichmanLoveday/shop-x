@@ -7,6 +7,7 @@ use App\Models\Kyc;
 use App\Models\User;
 use App\Repositories\Contracts\Vendor\KycRepositoryInterface;
 use App\Services\Contracts\Vendor\KycServiceInterface;
+use App\Services\MailService;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -38,10 +39,10 @@ class KycService implements KycServiceInterface
             throw new Exception('You already have a pending KYC verification');
         }
 
-        // extract input needed
+        // extract inputs needed
         $kycData = [
             'user_id' => $vendor->id,
-            'status' => KycStatus::PENDING,
+            'status' => KycStatus::PENDING->value,
             'full_address' => $data['full_address'] ?? null,
             'full_name' => $data['full_name'] ?? null,
             'document_type' => $data['document_type'] ?? null,
@@ -50,7 +51,7 @@ class KycService implements KycServiceInterface
 
         return DB::transaction(function () use ($existingKyc, $kycData, $document) {
             // update kyc if it is rejected and can be editable
-            if ($existingKyc && $existingKyc->isEditable()) {
+            if ($existingKyc && $existingKyc->canBeEditable()) {
                 // Update existing rejected KYC
                 $this->kycRepository->update($existingKyc, $kycData);
                 $kyc = $existingKyc;
@@ -69,13 +70,13 @@ class KycService implements KycServiceInterface
                 ]);
             }
 
+            // send confirmation email to vendor
+            $this->sendMail($kyc, KycStatus::PENDING->value);
+
             return $kyc->fresh();
         });
     }
 
-    /**
-     * 
-     */
     public function getCurrentVendorKyc(): ?Kyc
     {
         $vendor = Auth::guard('web')->user();
@@ -102,6 +103,13 @@ class KycService implements KycServiceInterface
         } catch (\Exception $e) {
             throw new Exception('Failed to upload kyc document');
         }
+    }
+
+    public function sendMail(Kyc $kyc, string $status): void
+    {
+        match ($status) {
+            KycStatus::PENDING->value => MailService::sendkycPending($kyc),
+        };
     }
 
     public function hasApprovedKyc(): bool

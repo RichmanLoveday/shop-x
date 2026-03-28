@@ -9,6 +9,7 @@ use App\Http\Controllers\Admin\Auth\PasswordController;
 use App\Http\Controllers\Admin\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Admin\Auth\RegisteredUserController;
 use App\Http\Controllers\Admin\Auth\VerifyEmailController;
+use App\Http\Controllers\Admin\kycRequestController;
 use App\Http\Controllers\Admin\ProfileController;
 use Illuminate\Support\Facades\Route;
 
@@ -62,6 +63,18 @@ Route::middleware('auth:admin')
             Route::get('/profile', 'index')->name('profile');
             Route::put('/profile-update', 'updateProfile')->name('profile.update');
             Route::put('/profile/password', 'changePassword')->name('profile.password.update');
+        });
+
+        // KYC Request Controller Routes
+        Route::controller(kycRequestController::class)->group(function () {
+            Route::get('/kyc-requests', 'index')->name('kyc.index');
+            Route::get('/kyc-requests/{id}/show', 'show')->name('kyc.show');
+            Route::get('/kyc-request-download/{id}', 'download')->name('kyc.download');
+            Route::put('/kyc-request/{id}/update', 'updateStatus')->name('kyc.update');
+            Route::get('/kyc-request/pending', 'pending')->name('kyc.pending');
+            Route::get('/kyc-request/rejected', 'rejected')->name('kyc.rejected');
+            Route::get('/kyc-request/under-review', 'underReview')->name('kyc.under-review');
+            Route::get('/kyc-request/approved', 'approved')->name('kyc.approved');
         });
     });
 

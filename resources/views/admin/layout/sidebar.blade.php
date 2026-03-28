@@ -861,6 +861,44 @@
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#navbar-base" data-bs-toggle="dropdown"
                         data-bs-auto-close="false" role="button" aria-expanded="false">
+                        <span class="nav-link-icon d-md-none d-lg-inline-block"></span>
+                        <span class="nav-link-title"> KYC Requests </span>
+                    </a>
+                    <div class="dropdown-menu">
+                        <div class="dropdown-menu-columns">
+                            <div class="dropdown-menu-column">
+                                <a class="dropdown-item" href="{{ route('admin.kyc.index') }}">
+                                    All Requests
+                                </a>
+                            </div>
+                            <div class="dropdown-menu-column">
+                                <a class="dropdown-item" href="{{ route('admin.kyc.pending') }}">
+                                    Pending Requests
+                                </a>
+                            </div>
+
+                            <div class="dropdown-menu-column">
+                                <a class="dropdown-item" href="{{ route('admin.kyc.under-review') }}">
+                                    Under Review Requests
+                                </a>
+                            </div>
+
+                            <div class="dropdown-menu-column">
+                                <a class="dropdown-item" href="{{ route('admin.kyc.approved') }}">
+                                    Approved Requests
+                                </a>
+                            </div>
+                            <div class="dropdown-menu-column">
+                                <a class="dropdown-item" href="{{ route('admin.kyc.rejected') }}">
+                                    Rejected Requests
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#navbar-base" data-bs-toggle="dropdown"
+                        data-bs-auto-close="false" role="button" aria-expanded="false">
                         <span
                             class="nav-link-icon d-md-none d-lg-inline-block"><!-- Download SVG icon from http://tabler.io/icons/icon/package -->
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
@@ -917,9 +955,9 @@
                         data-bs-placement="bottom" aria-label="Enable dark mode"
                         data-bs-original-title="Enable dark mode">
                         <!-- Download SVG icon from http://tabler.io/icons/icon/moon -->
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                            stroke-linejoin="round" class="icon icon-1">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round" class="icon icon-1">
                             <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z">
                             </path>
                         </svg>

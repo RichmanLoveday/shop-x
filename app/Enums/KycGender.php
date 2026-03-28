@@ -17,4 +17,5 @@ enum KycGender: string
             self::FEMALE => 'Female',
         };
     }
+    
 }

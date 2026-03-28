@@ -18,6 +18,7 @@ return new class extends Migration {
             $table->foreignId('user_id')->constrained('users');
             $table->foreignId('reviewed_by')->nullable()->constrained('admins')->nullOnDelete();
             $table->string('full_name')->nullable();
+            $table->string('dob');
             $table
                 ->enum('status', array_column(KycStatus::cases(), 'value'))
                 ->default(KycStatus::PENDING->value);

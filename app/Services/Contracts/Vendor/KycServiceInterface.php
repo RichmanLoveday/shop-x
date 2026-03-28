@@ -25,4 +25,6 @@ interface KycServiceInterface
      * Check if current vendor has approved KYC
      */
     public function hasApprovedKyc(): bool;
+
+    public function sendMail(Kyc $kyc, string $string): void;
 }

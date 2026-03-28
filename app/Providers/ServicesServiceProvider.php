@@ -12,6 +12,7 @@ class ServicesServiceProvider extends ServiceProvider
         \App\Services\Contracts\User\ProfileServiceInterface::class => \App\Services\User\ProfileService::class,
         \App\Services\Contracts\Admin\ProfileServiceInterface::class => \App\Services\Admin\ProfileService::class,
         \App\Services\Contracts\Vendor\KycServiceInterface::class => \App\Services\Vendor\KycService::class,
+        \App\Services\Contracts\Admin\KycServiceInterface::class => \App\Services\Admin\KycService::class,
     ];
 
     /**

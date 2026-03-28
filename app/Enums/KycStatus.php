@@ -15,10 +15,20 @@ enum KycStatus: string
     public function label(): string
     {
         return match ($this) {
-            self::APPROVED => 'Pending Reviews',
+            self::PENDING => 'Pending Reviews',
             self::UNDER_REVIEW => 'Under Review',
             self::APPROVED => 'Approved',
             self::REJECTED => 'Rejected',
+        };
+    }
+
+    public function color(): string
+    {
+        return match ($this) {
+            self::PENDING => 'bg-warning-lt',
+            self::UNDER_REVIEW => 'bg-warning-lt',
+            self::APPROVED => 'bg-success-lt',
+            self::REJECTED => 'bg-danger-lt',
         };
     }
 
@@ -53,6 +63,6 @@ enum KycStatus: string
      */
     public function isNotEditable()
     {
-        return $this == self::PENDING || self::UNDER_REVIEW;
+        return $this == self::PENDING || $this == self::UNDER_REVIEW;
     }
 }
