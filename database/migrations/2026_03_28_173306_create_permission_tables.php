@@ -4,8 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
@@ -20,24 +19,21 @@ return new class extends Migration
         throw_if(empty($tableNames), 'Error: config/permission.php not loaded. Run [php artisan config:clear] and try again.');
         throw_if($teams && empty($columnNames['team_foreign_key'] ?? null), 'Error: team_foreign_key on config/permission.php not loaded. Run [php artisan config:clear] and try again.');
 
-        /**
-         * See `docs/prerequisites.md` for suggested lengths on 'name' and 'guard_name' if "1071 Specified key was too long" errors are encountered.
-         */
+        /** See `docs/prerequisites.md` for suggested lengths on 'name' and 'guard_name' if "1071 Specified key was too long" errors are encountered. */
         Schema::create($tableNames['permissions'], static function (Blueprint $table) {
-            $table->id(); // permission id
+            $table->id();  // permission id
             $table->string('name');
             $table->string('guard_name');
+            $table->string('group_name')->nullable();
             $table->timestamps();
 
             $table->unique(['name', 'guard_name']);
         });
 
-        /**
-         * See `docs/prerequisites.md` for suggested lengths on 'name' and 'guard_name' if "1071 Specified key was too long" errors are encountered.
-         */
+        /** See `docs/prerequisites.md` for suggested lengths on 'name' and 'guard_name' if "1071 Specified key was too long" errors are encountered. */
         Schema::create($tableNames['roles'], static function (Blueprint $table) use ($teams, $columnNames) {
-            $table->id(); // role id
-            if ($teams || config('permission.testing')) { // permission.testing is a fix for sqlite testing
+            $table->id();  // role id
+            if ($teams || config('permission.testing')) {  // permission.testing is a fix for sqlite testing
                 $table->unsignedBigInteger($columnNames['team_foreign_key'])->nullable();
                 $table->index($columnNames['team_foreign_key'], 'roles_team_foreign_key_index');
             }
@@ -58,8 +54,9 @@ return new class extends Migration
             $table->unsignedBigInteger($columnNames['model_morph_key']);
             $table->index([$columnNames['model_morph_key'], 'model_type'], 'model_has_permissions_model_id_model_type_index');
 
-            $table->foreign($pivotPermission)
-                ->references('id') // permission id
+            $table
+                ->foreign($pivotPermission)
+                ->references('id')  // permission id
                 ->on($tableNames['permissions'])
                 ->cascadeOnDelete();
             if ($teams) {
@@ -81,8 +78,9 @@ return new class extends Migration
             $table->unsignedBigInteger($columnNames['model_morph_key']);
             $table->index([$columnNames['model_morph_key'], 'model_type'], 'model_has_roles_model_id_model_type_index');
 
-            $table->foreign($pivotRole)
-                ->references('id') // role id
+            $table
+                ->foreign($pivotRole)
+                ->references('id')  // role id
                 ->on($tableNames['roles'])
                 ->cascadeOnDelete();
             if ($teams) {
@@ -101,13 +99,15 @@ return new class extends Migration
             $table->unsignedBigInteger($pivotPermission);
             $table->unsignedBigInteger($pivotRole);
 
-            $table->foreign($pivotPermission)
-                ->references('id') // permission id
+            $table
+                ->foreign($pivotPermission)
+                ->references('id')  // permission id
                 ->on($tableNames['permissions'])
                 ->cascadeOnDelete();
 
-            $table->foreign($pivotRole)
-                ->references('id') // role id
+            $table
+                ->foreign($pivotRole)
+                ->references('id')  // role id
                 ->on($tableNames['roles'])
                 ->cascadeOnDelete();
 

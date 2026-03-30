@@ -11,6 +11,7 @@ use App\Http\Controllers\Admin\Auth\RegisteredUserController;
 use App\Http\Controllers\Admin\Auth\VerifyEmailController;
 use App\Http\Controllers\Admin\kycRequestController;
 use App\Http\Controllers\Admin\ProfileController;
+use App\Http\Controllers\Admin\RoleController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('guest:admin')
@@ -67,14 +68,24 @@ Route::middleware('auth:admin')
 
         // KYC Request Controller Routes
         Route::controller(kycRequestController::class)->group(function () {
-            Route::get('/kyc-requests', 'index')->name('kyc.index');
-            Route::get('/kyc-requests/{id}/show', 'show')->name('kyc.show');
+            Route::get('/kyc-request', 'index')->name('kyc.index');
+            Route::get('/kyc-request/{id}/show', 'show')->name('kyc.show');
             Route::get('/kyc-request-download/{id}', 'download')->name('kyc.download');
             Route::put('/kyc-request/{id}/update', 'updateStatus')->name('kyc.update');
             Route::get('/kyc-request/pending', 'pending')->name('kyc.pending');
             Route::get('/kyc-request/rejected', 'rejected')->name('kyc.rejected');
             Route::get('/kyc-request/under-review', 'underReview')->name('kyc.under-review');
             Route::get('/kyc-request/approved', 'approved')->name('kyc.approved');
+        });
+
+        // Roles Management Routes
+        Route::controller(RoleController::class)->group(function () {
+            Route::get('/role', 'index')->name('role.index');
+            Route::get('/role/create', 'create')->name('role.create');
+            Route::post('/role/store', 'store')->name('role.store');
+            Route::get('/role/{id}/edit', 'edit')->name('role.edit');
+            Route::put('/role/{id}/update', 'update')->name('role.update');
+            Route::delete('/role/{id}/delete', 'destroy')->name('role.destroy');
         });
     });
 
