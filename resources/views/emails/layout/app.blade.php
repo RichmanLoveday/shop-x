@@ -5,9 +5,10 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ $subject ?? config('app.name') }}</title>
+
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
             background: #f4f4f4;
             margin: 0;
             padding: 20px;
@@ -17,9 +18,11 @@
             max-width: 600px;
             margin: 0 auto;
             background: #ffffff;
-            border-radius: 8px;
+            border-radius: 12px;
+            /* smoother */
             overflow: hidden;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+            /* softer shadow */
         }
 
         .header {
@@ -47,11 +50,19 @@
             display: inline-block;
             padding: 12px 24px;
             background: #4f46e5;
-            color: white;
+            color: white !important;
             text-decoration: none;
             border-radius: 6px;
             font-weight: bold;
             margin: 20px 0;
+        }
+
+        .card {
+            margin: 25px 0;
+            padding: 20px;
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
         }
 
         .status-badge {
@@ -62,11 +73,32 @@
             margin: 10px 0;
         }
     </style>
+
+    @yield('styles') {{-- optional extension --}}
 </head>
 
 <body>
     <div class="container">
-        @yield('content')
+
+        {{-- Header (customizable) --}}
+        @hasSection('header')
+            @yield('header')
+        @else
+            <div class="header">
+                <h1>{{ config('app.name') }}</h1>
+            </div>
+        @endif
+
+        {{-- Content --}}
+        <div class="content">
+            @yield('content')
+        </div>
+
+        {{-- Footer --}}
+        <div class="footer">
+            &copy; {{ date('Y') }} {{ config('app.name') }}. All rights reserved.
+        </div>
+
     </div>
 </body>
 

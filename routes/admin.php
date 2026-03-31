@@ -12,6 +12,7 @@ use App\Http\Controllers\Admin\Auth\VerifyEmailController;
 use App\Http\Controllers\Admin\kycRequestController;
 use App\Http\Controllers\Admin\ProfileController;
 use App\Http\Controllers\Admin\RoleController;
+use App\Http\Controllers\Admin\UserRoleController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('guest:admin')
@@ -87,6 +88,10 @@ Route::middleware('auth:admin')
             Route::put('/role/{id}/update', 'update')->name('role.update');
             Route::delete('/role/{id}/delete', 'destroy')->name('role.destroy');
         });
+
+        // Admin User Controller Routes
+        Route::get('/role-user/{id}/resend-mail', [UserRoleController::class, 'resendMail'])->name('role-user.resend-mail');
+        Route::resource('/role-user', UserRoleController::class)->except('show');
     });
 
 Route::get('/admin/dashboard', function () {

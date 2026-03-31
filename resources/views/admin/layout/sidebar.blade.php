@@ -871,6 +871,12 @@
                                     Role
                                 </a>
                             </div>
+
+                            <div class="dropdown-menu-column">
+                                <a class="dropdown-item" href="{{ route('admin.role-user.index') }}">
+                                    Role User
+                                </a>
+                            </div>
                         </div>
                     </div>
                 </li>

@@ -27,4 +27,9 @@ class MailService
         $vendor = $kyc?->vendor;
         Mail::to($vendor)->queue(new KycPending($kyc, $vendor));
     }
+
+    public static function sendNewAdminMail(string $name, string $email, string $password): void
+    {
+        Mail::to($email)->queue(new \App\Mail\NewAdminMail($name, $email, $password));
+    }
 }

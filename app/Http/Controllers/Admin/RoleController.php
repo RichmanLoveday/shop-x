@@ -86,6 +86,7 @@ class RoleController extends Controller
         }
     }
 
+
     public function destroy(int $id)
     {
         // dd($id);

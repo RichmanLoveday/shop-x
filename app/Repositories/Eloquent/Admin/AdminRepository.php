@@ -5,6 +5,7 @@ namespace App\Repositories\Eloquent\Admin;
 use App\Models\Admin;
 use App\Repositories\Contracts\Admin\AdminRepositoryInterface;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Spatie\Permission\Models\Permission;
@@ -52,7 +53,7 @@ class AdminRepository implements AdminRepositoryInterface
     {
         return Role::where('id', $id)
             ->where('guard_name', $guardName)
-            ->first();
+            ->firstOrFail();
     }
 
     public function createRole(string $name, array $permissions, string $guardName = 'admin'): Role
@@ -87,5 +88,44 @@ class AdminRepository implements AdminRepositoryInterface
 
             return true;
         });
+    }
+
+    public function createUser(string $name, string $email, string $password): Admin
+    {
+        return Admin::create([
+            'name' => $name,
+            'email' => $email,
+            'password' => bcrypt($password),
+        ]);
+    }
+
+    public function assignRole(Admin $admin, Role $role): void
+    {
+        $admin->assignRole($role);
+    }
+
+    public function allRoleUsers(int $currentAdminId): LengthAwarePaginator
+    {
+        return Admin::with('roles')
+            ->where('id', '!=', $currentAdminId)
+            ->paginate(15);
+    }
+
+    public function getRoleUser(int $id): ?Admin
+    {
+        return Admin::with('roles')->findOrFail($id);
+    }
+
+
+    public function deleteUser(Admin $admin): bool
+    {
+        DB::transaction(function () use ($admin) {
+            $admin->roles()->detach();
+            $admin->delete();
+
+            return true;
+        });
+
+        return true;
     }
 }
