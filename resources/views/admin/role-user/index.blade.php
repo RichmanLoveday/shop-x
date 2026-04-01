@@ -116,7 +116,7 @@
                                         <th>Name</th>
                                         <th>Email</th>
                                         <th>Role</th>
-                                        <th class="w-1"></th>
+                                        <th class="">Action</th>
                                     </tr>
                                 </thead>
                                 <tbody>

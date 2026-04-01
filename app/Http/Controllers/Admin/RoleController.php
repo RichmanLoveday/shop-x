@@ -7,11 +7,12 @@ use App\Http\Requests\Admin\RoleRequestCreate;
 use App\Http\Requests\Admin\RoleRequestUpdate;
 use App\Services\Contracts\Admin\RoleServiceInterface;
 use App\Traits\Alert;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 
 class RoleController extends Controller
 {
-    use Alert;
+    use Alert, AuthorizesRequests;
 
     public function __construct(
         protected RoleServiceInterface $roleService
@@ -46,10 +47,12 @@ class RoleController extends Controller
 
     public function edit(int $id)
     {
+        // $this->authorize('update', AccessManagementPolicy::class);
         // get the role by id
         try {
             $role = $this->roleService->getSingleRole($id, 'admin');
 
+            // dd($role->toArray());
             if (!$role) {
                 $this->failed('Role not found');
                 return redirect()->route('admin.role.index');
@@ -85,7 +88,6 @@ class RoleController extends Controller
             return redirect()->route('admin.role.index');
         }
     }
-
 
     public function destroy(int $id)
     {

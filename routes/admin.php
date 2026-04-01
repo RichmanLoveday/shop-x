@@ -69,29 +69,47 @@ Route::middleware('auth:admin')
 
         // KYC Request Controller Routes
         Route::controller(kycRequestController::class)->group(function () {
-            Route::get('/kyc-request', 'index')->name('kyc.index');
-            Route::get('/kyc-request/{id}/show', 'show')->name('kyc.show');
-            Route::get('/kyc-request-download/{id}', 'download')->name('kyc.download');
-            Route::put('/kyc-request/{id}/update', 'updateStatus')->name('kyc.update');
-            Route::get('/kyc-request/pending', 'pending')->name('kyc.pending');
-            Route::get('/kyc-request/rejected', 'rejected')->name('kyc.rejected');
-            Route::get('/kyc-request/under-review', 'underReview')->name('kyc.under-review');
-            Route::get('/kyc-request/approved', 'approved')->name('kyc.approved');
+            Route::middleware('can:view-kyc')->group(function () {
+                Route::get('/kyc-request', 'index')->name('kyc.index');
+                Route::get('/kyc-request/{id}/show', 'show')->name('kyc.show');
+                Route::get('/kyc-request-download/{id}', 'download')->name('kyc.download');
+
+                Route::get('/kyc-request/pending', 'pending')->name('kyc.pending');
+                Route::get('/kyc-request/rejected', 'rejected')->name('kyc.rejected');
+                Route::get('/kyc-request/under-review', 'underReview')->name('kyc.under-review');
+                Route::get('/kyc-request/approved', 'approved')->name('kyc.approved');
+            });
+
+            Route::middleware('can:edit-kyc')->group(function () {
+                Route::put('/kyc-request/{id}/update', 'updateStatus')->name('kyc.update');
+            });
         });
 
         // Roles Management Routes
         Route::controller(RoleController::class)->group(function () {
-            Route::get('/role', 'index')->name('role.index');
-            Route::get('/role/create', 'create')->name('role.create');
-            Route::post('/role/store', 'store')->name('role.store');
-            Route::get('/role/{id}/edit', 'edit')->name('role.edit');
-            Route::put('/role/{id}/update', 'update')->name('role.update');
-            Route::delete('/role/{id}/delete', 'destroy')->name('role.destroy');
+            Route::middleware('can:view-role')->group(function () {
+                Route::get('/role', 'index')->name('role.index');
+                Route::get('/role/{id}/edit', 'edit')->name('role.edit');
+            });
+
+            Route::middleware('can:create-role')->group(function () {
+                Route::get('/role/create', 'create')->name('role.create');
+                Route::post('/role/store', 'store')->name('role.store');
+            });
+
+            Route::put('/role/{id}/update', 'update')->name('role.update')->middleware('can:edit-role');
+            Route::delete('/role/{id}/delete', 'destroy')->name('role.destroy')->middleware('can:delete-role');
         });
 
         // Admin User Controller Routes
-        Route::get('/role-user/{id}/resend-mail', [UserRoleController::class, 'resendMail'])->name('role-user.resend-mail');
-        Route::resource('/role-user', UserRoleController::class)->except('show');
+        Route::get('/role-user/{id}/resend-mail', [UserRoleController::class, 'resendMail'])->name('role-user.resend-mail')->middleware('can:resend-user-mail');
+        Route::resource('/role-user', UserRoleController::class)->except('show')->middleware([
+            'index' => 'can:view-admin-user',
+            'create' => 'can:create-user',
+            'store' => 'can:create-user',
+            'edit' => 'can:view-admin-user',
+            'update' => 'can:edit-user',
+        ]);
     });
 
 Route::get('/admin/dashboard', function () {

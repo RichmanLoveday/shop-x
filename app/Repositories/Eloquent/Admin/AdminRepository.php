@@ -46,13 +46,16 @@ class AdminRepository implements AdminRepositoryInterface
 
     public function getRoles(): Role|Collection
     {
-        return Role::withCount('permissions')->get();
+        return Role::withCount('permissions')
+            ->whereNot('name', 'super_admin')
+            ->get();
     }
 
     public function getRole(int $id, string $guardName = 'admin'): ?Role
     {
         return Role::where('id', $id)
             ->where('guard_name', $guardName)
+            ->whereNot('name', 'super_admin')
             ->firstOrFail();
     }
 
@@ -106,8 +109,16 @@ class AdminRepository implements AdminRepositoryInterface
 
     public function allRoleUsers(int $currentAdminId): LengthAwarePaginator
     {
-        return Admin::with('roles')
+        return Admin::query()
+            ->with(['roles' => fn($q) => $q->where('name', '!=', 'super_admin')])
+
+            // 1. Exclude the currently logged-in admin
             ->where('id', '!=', $currentAdminId)
+
+            // 2. MOST IMPORTANT: Completely hide any user who has the super-admin role
+            ->whereDoesntHave('roles', function ($query) {
+                $query->where('name', 'super_admin');
+            })
             ->paginate(15);
     }
 
@@ -115,7 +126,6 @@ class AdminRepository implements AdminRepositoryInterface
     {
         return Admin::with('roles')->findOrFail($id);
     }
-
 
     public function deleteUser(Admin $admin): bool
     {

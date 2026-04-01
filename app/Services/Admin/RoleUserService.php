@@ -40,6 +40,11 @@ class RoleUserService implements RoleUserServiceInterface
             throw new \Exception('Role not found');
         }
 
+        // prevent assignment of super admin role
+        if ($role->name == 'super_admin') {
+            throw new \Exception('You cannot create a user with super admin role');
+        }
+
         // create user
         $admin = $this->adminRepo->createUser($name, $email, $password);
 
@@ -60,8 +65,14 @@ class RoleUserService implements RoleUserServiceInterface
 
         // check if admin user is found
         $admin = $this->adminRepo->getRoleUser($id);
+
         if (!$admin) {
             throw new \Exception('Admin user not found');
+        }
+
+        // prevent assigning super admin role
+        if ($admin->hasRole('super_admin')) {
+            throw new \Exception('You cannot modify a super admin account');
         }
 
         // update admin user
@@ -75,6 +86,11 @@ class RoleUserService implements RoleUserServiceInterface
                 throw new \Exception('Role not found');
             }
 
+            // prevent assignment of super admin role
+            if ($role->name == 'super_admin') {
+                throw new \Exception('You cannot assign super admin role');
+            }
+
             $this->assignRole($admin, $role);
         }
 
@@ -84,8 +100,13 @@ class RoleUserService implements RoleUserServiceInterface
     public function deleteUser(int $id): bool
     {
         $admin = $this->adminRepo->getRoleUser($id);
+
         if (!$admin) {
             throw new \Exception('Admin user not found');
+        }
+
+        if ($admin->hasRole('super_admin')) {
+            throw new \Exception('You can not delete super admin');
         }
 
         return $this->adminRepo->deleteUser($admin);

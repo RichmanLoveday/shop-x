@@ -858,67 +858,75 @@
                         <span class="nav-link-title"> Home </span>
                     </a>
                 </li>
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#navbar-base" data-bs-toggle="dropdown"
-                        data-bs-auto-close="false" role="button" aria-expanded="false">
-                        <span class="nav-link-icon d-md-none d-lg-inline-block"></span>
-                        <span class="nav-link-title"> Access Management </span>
-                    </a>
-                    <div class="dropdown-menu">
-                        <div class="dropdown-menu-columns">
-                            <div class="dropdown-menu-column">
-                                <a class="dropdown-item" href="{{ route('admin.role.index') }}">
-                                    Role
-                                </a>
-                            </div>
+                @canany(['view-role', 'view-admin-user'])
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#navbar-base" data-bs-toggle="dropdown"
+                            data-bs-auto-close="false" role="button" aria-expanded="false">
+                            <span class="nav-link-icon d-md-none d-lg-inline-block"></span>
+                            <span class="nav-link-title"> Access Management </span>
+                        </a>
+                        <div class="dropdown-menu">
+                            <div class="dropdown-menu-columns">
+                                @can('view-role')
+                                    <div class="dropdown-menu-column">
+                                        <a class="dropdown-item" href="{{ route('admin.role.index') }}">
+                                            Role
+                                        </a>
+                                    </div>
+                                @endcan
 
-                            <div class="dropdown-menu-column">
-                                <a class="dropdown-item" href="{{ route('admin.role-user.index') }}">
-                                    Role User
-                                </a>
+                                @can('view-admin-user')
+                                    <div class="dropdown-menu-column">
+                                        <a class="dropdown-item" href="{{ route('admin.role-user.index') }}">
+                                            Role User
+                                        </a>
+                                    </div>
+                                @endcan
                             </div>
                         </div>
-                    </div>
-                </li>
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#navbar-base" data-bs-toggle="dropdown"
-                        data-bs-auto-close="false" role="button" aria-expanded="false">
-                        <span class="nav-link-icon d-md-none d-lg-inline-block"></span>
-                        <span class="nav-link-title"> KYC Requests </span>
-                    </a>
-                    <div class="dropdown-menu">
-                        <div class="dropdown-menu-columns">
-                            <div class="dropdown-menu-column">
-                                <a class="dropdown-item" href="{{ route('admin.kyc.index') }}">
-                                    All Requests
-                                </a>
-                            </div>
-                            <div class="dropdown-menu-column">
-                                <a class="dropdown-item" href="{{ route('admin.kyc.pending') }}">
-                                    Pending Requests
-                                </a>
-                            </div>
+                    </li>
+                @endcanany
 
-                            <div class="dropdown-menu-column">
-                                <a class="dropdown-item" href="{{ route('admin.kyc.under-review') }}">
-                                    Under Review Requests
-                                </a>
-                            </div>
+                @can('view-kyc')
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#navbar-base" data-bs-toggle="dropdown"
+                            data-bs-auto-close="false" role="button" aria-expanded="false">
+                            <span class="nav-link-icon d-md-none d-lg-inline-block"></span>
+                            <span class="nav-link-title"> KYC Requests </span>
+                        </a>
+                        <div class="dropdown-menu">
+                            <div class="dropdown-menu-columns">
+                                <div class="dropdown-menu-column">
+                                    <a class="dropdown-item" href="{{ route('admin.kyc.index') }}">
+                                        All Requests
+                                    </a>
+                                </div>
+                                <div class="dropdown-menu-column">
+                                    <a class="dropdown-item" href="{{ route('admin.kyc.pending') }}">
+                                        Pending Requests
+                                    </a>
+                                </div>
 
-                            <div class="dropdown-menu-column">
-                                <a class="dropdown-item" href="{{ route('admin.kyc.approved') }}">
-                                    Approved Requests
-                                </a>
-                            </div>
-                            <div class="dropdown-menu-column">
-                                <a class="dropdown-item" href="{{ route('admin.kyc.rejected') }}">
-                                    Rejected Requests
-                                </a>
+                                <div class="dropdown-menu-column">
+                                    <a class="dropdown-item" href="{{ route('admin.kyc.under-review') }}">
+                                        Under Review Requests
+                                    </a>
+                                </div>
+
+                                <div class="dropdown-menu-column">
+                                    <a class="dropdown-item" href="{{ route('admin.kyc.approved') }}">
+                                        Approved Requests
+                                    </a>
+                                </div>
+                                <div class="dropdown-menu-column">
+                                    <a class="dropdown-item" href="{{ route('admin.kyc.rejected') }}">
+                                        Rejected Requests
+                                    </a>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                </li>
-
+                    </li>
+                @endcan
             </ul>
             <!-- END NAVBAR MENU -->
         </div>
