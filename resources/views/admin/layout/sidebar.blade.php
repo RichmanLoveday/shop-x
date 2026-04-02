@@ -823,16 +823,17 @@
             <div class="nav-item dropdown">
                 <a href="#" class="nav-link d-flex lh-1 p-0 px-2" data-bs-toggle="dropdown"
                     aria-label="Open user menu">
-                    <span class="avatar avatar-sm" style="background-image: url(./static/avatars/000m.jpg)">
+                    <span class="avatar avatar-sm" style="background-image: url({{ auth('admin')->user()->avatar }})">
                     </span>
                     <div class="d-none d-xl-block ps-2">
-                        <div>Paweł Kuna</div>
-                        <div class="mt-1 small text-secondary">UI Designer</div>
+                        <div>{{ auth('admin')->user()->name }}</div>
+                        <div class="mt-1 small text-secondary">{{ auth('admin')->user()->getRoleNames()?->first() }}
+                        </div>
                     </div>
                 </a>
                 <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
                     <a href="#" class="dropdown-item">Status</a>
-                    <a href="./profile.html" class="dropdown-item">Profile</a>
+                    <a href="{{ route('admin.profile') }}" class="dropdown-item">Profile</a>
                     <a href="#" class="dropdown-item">Feedback</a>
                     <div class="dropdown-divider"></div>
                     <a href="./settings.html" class="dropdown-item">Settings</a>
@@ -845,16 +846,10 @@
             <!-- BEGIN NAVBAR MENU -->
             <ul class="navbar-nav pt-lg-3">
                 <li class="nav-item">
-                    <a class="nav-link" href="./">
+                    <a class="nav-link" href="{{ route('admin.dashboard') }}">
                         <span
                             class="nav-link-icon d-md-none d-lg-inline-block"><!-- Download SVG icon from http://tabler.io/icons/icon/home -->
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                stroke-linecap="round" stroke-linejoin="round" class="icon icon-1">
-                                <path d="M5 12l-2 0l9 -9l9 9l-2 0" />
-                                <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
-                                <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
-                            </svg></span>
+                            <i class="ti ti-home fs-2"></i></span>
                         <span class="nav-link-title"> Home </span>
                     </a>
                 </li>
@@ -862,7 +857,9 @@
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#navbar-base" data-bs-toggle="dropdown"
                             data-bs-auto-close="false" role="button" aria-expanded="false">
-                            <span class="nav-link-icon d-md-none d-lg-inline-block"></span>
+                            <span class="nav-link-icon d-md-none d-lg-inline-block">
+                                <i class="ti ti-shield fs-2"></i>
+                            </span>
                             <span class="nav-link-title"> Access Management </span>
                         </a>
                         <div class="dropdown-menu">
@@ -891,7 +888,9 @@
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#navbar-base" data-bs-toggle="dropdown"
                             data-bs-auto-close="false" role="button" aria-expanded="false">
-                            <span class="nav-link-icon d-md-none d-lg-inline-block"></span>
+                            <span class="nav-link-icon d-md-none d-lg-inline-block">
+                                <i class="ti ti-user-check fs-2"></i>
+                            </span>
                             <span class="nav-link-title"> KYC Requests </span>
                         </a>
                         <div class="dropdown-menu">
@@ -931,8 +930,8 @@
 
                 <li class="nav-item">
                     <a class="nav-link" href="{{ route('admin.settings.index') }}">
-                        <span
-                            class="nav-link-icon d-md-none d-lg-inline-block"><!-- Download SVG icon from http://tabler.io/icons/icon/home -->
+                        <span class="nav-link-icon d-md-none d-lg-inline-block">
+                            <i class="ti ti-settings fs-2"></i>
                         </span>
                         <span class="nav-link-title"> Settings </span>
                     </a>
@@ -1112,15 +1111,17 @@
             <div class="nav-item dropdown">
                 <a href="#" class="nav-link d-flex lh-1 p-0 px-2" data-bs-toggle="dropdown"
                     aria-label="Open user menu">
-                    <span class="avatar avatar-sm" style="background-image: url(./static/avatars/000m.jpg)"> </span>
+                    <span class="avatar avatar-sm"
+                        style="background-image: url({{ auth('admin')->user()->avatar }})"> </span>
                     <div class="d-none d-xl-block ps-2">
-                        <div>Paweł Kuna</div>
-                        <div class="mt-1 small text-secondary">UI Designer</div>
+                        <div>{{ auth('admin')->user()->name }}</div>
+                        <div class="mt-1 small text-secondary">{{ auth('admin')->user()->getRoleNames()?->first() }}
+                        </div>
                     </div>
                 </a>
                 <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
                     <a href="#" class="dropdown-item">Status</a>
-                    <a href="./profile.html" class="dropdown-item">Profile</a>
+                    <a href="{{ route('admin.profile') }}" class="dropdown-item">Profile</a>
                     <a href="#" class="dropdown-item">Feedback</a>
                     <div class="dropdown-divider"></div>
                     <a href="./settings.html" class="dropdown-item">Settings</a>

@@ -24,6 +24,9 @@
     <!-- BEGIN DEMO STYLES -->
     <link rel="stylesheet" href="{{ asset('assets/global/upload-preview/upload-preview.css') }}">
 
+    <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.41.0/dist/tabler-icons.min.css" />
+
     <link href="{{ asset('assets/admin/preview/css/demo.css?1750026893') }}" rel="stylesheet" />
     <!-- END DEMO STYLES -->
     <!-- BEGIN CUSTOM FONT -->
@@ -61,6 +64,7 @@
     <!-- END DEMO SCRIPTS -->
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
     <script src="{{ asset('assets/admin/js/tinymce/js/tinymce.min.js') }}"></script>
     @include('admin.layout.scripts')
 
