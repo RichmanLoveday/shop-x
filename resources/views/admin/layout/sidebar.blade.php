@@ -927,6 +927,16 @@
                         </div>
                     </li>
                 @endcan
+
+
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ route('admin.settings.index') }}">
+                        <span
+                            class="nav-link-icon d-md-none d-lg-inline-block"><!-- Download SVG icon from http://tabler.io/icons/icon/home -->
+                        </span>
+                        <span class="nav-link-title"> Settings </span>
+                    </a>
+                </li>
             </ul>
             <!-- END NAVBAR MENU -->
         </div>

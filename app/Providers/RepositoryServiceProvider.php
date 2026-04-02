@@ -12,6 +12,7 @@ class RepositoryServiceProvider extends ServiceProvider
         \App\Repositories\Contracts\Vendor\KycRepositoryInterface::class => \App\Repositories\Eloquent\Vendor\KycRepository::class,
         \App\Repositories\Contracts\Admin\KycRepositoryInterface::class => \App\Repositories\Eloquent\Admin\KycRepository::class,
         \App\Repositories\Contracts\Vendor\StoreRepositoryInterface::class => \App\Repositories\Eloquent\Vendor\StoreRepository::class,
+        \App\Repositories\Contracts\Admin\SettingsRepositoryInterface::class => \App\Repositories\Eloquent\Admin\SettingsRepository::class,
     ];
 
     /**

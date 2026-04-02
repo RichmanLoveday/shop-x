@@ -12,6 +12,7 @@ use App\Http\Controllers\Admin\Auth\VerifyEmailController;
 use App\Http\Controllers\Admin\kycRequestController;
 use App\Http\Controllers\Admin\ProfileController;
 use App\Http\Controllers\Admin\RoleController;
+use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\UserRoleController;
 use Illuminate\Support\Facades\Route;
 
@@ -110,6 +111,12 @@ Route::middleware('auth:admin')
             'edit' => 'can:view-admin-user',
             'update' => 'can:edit-user',
         ]);
+
+        // Settings Controller Routes
+        Route::controller(SettingController::class)->group(function () {
+            Route::get('/settings', 'index')->name('settings.index');
+            Route::put('/settings/general-settings', 'generalSettings')->name('settings.general');
+        });
     });
 
 Route::get('/admin/dashboard', function () {
