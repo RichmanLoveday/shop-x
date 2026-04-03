@@ -14,4 +14,7 @@ interface CategoryServiceInterface
     public function nestedCategories(?int $parentId = null, int $depth = 0, int $maxDepth = 3): Collection|array;
 
     public function reOrderCategory(array $nodes, ?int $parentId = null): Collection;
+
+    public function getCategory(int $categoryId): Category;
+
 }

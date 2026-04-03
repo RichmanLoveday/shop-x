@@ -18,4 +18,8 @@ interface ProductRepositoryInterface
     public function hasThreeOrMoreChildren(int $parent_id): bool;
 
     public function updateCategoryTree(int $id, array $data): Category;
+
+    public function getProductCategory(int $id): Category;
+
+    public function updateProductCategory(int $id, array $data): Category;
 }

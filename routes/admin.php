@@ -125,6 +125,8 @@ Route::middleware('auth:admin')
             Route::post('categories', 'store')->name('categories.store');
             Route::get('/categories/nested', 'getNestedCategories')->name('categories.nested');
             Route::post('/categories/reorder', 'updateOrder')->name('categories.reorder');
+            Route::get('/categories/{id}', 'show')->name('category.show');
+            Route::put('/categories/{id}', 'update')->name('category.update');
         });
     });
 

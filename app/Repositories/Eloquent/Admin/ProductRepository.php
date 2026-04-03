@@ -41,10 +41,9 @@ class ProductRepository implements ProductRepositoryInterface
             ->count() >= 3;
     }
 
-    
     public function updateCategoryTree(int $id, array $data): Category
     {
-        $category = Category::findOrFail($id);
+        $category = $this->getProductCategory($id);
 
         $category->update([
             'parent_id' => $data['parent_id'],
@@ -52,5 +51,19 @@ class ProductRepository implements ProductRepositoryInterface
         ]);
 
         return $category;
+    }
+
+    public function updateProductCategory(int $id, array $data): Category
+    {
+        $category = $this->getProductCategory($id);
+
+        $category->update($data);
+
+        return $category;
+    }
+
+    public function getProductCategory(int $id): Category
+    {
+        return Category::findOrFail($id);
     }
 }

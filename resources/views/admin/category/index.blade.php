@@ -184,6 +184,7 @@
                     </div>
                     <div class="card-body">
                         <form action="" id="category-form">
+                            <input type="hidden" id="category-id">
                             <div class="mb-4">
                                 <label for="name" class="form-label">Name <span class="text-danger">*</span></label>
                                 <input type="text" name="name" class="form-control" required id="name">
@@ -209,7 +210,7 @@
 
                             <div class="d-flex gap-2">
                                 <button class="btn btn-primary" type="submit" id="bnt-save">Save</button>
-                                <button class="btn btn-danger" type="button" id="bnt-save">Delete</button>
+                                <button class="btn btn-danger d-none" type="button" id="btn-delete">Delete</button>
                                 <button class="btn btn-secondary" type="submit" id="bnt-cancel">Cancel</button>
                             </div>
                         </form>
@@ -223,12 +224,25 @@
 @push('scripts')
     <script>
         $(function() {
+
+            function fillForm(cat) {
+                $('#name').val(cat.name);
+                $('#slug').val(cat.slug);
+                $('#is_active').prop('checked', cat.is_active);
+                loadParentDropdown(cat.parent_id, cat.id);
+                $('#category-id').val(cat.id);
+                $('#btn-delete').removeClass('d-none');
+            }
+
+
             // const notyf = new Notyf();
             $('#category-form').submit(function(e) {
                 e.preventDefault();
                 console.log(e);
-                const method = "POST";
-                const url = route('admin.categories.store');
+                const id = $('#category-id').val();
+                // console.log(id);
+                const method = id ? "PUT" : "POST";
+                const url = id ? route('admin.category.update', id) : route('admin.categories.store');
                 const data = {
                     name: $('#name').val(),
                     slug: $('#slug').val(),
@@ -272,6 +286,24 @@
                     loadParentDropdown(null, null);
                 }
             });
+
+
+            // update get category data
+            $(document).off('click', '.cat-label').on('click', '.cat-label', function(e) {
+                e.stopPropagation();
+                let id = $(this).data('id');
+
+                console.log(e);
+
+                $.get({
+                    url: route('admin.category.show', id),
+                    method: 'GET',
+                    success: function(res) {
+                        console.log(res);
+                        fillForm(res.category);
+                    }
+                });
+            })
 
 
             // load parent dropdown
@@ -320,8 +352,8 @@
 
                 categories.forEach(cat => {
                     html += `
-            <li class="dd-item" data-id="${cat.id}">
-                <div class="dd-handle category-item">
+            <li class="dd-item cat-label" data-id="${cat.id}">
+                <div class="category-item">
 
                     <div class="category-left">
                         <i class="ti ti-folder folder-icon"></i>
@@ -348,6 +380,8 @@
             }
 
 
+
+            // re order tree
             $('#category-tree').on('change', function() {
                 let structure = $(this).nestable('serialize');
 
@@ -358,7 +392,20 @@
                     method: 'POST',
                     data: {
                         tree: structure,
-                        _token: $('meta[name="csrf-token"]').attr('content')
+                        _token: "{{ csrf_token() }}",
+                    },
+                    success: function(response) {
+                        if (response.status) {
+                            notyf.success(response.message);
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        let errors = xhr.responseJSON.errors;
+                        // console.log(errors);
+                        $.each(errors, function(key, value) {
+                            console.log(key, value);
+                            notyf.error(value[0] || 'An error occurred');
+                        });
                     }
                 });
             });

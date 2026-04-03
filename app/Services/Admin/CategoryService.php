@@ -37,11 +37,6 @@ class CategoryService implements CategoryServiceInterface
         return $this->productRepo->addCategory($payload);
     }
 
-    public function updateCategory(int $categoryId, array $data): Category
-    {
-        throw new \Exception('Not implemented');
-    }
-
     public function nestedCategories(?int $parentId = null, int $depth = 0, int $maxDepth = 3): Collection|array
     {
         if ($depth >= $maxDepth)
@@ -80,5 +75,31 @@ class CategoryService implements CategoryServiceInterface
 
         // return new nested categories
         return $this->nestedCategories();
+    }
+
+    public function updateCategory(int $categoryId, array $data): Category
+    {
+        // extract needed data
+        $payload['name'] = $data['name'];
+        $payload['slug'] = $data['slug'];
+        $payload['parent_id'] = $data['parent_id'];
+        $payload['is_active'] = $data['is_active'];
+        $payload['position'] = $this->productRepo->calculatePosition($data['parent_id'] ?? null);
+
+        // Check max children (not depth)
+        if (!is_null($data['parent_id']) && $this->productRepo->hasThreeOrMoreChildren($data['parent_id'])) {
+            throw ValidationException::withMessages([
+                'parent_id' => 'Maximum depth reached',
+            ]);
+        }
+
+        // dd($payload);
+        // create new category
+        return $this->productRepo->updateCategory($categoryId, $payload);
+    }
+
+    public function getCategory(int $categoryId): Category
+    {
+        return $this->productRepo->getProductCategory($categoryId);
     }
 }
