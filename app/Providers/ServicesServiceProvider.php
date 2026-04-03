@@ -17,6 +17,8 @@ class ServicesServiceProvider extends ServiceProvider
         \App\Services\Contracts\Admin\RoleServiceInterface::class => \App\Services\Admin\RoleService::class,
         \App\Services\Contracts\Admin\RoleUserServiceInterface::class => \App\Services\Admin\RoleUserService::class,
         \App\Services\Contracts\Admin\SettingsServiceInterface::class => \App\Services\Admin\SettingsService::class,
+        \App\Services\Contracts\Admin\CategoryServiceInterface::class => \App\Services\Admin\CategoryService::class,
+        \App\Services\Contracts\Admin\ProductServiceInterface::class => \App\Services\Admin\ProductService::class,
     ];
 
     /**
@@ -32,8 +34,5 @@ class ServicesServiceProvider extends ServiceProvider
     /**
      * Bootstrap services.
      */
-    public function boot(): void
-    {
-        
-    }
+    public function boot(): void {}
 }
