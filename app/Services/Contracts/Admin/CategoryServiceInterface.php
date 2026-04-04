@@ -17,4 +17,5 @@ interface CategoryServiceInterface
 
     public function getCategory(int $categoryId): Category;
 
+    public function deleteCategory(int $categoryId): bool;
 }

@@ -15,16 +15,16 @@ class ProductCategoryUpdateRequest extends FormRequest
 
     public function rules(): array
     {
-        $categoryId = $this->route('id'); 
+        $categoryId = $this->route('id');
 
         return [
             'name' => ['required', 'string', 'max:255'],
-            'slug' => [
-                'required',
-                'string',
-                'max:255',
-                Rule::unique('categories', 'slug')->ignore($categoryId),
-            ],
+            // 'slug' => [
+            //     'required',
+            //     'string',
+            //     'max:255',
+            //     Rule::unique('categories', 'slug')->ignore($categoryId),
+            // ],
             'parent_id' => [
                 'nullable',
                 'exists:categories,id',

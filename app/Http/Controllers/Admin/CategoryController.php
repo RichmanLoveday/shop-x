@@ -71,7 +71,7 @@ class CategoryController extends Controller
             logger()->error('Failed to update order: ' . $e->getMessage());
 
             return response()->json([
-                'message' => 'An error occurred while reordering',
+                'message' => $e->getMessage(),
                 'status' => false,
             ], 500);
         }
@@ -100,6 +100,7 @@ class CategoryController extends Controller
     public function update(ProductCategoryUpdateRequest $request, int $id)
     {
         try {
+            // dd($request->validated());
             $category = $this->categoryService->updateCategory($id, $request->validated());
 
             return response()->json([
@@ -111,7 +112,28 @@ class CategoryController extends Controller
             logger()->error('Failed to update order: ' . $e->getMessage());
 
             return response()->json([
-                'message' => 'An error occurred while updating category',
+                'message' => $e->getMessage(),
+                'status' => false,
+            ], 500);
+        }
+    }
+
+    public function delete(int $id)
+    {
+        try {
+            // dd($request->validated());
+            $category = $this->categoryService->deleteCategory($id);
+
+            return response()->json([
+                'category' => $category,
+                'message' => 'Category deleted successfully',
+                'status' => true,
+            ], 200);
+        } catch (\Exception $e) {
+            logger()->error('Failed to update order: ' . $e->getMessage());
+
+            return response()->json([
+                'message' => $e->getMessage(),
                 'status' => false,
             ], 500);
         }

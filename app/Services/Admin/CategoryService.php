@@ -7,6 +7,7 @@ use App\Repositories\Contracts\Admin\ProductRepositoryInterface;
 use App\Services\Contracts\Admin\CategoryServiceInterface;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Exception;
 
@@ -20,7 +21,7 @@ class CategoryService implements CategoryServiceInterface
     {
         // extract needed data
         $payload['name'] = $data['name'];
-        $payload['slug'] = $data['slug'];
+        $payload['slug'] = $this->createSlug($data['name']);
         $payload['parent_id'] = $data['parent_id'];
         $payload['is_active'] = $data['is_active'];
         $payload['position'] = $this->productRepo->calculatePosition($data['parent_id'] ?? null);
@@ -42,14 +43,16 @@ class CategoryService implements CategoryServiceInterface
         if ($depth >= $maxDepth)
             return [];
 
-        $categories = $this->productRepo->categoriesByParents($parentId);
+        // $categories = $this->productRepo->categoriesByParents($parentId);
 
-        // loop through and get nested children based on id, depth, and max depth
-        foreach ($categories as $cat) {
-            $cat->children_nested = $this->nestedCategories($cat->id, $depth + 1, $maxDepth);
-        }
+        // // loop through and get nested children based on id, depth, and max depth
+        // foreach ($categories as $cat) {
+        //     $cat->children_nested = $this->nestedCategories($cat->id, $depth + 1, $maxDepth);
+        // }
 
-        return $categories;
+        // return $categories;
+
+        return $this->productRepo->getNestedCategories();
     }
 
     public function reOrderCategory(array $nodes, ?int $parentId = null): Collection
@@ -62,6 +65,13 @@ class CategoryService implements CategoryServiceInterface
                 $id = $node['id'];
                 $data['parent_id'] = $parentId;
                 $data['position'] = $position;
+
+                // Check max children (not depth)
+                // if (!is_null($data['parent_id']) && $this->productRepo->hasThreeOrMoreChildren($parentId)) {
+                //     throw ValidationException::withMessages([
+                //         'parent_id' => 'Maximum depth reached',
+                //     ]);
+                // }
 
                 // update category tree
                 $category = $this->productRepo->updateCategoryTree($id, $data);
@@ -79,12 +89,20 @@ class CategoryService implements CategoryServiceInterface
 
     public function updateCategory(int $categoryId, array $data): Category
     {
+        // dd($data);
         // extract needed data
         $payload['name'] = $data['name'];
-        $payload['slug'] = $data['slug'];
+        $payload['slug'] = $this->createSlug($data['name']);
         $payload['parent_id'] = $data['parent_id'];
         $payload['is_active'] = $data['is_active'];
-        $payload['position'] = $this->productRepo->calculatePosition($data['parent_id'] ?? null);
+
+        $category = $this->productRepo->getProductCategory($categoryId);
+        $newParentId = $data['parent_id'] ?? null;
+        $isSameParent = (int) $category->parent_id === (int) $newParentId;
+
+        $payload['position'] = $isSameParent
+            ? $category->position
+            : $this->productRepo->calculatePosition($newParentId);
 
         // Check max children (not depth)
         if (!is_null($data['parent_id']) && $this->productRepo->hasThreeOrMoreChildren($data['parent_id'])) {
@@ -98,8 +116,34 @@ class CategoryService implements CategoryServiceInterface
         return $this->productRepo->updateCategory($categoryId, $payload);
     }
 
+    public function deleteCategory(int $categoryId): bool
+    {
+        $category = $this->getCategory($categoryId);
+
+        // check if category has children and restrict delete
+        if ($category->children()->count() > 0) {
+            throw new Exception('Category has children and cannot be deleted!');
+        }
+
+        return $category->delete();
+    }
+
     public function getCategory(int $categoryId): Category
     {
         return $this->productRepo->getProductCategory($categoryId);
+    }
+
+    private function createSlug(string $categoryName): string
+    {
+        $slug = Str::slug($categoryName, '-');
+        $originalSlug = $slug;
+        $count = 1;
+
+        while ($this->productRepo->checkIfProductCategorySlugExit($slug)) {
+            $slug = "{$originalSlug}-{$count}";
+            $count++;
+        }
+
+        return $slug;
     }
 }

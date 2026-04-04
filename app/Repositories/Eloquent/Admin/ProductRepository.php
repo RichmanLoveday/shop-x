@@ -16,7 +16,11 @@ class ProductRepository implements ProductRepositoryInterface
 
     public function updateCategory(int $id, array $data): Category
     {
-        throw new \Exception('Not implemented');
+        $category = $this->getProductCategory($id);
+
+        $category->update($data);
+
+        return $category;
     }
 
     public function calculatePosition(?int $parent_id = null): ?int
@@ -62,8 +66,23 @@ class ProductRepository implements ProductRepositoryInterface
         return $category;
     }
 
+    public function getNestedCategories(): Collection
+    {
+        return Category::whereNull('parent_id')
+            ->with(['children.children'])
+            ->orderBy('position')
+            ->get();
+    }
+
     public function getProductCategory(int $id): Category
     {
         return Category::findOrFail($id);
+    }
+
+    public function checkIfProductCategorySlugExit(string $slug): bool
+    {
+        return Category::query()
+            ->where('slug', $slug)
+            ->exists();
     }
 }

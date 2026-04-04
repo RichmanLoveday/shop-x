@@ -15,6 +15,8 @@ interface ProductRepositoryInterface
 
     public function categoriesByParents(?int $parent_id = null): Collection;
 
+    public function getNestedCategories(): Collection;
+
     public function hasThreeOrMoreChildren(int $parent_id): bool;
 
     public function updateCategoryTree(int $id, array $data): Category;
@@ -22,4 +24,6 @@ interface ProductRepositoryInterface
     public function getProductCategory(int $id): Category;
 
     public function updateProductCategory(int $id, array $data): Category;
+
+    public function checkIfProductCategorySlugExit(string $slug): bool;
 }
