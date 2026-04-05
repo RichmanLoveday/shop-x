@@ -21,7 +21,7 @@
 
         /* vertical connector line */
         .spotify-light-tree .dd-list .dd-list {
-            margin-left: 15px;
+            margin-left: 40px;
             padding-left: 15px;
             border-left: 1px solid var(--tblr-border-color);
         }

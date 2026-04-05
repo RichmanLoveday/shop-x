@@ -2,11 +2,15 @@
 
 namespace App\Repositories\Contracts\Admin;
 
+use App\Models\Brand;
 use App\Models\Category;
+use App\Models\Tag;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 interface ProductRepositoryInterface
 {
+    // CATEGORY INTERFACES
     public function addCategory(array $data): Category;
 
     public function calculatePosition(int $parent_id = null): ?int;
@@ -21,9 +25,31 @@ interface ProductRepositoryInterface
 
     public function updateCategoryTree(int $id, array $data): Category;
 
-    public function getProductCategory(int $id): Category;
-
-    public function updateProductCategory(int $id, array $data): Category;
+    public function getCategory(int $id): Category;
 
     public function checkIfProductCategorySlugExit(string $slug): bool;
+
+    
+    // TAG INTERFACES
+    public function createTag(array $data): Tag;
+
+    public function checkIfTagSlugExit(string $slug): bool;
+
+    public function getAllTags(): LengthAwarePaginator;
+
+    public function getTag(int $id): Tag;
+
+    public function updateTag(int $id, array $data): Tag;
+
+
+    // BRAND INTERFACES
+    public function createBrand(array $data): Brand;
+
+    public function updateBrand(int $id, array $data): Brand;
+
+    public function getBrand(int $id): Brand;
+
+    public function getAllBrand(): LengthAwarePaginator;
+
+    public function checkIfBrandSlugExit(string $slug): bool;
 }

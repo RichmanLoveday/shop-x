@@ -19,6 +19,8 @@ class ServicesServiceProvider extends ServiceProvider
         \App\Services\Contracts\Admin\SettingsServiceInterface::class => \App\Services\Admin\SettingsService::class,
         \App\Services\Contracts\Admin\CategoryServiceInterface::class => \App\Services\Admin\CategoryService::class,
         \App\Services\Contracts\Admin\ProductServiceInterface::class => \App\Services\Admin\ProductService::class,
+        \App\Services\Contracts\Admin\TagServiceInterface::class => \App\Services\Admin\TagService::class,
+        \App\Services\Contracts\Admin\BrandServiceInterface::class => \App\Services\Admin\BrandService::class,
     ];
 
     /**

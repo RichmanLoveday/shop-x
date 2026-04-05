@@ -30,6 +30,14 @@ class PermissionSeeder extends Seeder
                 // 'approve-kyc',
                 // 'reject-kyc',
             ],
+            'Product Categories' => [
+                'manage-category'
+            ],
+
+            'Product Tags' => [
+                'manage-tags'
+            ],
+
         ];
 
         foreach ($permissions as $group_name => $permission) {

@@ -116,7 +116,7 @@
                                         <th>Name</th>
                                         <th>Email</th>
                                         <th>Role</th>
-                                        <th class="">Action</th>
+                                        <th class="w-1">Action</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -133,12 +133,21 @@
                                             <td>
                                             </td>
                                             <td>
-                                                <a href="{{ route('admin.role-user.edit', $admin->id) }}">Edit</a>
-                                                <a class="resend-mail disable"
-                                                    href="{{ route('admin.role-user.resend-mail', $admin->id) }}">Resend
-                                                    Mail</a>
-                                                <a class="delete-item text-danger"
-                                                    href="{{ route('admin.role-user.destroy', $admin->id) }}">Delete</a>
+                                                <div class="d-flex w-100 justify-content-between space-x-1">
+                                                    <a class=" text-decoration-none"
+                                                        href="{{ route('admin.role-user.edit', $admin->id) }}">
+                                                        <i class="ti ti-edit fs-1"></i>
+                                                    </a>
+
+                                                    <a class="resend-mail disable text-decoration-none"
+                                                        href="{{ route('admin.role-user.resend-mail', $admin->id) }}"><i
+                                                            class="ti ti-mail fs-1"></i></a>
+
+                                                    <a class="delete-item text-decoration-none text-danger"
+                                                        href="{{ route('admin.role-user.destroy', $admin->id) }}">
+                                                        <i class="ti ti-trash fs-1"></i>
+                                                    </a>
+                                                </div>
                                             </td>
                                         </tr>
                                     @empty

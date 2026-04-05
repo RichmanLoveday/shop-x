@@ -43,16 +43,17 @@ class CategoryService implements CategoryServiceInterface
         if ($depth >= $maxDepth)
             return [];
 
-        // $categories = $this->productRepo->categoriesByParents($parentId);
+        $categories = $this->productRepo->categoriesByParents($parentId);
 
-        // // loop through and get nested children based on id, depth, and max depth
-        // foreach ($categories as $cat) {
-        //     $cat->children_nested = $this->nestedCategories($cat->id, $depth + 1, $maxDepth);
-        // }
+        // loop through and get nested children based on id, depth, and max depth
+        foreach ($categories as $cat) {
+            // $cat->children_nested = $this->nestedCategories($cat->id, $depth + 1, $maxDepth);
+            $cat->children = $this->nestedCategories($cat->id, $depth + 1, $maxDepth);
+        }
 
-        // return $categories;
+        return $categories;
 
-        return $this->productRepo->getNestedCategories();
+        // return $this->productRepo->getNestedCategories();
     }
 
     public function reOrderCategory(array $nodes, ?int $parentId = null): Collection
@@ -89,14 +90,15 @@ class CategoryService implements CategoryServiceInterface
 
     public function updateCategory(int $categoryId, array $data): Category
     {
+        $category = $this->getCategory($categoryId);
+
         // dd($data);
         // extract needed data
         $payload['name'] = $data['name'];
-        $payload['slug'] = $this->createSlug($data['name']);
         $payload['parent_id'] = $data['parent_id'];
+        $payload['slug'] = $category->name !== $data['name'] ? $this->createSlug($data['name']) : $category->slug;
         $payload['is_active'] = $data['is_active'];
 
-        $category = $this->productRepo->getProductCategory($categoryId);
         $newParentId = $data['parent_id'] ?? null;
         $isSameParent = (int) $category->parent_id === (int) $newParentId;
 
@@ -130,7 +132,7 @@ class CategoryService implements CategoryServiceInterface
 
     public function getCategory(int $categoryId): Category
     {
-        return $this->productRepo->getProductCategory($categoryId);
+        return $this->productRepo->getCategory($categoryId);
     }
 
     private function createSlug(string $categoryName): string

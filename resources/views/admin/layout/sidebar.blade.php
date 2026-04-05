@@ -854,34 +854,44 @@
                     </a>
                 </li>
 
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#navbar-base" data-bs-toggle="dropdown"
-                        data-bs-auto-close="false" role="button" aria-expanded="false">
-                        <span class="nav-link-icon d-md-none d-lg-inline-block">
-                            <i class="ti ti-shield fs-2"></i>
-                        </span>
-                        <span class="nav-link-title"> E-commerce </span>
-                    </a>
-                    <div class="dropdown-menu">
-                        <div class="dropdown-menu-columns">
-                            @can('view-role')
-                                <div class="dropdown-menu-column">
-                                    <a class="dropdown-item" href="{{ route('admin.categories.index') }}">
-                                        Categories
-                                    </a>
-                                </div>
-                            @endcan
+                @canany(['manage-tags', 'manage-categories'])
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#navbar-base" data-bs-toggle="dropdown"
+                            data-bs-auto-close="false" role="button" aria-expanded="false">
+                            <span class="nav-link-icon d-md-none d-lg-inline-block">
+                                <i class="ti ti-shield fs-2"></i>
+                            </span>
+                            <span class="nav-link-title"> E-commerce </span>
+                        </a>
+                        <div class="dropdown-menu">
+                            <div class="dropdown-menu-columns">
+                                @can('manage-categories')
+                                    <div class="dropdown-menu-column">
+                                        <a class="dropdown-item" href="{{ route('admin.categories.index') }}">
+                                            Categories
+                                        </a>
+                                    </div>
+                                @endcan
 
-                            @can('view-admin-user')
-                                <div class="dropdown-menu-column">
-                                    <a class="dropdown-item" href="{{ route('admin.role-user.index') }}">
-                                        Role User
-                                    </a>
-                                </div>
-                            @endcan
+                                @can('manage-brands')
+                                    <div class="dropdown-menu-column">
+                                        <a class="dropdown-item" href="{{ route('admin.brands.index') }}">
+                                            Brands
+                                        </a>
+                                    </div>
+                                @endcan
+
+                                @can('manage-tags')
+                                    <div class="dropdown-menu-column">
+                                        <a class="dropdown-item" href="{{ route('admin.tags.index') }}">
+                                            Tags
+                                        </a>
+                                    </div>
+                                @endcan
+                            </div>
                         </div>
-                    </div>
-                </li>
+                    </li>
+                @endcanany
 
                 @canany(['view-role', 'view-admin-user'])
                     <li class="nav-item dropdown">
@@ -957,6 +967,7 @@
                         </div>
                     </li>
                 @endcan
+
 
 
                 <li class="nav-item">

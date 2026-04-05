@@ -2,9 +2,12 @@
 
 namespace App\Repositories\Eloquent\Admin;
 
+use App\Models\Brand;
 use App\Models\Category;
+use App\Models\Tag;
 use App\Repositories\Contracts\Admin\ProductRepositoryInterface;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class ProductRepository implements ProductRepositoryInterface
 {
@@ -16,11 +19,11 @@ class ProductRepository implements ProductRepositoryInterface
 
     public function updateCategory(int $id, array $data): Category
     {
-        $category = $this->getProductCategory($id);
+        $category = $this->getCategory($id);
 
         $category->update($data);
 
-        return $category;
+        return $category->fresh();
     }
 
     public function calculatePosition(?int $parent_id = null): ?int
@@ -47,7 +50,7 @@ class ProductRepository implements ProductRepositoryInterface
 
     public function updateCategoryTree(int $id, array $data): Category
     {
-        $category = $this->getProductCategory($id);
+        $category = $this->getCategory($id);
 
         $category->update([
             'parent_id' => $data['parent_id'],
@@ -57,24 +60,15 @@ class ProductRepository implements ProductRepositoryInterface
         return $category;
     }
 
-    public function updateProductCategory(int $id, array $data): Category
-    {
-        $category = $this->getProductCategory($id);
-
-        $category->update($data);
-
-        return $category;
-    }
-
     public function getNestedCategories(): Collection
     {
         return Category::whereNull('parent_id')
-            ->with(['children.children'])
+            ->with(['children.children.children'])
             ->orderBy('position')
             ->get();
     }
 
-    public function getProductCategory(int $id): Category
+    public function getCategory(int $id): Category
     {
         return Category::findOrFail($id);
     }
@@ -82,6 +76,71 @@ class ProductRepository implements ProductRepositoryInterface
     public function checkIfProductCategorySlugExit(string $slug): bool
     {
         return Category::query()
+            ->where('slug', $slug)
+            ->exists();
+    }
+
+    public function createTag(array $data): Tag
+    {
+        return Tag::create($data);
+    }
+
+    public function checkIfTagSlugExit(string $slug): bool
+    {
+        return Tag::query()
+            ->where('slug', $slug)
+            ->exists();
+    }
+
+    public function getAllTags(): LengthAwarePaginator
+    {
+        return Tag::query()
+            ->paginate(20);
+    }
+
+    public function getTag(int $id): Tag
+    {
+        return Tag::findOrFail($id);
+    }
+
+    public function updateTag(int $id, array $data): Tag
+    {
+        $tag = $this->getTag($id);
+
+        $tag->update($data);
+
+        return $tag->fresh();
+    }
+
+    public function createBrand(array $data): Brand
+    {
+        return Brand::create($data);
+    }
+
+    public function updateBrand(int $id, array $data): Brand
+    {
+        $brand = $this->getBrand($id);
+
+        $brand->update($data);
+
+        return $brand->fresh();
+    }
+
+    public function getBrand(int $id): Brand
+    {
+        return Brand::query()
+            ->findOrFail($id);
+    }
+
+    public function getAllBrand(): LengthAwarePaginator
+    {
+        return Brand::query()
+            ->paginate(25);
+    }
+
+    public function checkIfBrandSlugExit(string $slug): bool
+    {
+        return Brand::query()
             ->where('slug', $slug)
             ->exists();
     }

@@ -1,4 +1,5 @@
 @extends('admin.layout.app')
+
 @section('contents')
     <div class="container-xl">
         <div class="row row-deck row-cards space-y-4">
@@ -100,16 +101,11 @@
             <div class="col-12">
                 <div class="card">
                     <div class="card-header">
-                        <h3 class="card-title">All Roles</h3>
+                        <h3 class="card-title">All Tags</h3>
                         <div class="card-actions">
-                            <a href="{{ route('admin.role.create') }}" class="btn btn-primary btn-3">
+                            <a href="{{ route('admin.brands.create') }}" class="btn btn-primary btn-3">
                                 <!-- Download SVG icon from http://tabler.io/icons/icon/plus -->
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                    stroke-linejoin="round" class="icon icon-2">
-                                    <path d="M12 5l0 14"></path>
-                                    <path d="M5 12l14 0"></path>
-                                </svg>
+                                <i class="ti ti-plus fs-1"></i>
                                 Add new
                             </a>
                         </div>
@@ -120,28 +116,38 @@
                                 <thead>
                                     <tr>
                                         <th>No.</th>
+                                        <th>Logo</th>
                                         <th>Name</th>
-                                        <th>Permissions</th>
+                                        <th>Status</th>
                                         <th class="w-1"></th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @forelse ($roles as $role)
+                                    @forelse ($brands as $brand)
+                                        @php
+                                            $color = 'bg-danger-lt';
+                                            $text = 'In-active';
 
+                                            if ($brand->is_active) {
+                                                $color = 'bg-success-lt';
+                                                $text = 'Active';
+                                            }
+                                        @endphp
                                         <tr>
                                             <td>{{ $loop->iteration }}</td>
-                                            <td>{{ $role->name }}</td>
+                                            <td><img class=" w-7 h-7" src="{{ $brand->image }}" alt="{{ $brand->name }}"></td>
+                                            <td>{{ $brand->name }}</td>
                                             <td><span
-                                                    class="badge bg-success text-white">{{ $role->permissions_count }}</span>
+                                                    class="badge {{ $color }} text-white">{{ $text }}</span>
                                             </td>
                                             <td>
                                                 <div class="d-flex w-100 justify-content-between space-x-3">
                                                     <a class=" text-decoration-none"
-                                                        href="{{ route('admin.role.edit', $role->id) }}">
+                                                        href="{{ route('admin.brands.edit', $brand->id) }}">
                                                         <i class="ti ti-edit fs-1"></i>
                                                     </a>
                                                     <a class="delete-item text-decoration-none text-danger"
-                                                        href="{{ route('admin.role.destroy', $role->id) }}">
+                                                        href="{{ route('admin.brands.destroy', $brand->id) }}">
                                                         <i class="ti ti-trash fs-1"></i>
                                                     </a>
                                                 </div>
@@ -149,7 +155,7 @@
                                         </tr>
                                     @empty
                                         <tr>
-                                            <td colspan="4" class="text-center">No roles found.</td>
+                                            <td colspan="4" class="text-center">No tags found.</td>
                                         </tr>
                                     @endforelse
                                 </tbody>
@@ -162,7 +168,6 @@
                     </div>
                 </div>
             </div>
-
         </div>
     </div>
 @endsection

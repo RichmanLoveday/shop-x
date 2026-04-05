@@ -9,11 +9,13 @@ use App\Http\Controllers\Admin\Auth\PasswordController;
 use App\Http\Controllers\Admin\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Admin\Auth\RegisteredUserController;
 use App\Http\Controllers\Admin\Auth\VerifyEmailController;
+use App\Http\Controllers\Admin\BrandController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\kycRequestController;
 use App\Http\Controllers\Admin\ProfileController;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\SettingController;
+use App\Http\Controllers\Admin\TagsController;
 use App\Http\Controllers\Admin\UserRoleController;
 use Illuminate\Support\Facades\Route;
 
@@ -129,6 +131,11 @@ Route::middleware('auth:admin')
             Route::put('/categories/{id}', 'update')->name('category.update');
             Route::delete('/categories/{id}', 'delete')->name('category.delete');
         });
+
+        // Tags controller routes
+        Route::resource('/tags', TagsController::class)->middleware('can:manage-tags');
+
+        Route::resource('/brands', BrandController::class)->middleware('can:manage-brands');
     });
 
 Route::get('/admin/dashboard', function () {
