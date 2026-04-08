@@ -42,7 +42,7 @@
                         <div class="alert-description">Please submit your KYC to get started.</div>
                     </div>
 
-                    <a href="{{ route('kyc.index') }}" class="btn btn-outline-light">Submit KYC</a>
+                    <a href="{{ route('vendor.kyc.index') }}" class="btn btn-outline-light">Submit KYC</a>
                 </div>
                 <a class="btn-close" data-bs-dismiss="alert" aria-label="close"></a>
             </div>

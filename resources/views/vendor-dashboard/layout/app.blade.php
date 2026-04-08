@@ -23,6 +23,7 @@
     <!-- BEGIN DEMO STYLES -->
     <link rel="stylesheet" href="{{ asset('assets/global/upload-preview/upload-preview.css') }}">
     <link href="{{ asset('assets/admin/preview/css/demo.css?1750026893') }}" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <!-- END DEMO STYLES -->
     <!-- BEGIN CUSTOM FONT -->
     <style>
@@ -59,6 +60,7 @@
     <!-- END DEMO SCRIPTS -->
 
     <script src="{{ asset('assets/global/ckeditor/ckeditor.js') }}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     @include('vendor-dashboard.layout.scripts')
     @stack('scripts')
 </body>

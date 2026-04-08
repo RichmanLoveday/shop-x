@@ -865,6 +865,11 @@
                         </a>
                         <div class="dropdown-menu">
                             <div class="dropdown-menu-columns">
+                                <div class="dropdown-menu-column">
+                                    <a class="dropdown-item" href="{{ route('admin.products.index') }}">
+                                        Products
+                                    </a>
+                                </div>
                                 @can('manage-categories')
                                     <div class="dropdown-menu-column">
                                         <a class="dropdown-item" href="{{ route('admin.categories.index') }}">

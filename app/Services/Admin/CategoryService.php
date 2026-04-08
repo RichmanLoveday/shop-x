@@ -38,6 +38,11 @@ class CategoryService implements CategoryServiceInterface
         return $this->productRepo->addCategory($payload);
     }
 
+    public function allCategories(): Collection
+    {
+        return $this->productRepo->getAllCategories();
+    }
+
     public function nestedCategories(?int $parentId = null, int $depth = 0, int $maxDepth = 3): Collection|array
     {
         if ($depth >= $maxDepth)
@@ -133,6 +138,12 @@ class CategoryService implements CategoryServiceInterface
     public function getCategory(int $categoryId): Category
     {
         return $this->productRepo->getCategory($categoryId);
+    }
+
+    
+    public function search(string $name): Collection
+    {
+        return $this->productRepo->searchCategory($name);
     }
 
     private function createSlug(string $categoryName): string

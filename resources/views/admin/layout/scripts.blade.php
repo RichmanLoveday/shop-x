@@ -76,4 +76,32 @@
     var notyf = new Notyf({
         duration: 3000,
     });
+
+    CKEDITOR.disableAutoInline = true;
+    CKEDITOR.config.versionCheck = false;
+
+    CKEDITOR.replace('short-description');
+    CKEDITOR.replace('long-description');
+
+    // select 2 init
+    $(document).ready(function() {
+        $('.select2').select2();
+    });
+
+
+    // datepicker init
+    $(document).ready(function() {
+        if (window.Litepicker) {
+            document.querySelectorAll('.datepicker').forEach(function(elem) {
+                new Litepicker({
+                    element: $(elem)[0],
+                    minDate: new Date(),
+                    buttonText: {
+                        previousMonth: `<i class="ti ti-chevron-left fs-2"></i>`,
+                        nextMonth: `<i class="ti ti-chevron-right fs-2"></i>`,
+                    },
+                });
+            });
+        }
+    });
 </script>

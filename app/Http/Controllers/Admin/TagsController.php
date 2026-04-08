@@ -33,6 +33,25 @@ class TagsController extends Controller
         return view('admin.tags.create');
     }
 
+
+    public function search(Request $request)
+    {
+        try {
+            $tags = $this->tagService->findTag($request->input('name'));
+            return response()->json([
+                'tags' => $tags,
+                'status' => true,
+                'message' => 'Tags retrieved successfully',
+            ]);
+        } catch (\Exception $e) {
+            logger()->error('Failed to fetch tags: ' . $e->getMessage());
+            return response()->json([
+                'status' => false,
+                'message' => 'An error occurred while fetching tags',
+            ]);
+        }
+    }
+
     /**
      * Store a newly created resource in storage.
      */

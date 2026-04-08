@@ -12,9 +12,11 @@ use App\Http\Controllers\Admin\Auth\VerifyEmailController;
 use App\Http\Controllers\Admin\BrandController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\kycRequestController;
+use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\ProfileController;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\SettingController;
+use App\Http\Controllers\Admin\StoreController;
 use App\Http\Controllers\Admin\TagsController;
 use App\Http\Controllers\Admin\UserRoleController;
 use Illuminate\Support\Facades\Route;
@@ -130,12 +132,28 @@ Route::middleware('auth:admin')
             Route::get('/categories/{id}', 'show')->name('category.show');
             Route::put('/categories/{id}', 'update')->name('category.update');
             Route::delete('/categories/{id}', 'delete')->name('category.delete');
+            Route::get('/categories/search', 'search')->name('categories.search');
         });
 
         // Tags controller routes
+        Route::get('/tags/search', [TagsController::class, 'search'])->name('tags.search')->middleware('can:manage-tags');
         Route::resource('/tags', TagsController::class)->middleware('can:manage-tags');
 
+        // Brands Controller Routes
+        Route::get('/brands/search', [BrandController::class, 'search'])->name('brands.search')->middleware('can:manage-brands');
         Route::resource('/brands', BrandController::class)->middleware('can:manage-brands');
+
+        Route::controller(ProductController::class)->group(function () {
+            Route::get('/products', 'index')->name('products.index');
+            Route::get('/product/create', 'create')->name('products.create');
+            Route::get('/product/storename/{name}')->name('products.storename');
+            Route::post('/product/store', 'store')->name('products.store');
+        });
+
+        // Stores Controller routes
+        Route::controller(StoreController::class)->group(function () {
+            Route::get('/stores/search', 'search')->name('stores.search');
+        });
     });
 
 Route::get('/admin/dashboard', function () {

@@ -4,6 +4,7 @@ namespace App\Repositories\Eloquent\Admin;
 
 use App\Models\Brand;
 use App\Models\Category;
+use App\Models\Product;
 use App\Models\Tag;
 use App\Repositories\Contracts\Admin\ProductRepositoryInterface;
 use Illuminate\Database\Eloquent\Collection;
@@ -15,6 +16,19 @@ class ProductRepository implements ProductRepositoryInterface
     {
         return Category::query()
             ->create($data);
+    }
+
+    public function getAllCategories(): Collection
+    {
+        return Category::select(['name', 'id'])->get();
+    }
+
+    public function searchCategory(string $name): Collection
+    {
+        return Category::query()
+            ->where('name', 'like', "%{$name}%")
+            ->where('is_active', true)
+            ->get();
     }
 
     public function updateCategory(int $id, array $data): Category
@@ -103,6 +117,14 @@ class ProductRepository implements ProductRepositoryInterface
         return Tag::findOrFail($id);
     }
 
+    public function findTag(string $name): Collection
+    {
+        return Tag::query()
+            ->where('name', 'like', "%{$name}%")
+            ->where('is_active', true)
+            ->get();
+    }
+
     public function updateTag(int $id, array $data): Tag
     {
         $tag = $this->getTag($id);
@@ -141,6 +163,27 @@ class ProductRepository implements ProductRepositoryInterface
     public function checkIfBrandSlugExit(string $slug): bool
     {
         return Brand::query()
+            ->where('slug', $slug)
+            ->exists();
+    }
+
+    public function findBrand(string $name): Collection
+    {
+        return Brand::query()
+            ->where('name', 'like', "%{$name}%")
+            ->where('is_active', true)
+            ->get();
+    }
+
+    public function createProduct(array $data): Product
+    {
+        return Product::query()
+            ->create($data);
+    }
+
+    public function checkIfProductSlugExit(string $slug): bool
+    {
+        return Product::query()
             ->where('slug', $slug)
             ->exists();
     }

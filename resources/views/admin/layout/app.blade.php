@@ -27,6 +27,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.41.0/dist/tabler-icons.min.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/nestable2/1.6.0/jquery.nestable.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 
     <link href="{{ asset('assets/admin/preview/css/demo.css?1750026893') }}" rel="stylesheet" />
     <!-- END DEMO STYLES -->
@@ -73,6 +74,9 @@
     <script src="{{ asset('assets/admin/js/tinymce/js/tinymce.min.js') }}"></script>
     <script src="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/nestable2/1.6.0/jquery.nestable.min.js"></script>
+    <script src="{{ asset('assets/global/ckeditor/ckeditor.js') }}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script src="{{ asset('assets/admin/libs/litepicker/dist/litepicker.js') }}" defer></script>
     @include('admin.layout.scripts')
 
     @stack('scripts')

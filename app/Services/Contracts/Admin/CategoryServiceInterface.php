@@ -4,6 +4,7 @@ namespace App\Services\Contracts\Admin;
 
 use App\Models\Category;
 use Illuminate\Database\Eloquent\Collection;
+use PHPUnit\Runner\DeprecationCollector\Collector;
 
 interface CategoryServiceInterface
 {
@@ -18,4 +19,8 @@ interface CategoryServiceInterface
     public function getCategory(int $categoryId): Category;
 
     public function deleteCategory(int $categoryId): bool;
+
+    public function allCategories(): Collection;
+
+    public function search(string $name): Collection;
 }

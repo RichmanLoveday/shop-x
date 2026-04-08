@@ -26,6 +26,25 @@ class BrandController extends Controller
         return view('admin.brand.index', compact('brands'));
     }
 
+
+    public function search(Request $request)
+    {
+        try {
+            $brands = $this->brandService->findBrand($request->input('name'));
+            return response()->json([
+                'brands' => $brands,
+                'status' => true,
+                'message' => 'Brands retrieved successfully',
+            ]);
+        } catch (\Exception $e) {
+            logger()->error('Failed to fetch brands: ' . $e->getMessage());
+            return response()->json([
+                'status' => false,
+                'message' => 'An error occurred while fetching brands',
+            ]);
+        }
+    }
+
     /**
      * Show the form for creating a new resource.
      */

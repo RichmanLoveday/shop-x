@@ -51,6 +51,11 @@ class TagService implements TagServiceInterface
         return $tag->delete();
     }
 
+    public function findTag(string $tagName): Collection
+    {
+        return $this->productRepo->findTag($tagName);
+    }
+
     private function createSlug(string $tagName): string
     {
         $slug = Str::slug($tagName, '-');

@@ -1,6 +1,6 @@
 @extends('frontend.layout.app')
 @section('contents')
-    <x-frontend.breadcrumb :items="[['url' => '/', 'label' => 'Home'], ['url' => route('kyc.index'), 'label' => 'Kyc Verification']]" />
+    <x-frontend.breadcrumb :items="[['url' => '/', 'label' => 'Home'], ['url' => route('vendor.kyc.index'), 'label' => 'Kyc Verification']]" />
 
     <div class="page-content pt-150 pb-140">
         <div class="container-xl">
@@ -8,12 +8,12 @@
                 <div class="col-xxl-8 col-xl-10 col-lg-12 col-md-9 m-auto">
                     <div class="row align-items-center justify-content-center">
                         <div class="col-md-8">
-                            <div class="login_wrap widget-taber-content background-white">
+                            <div class="login_wrap widget-tabler-content background-white">
                                 <div class="padding_eight_all bg-white">
                                     <div class="heading_s1">
                                         <h2 class="mb-5 capitalize">Kyc Verification</h2>
                                     </div>
-                                    <form class="mt-50" method="post" action="{{ route('kyc.store') }}"
+                                    <form class="mt-50" method="post" action="{{ route('vendor.kyc.store') }}"
                                         enctype="multipart/form-data">
                                         @csrf
                                         <div class="form-group">
@@ -26,8 +26,7 @@
 
                                         <div class="form-group">
                                             <label for="date">Date of Birth <span class="text-danger">*</span></label>
-                                            <input required="" id="date" name="dob"
-                                                class="datepicker" />
+                                            <input required="" id="date" name="dob" class="datepicker" />
                                             <x-input-error :messages="$errors->get('dob')" class="mt-2" />
                                         </div>
 

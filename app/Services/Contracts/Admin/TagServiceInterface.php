@@ -17,4 +17,6 @@ interface TagServiceInterface
     public function updateTag(int $id, array $data): Tag;
 
     public function delete(int $id): bool;
+
+    public function findTag(string $tagName): Collection;
 }

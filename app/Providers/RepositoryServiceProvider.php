@@ -14,6 +14,7 @@ class RepositoryServiceProvider extends ServiceProvider
         \App\Repositories\Contracts\Vendor\StoreRepositoryInterface::class => \App\Repositories\Eloquent\Vendor\StoreRepository::class,
         \App\Repositories\Contracts\Admin\SettingsRepositoryInterface::class => \App\Repositories\Eloquent\Admin\SettingsRepository::class,
         \App\Repositories\Contracts\Admin\ProductRepositoryInterface::class => \App\Repositories\Eloquent\Admin\ProductRepository::class,
+        \App\Repositories\Contracts\Admin\StoreRepositoryInterface::class => \App\Repositories\Eloquent\Admin\StoreRepository::class,
     ];
 
     /**
