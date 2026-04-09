@@ -5,13 +5,14 @@ namespace App\Services\Admin;
 use App\Models\Category;
 use App\Repositories\Contracts\Admin\ProductRepositoryInterface;
 use App\Services\Contracts\Admin\CategoryServiceInterface;
+use App\Services\BaseService;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Exception;
 
-class CategoryService implements CategoryServiceInterface
+class CategoryService extends BaseService implements CategoryServiceInterface
 {
     public function __construct(
         protected ProductRepositoryInterface $productRepo
@@ -21,7 +22,7 @@ class CategoryService implements CategoryServiceInterface
     {
         // extract needed data
         $payload['name'] = $data['name'];
-        $payload['slug'] = $this->createSlug($data['name']);
+        $payload['slug'] = $this->generateSlug($data['name'], fn($slug) => $this->productRepo->checkIfProductCategorySlugExit($slug));
         $payload['parent_id'] = $data['parent_id'];
         $payload['is_active'] = $data['is_active'];
         $payload['position'] = $this->productRepo->calculatePosition($data['parent_id'] ?? null);
@@ -101,7 +102,7 @@ class CategoryService implements CategoryServiceInterface
         // extract needed data
         $payload['name'] = $data['name'];
         $payload['parent_id'] = $data['parent_id'];
-        $payload['slug'] = $category->name !== $data['name'] ? $this->createSlug($data['name']) : $category->slug;
+        $payload['slug'] = $category->name !== $data['name'] ? $this->generateSlug($data['name'], fn($slug) => $this->productRepo->checkIfProductCategorySlugExit($slug)) : $category->slug;
         $payload['is_active'] = $data['is_active'];
 
         $newParentId = $data['parent_id'] ?? null;
@@ -140,23 +141,8 @@ class CategoryService implements CategoryServiceInterface
         return $this->productRepo->getCategory($categoryId);
     }
 
-    
     public function search(string $name): Collection
     {
         return $this->productRepo->searchCategory($name);
-    }
-
-    private function createSlug(string $categoryName): string
-    {
-        $slug = Str::slug($categoryName, '-');
-        $originalSlug = $slug;
-        $count = 1;
-
-        while ($this->productRepo->checkIfProductCategorySlugExit($slug)) {
-            $slug = "{$originalSlug}-{$count}";
-            $count++;
-        }
-
-        return $slug;
     }
 }

@@ -5,12 +5,13 @@ namespace App\Services\Admin;
 use App\Models\Product;
 use App\Repositories\Contracts\Admin\ProductRepositoryInterface;
 use App\Services\Contracts\Admin\ProductServiceInterface;
+use App\Services\BaseService;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
-class ProductService implements ProductServiceInterface
+class ProductService extends BaseService implements ProductServiceInterface
 {
     public function __construct(
         protected ProductRepositoryInterface $productRepo,
@@ -22,7 +23,7 @@ class ProductService implements ProductServiceInterface
         $payload['name'] = $data['name'];
         $payload['store_id'] = $data['store_id'];
         $payload['brand_id'] = $data['brand_id'];
-        $payload['slug'] = $this->createSlug($data['name']);
+        $payload['slug'] = $this->generateSlug($data['name'], fn($slug) => $this->productRepo->checkIfProductSlugExit($slug));
         $payload['short_description'] = $data['short_description'];
         $payload['description'] = $data['long_description'];
         $payload['sku'] = $data['sku'];
@@ -45,7 +46,7 @@ class ProductService implements ProductServiceInterface
 
             // Handle document upload if provided
             if ($document instanceof UploadedFile) {
-                $this->uploadThumbnail($product, $document);
+                $this->uploadMedia($product, $document, 'product_thumbnail', 'thumbnail');
             }
 
             // attach categories
@@ -56,8 +57,6 @@ class ProductService implements ProductServiceInterface
 
             return $product->fresh();
         });
-
-        return $this->productRepo->createProduct($payload);
     }
 
     public function getProduct(int $id): Product
@@ -73,36 +72,5 @@ class ProductService implements ProductServiceInterface
     public function updateProduct(int $id, array $data): Product
     {
         throw new \Exception('Not implemented');
-    }
-
-    private function uploadThumbnail(Product $product, $image): string
-    {
-        $product->clearMediaCollection('product_thumbnail');
-
-        // upload new avatar (Spatie)
-        $media = $product
-            ->addMedia($image)
-            ->usingFileName(uniqid() . '.' . $image->getClientOriginalExtension())
-            ->toMediaCollection('product_thumbnail');
-
-        // store avatar path in DB
-        $product->thumbnail = $media->getUrl();
-        $product->save();
-
-        return $product->thumbnail;
-    }
-
-    private function createSlug(string $productName): string
-    {
-        $slug = Str::slug($productName, '-');
-        $originalSlug = $slug;
-        $count = 1;
-
-        while ($this->productRepo->checkIfProductSlugExit($slug)) {
-            $slug = "{$originalSlug}-{$count}";
-            $count++;
-        }
-
-        return $slug;
     }
 }

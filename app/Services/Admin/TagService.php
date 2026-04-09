@@ -5,11 +5,12 @@ namespace App\Services\Admin;
 use App\Models\Tag;
 use App\Repositories\Contracts\Admin\ProductRepositoryInterface;
 use App\Services\Contracts\Admin\TagServiceInterface;
+use App\Services\BaseService;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Str;
 
-class TagService implements TagServiceInterface
+class TagService extends BaseService implements TagServiceInterface
 {
     public function __construct(
         protected ProductRepositoryInterface $productRepo
@@ -19,7 +20,7 @@ class TagService implements TagServiceInterface
     {
         $payload['name'] = $data['name'];
         $payload['is_active'] = isset($data['status']) ? 1 : 0;
-        $payload['slug'] = $this->createSlug($data['name']);
+        $payload['slug'] = $this->generateSlug($data['name'], fn($slug) => $this->productRepo->checkIfTagSlugExit($slug));
 
         return $this->productRepo->createTag($payload);
     }
@@ -39,7 +40,7 @@ class TagService implements TagServiceInterface
         $tag = $this->getTag($id);
 
         $payload['name'] = $data['name'];
-        $payload['slug'] = $tag->name !== $data['name'] ? $this->createSlug($data['name']) : $tag->slug;
+        $payload['slug'] = $tag->name !== $data['name'] ? $this->generateSlug($data['name'], fn($slug) => $this->productRepo->checkIfTagSlugExit($slug)) : $tag->slug;
 
         return $this->productRepo->updateTag($id, $payload);
     }
@@ -54,19 +55,5 @@ class TagService implements TagServiceInterface
     public function findTag(string $tagName): Collection
     {
         return $this->productRepo->findTag($tagName);
-    }
-
-    private function createSlug(string $tagName): string
-    {
-        $slug = Str::slug($tagName, '-');
-        $originalSlug = $slug;
-        $count = 1;
-
-        while ($this->productRepo->checkIfTagSlugExit($slug)) {
-            $slug = "{$originalSlug}-{$count}";
-            $count++;
-        }
-
-        return $slug;
     }
 }

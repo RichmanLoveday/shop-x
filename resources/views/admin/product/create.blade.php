@@ -173,6 +173,22 @@
                             </div>
                         </div>
                     </div>
+
+
+                    <div class="card mt-3">
+                        <div class="card-header">
+                            <h3 class="card-title">Product Image</h3>
+                        </div>
+
+                        <div class="card-body">
+                            <div class="col-md-12">
+                                <div class="mb-3">
+                                    <div id="imageUploader" class="dropzone"></div>
+                                    <div id="imagePreviewContainer" class="image-preview-container"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="col-md-4 space-y-3">
