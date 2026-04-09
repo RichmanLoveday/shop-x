@@ -148,6 +148,11 @@ Route::middleware('auth:admin')
             Route::get('/product/create', 'create')->name('products.create');
             Route::get('/product/storename/{name}')->name('products.storename');
             Route::post('/product/store', 'store')->name('products.store');
+            Route::post('/product/upload/image/{productId}', 'uploadImage')->name('products.upload-image');
+            Route::delete('/product/images/{id}', 'destroyProductImage')->name('products.images.destroy');
+            Route::post('/product/images/{productId}/reorder', 'reorderProductImages')->name('products.images.reorder');
+            Route::get('/product/{id}/edit', 'edit')->name('products.edit');
+            Route::post('/product/{id}', 'update')->name('products.update');
         });
 
         // Stores Controller routes

@@ -1,5 +1,133 @@
 @extends('admin.layout.app')
 @section('contents')
+    @push('styles')
+        <link href="https://unpkg.com/dropzone@5/dist/min/dropzone.min.css" rel="stylesheet" />
+        <style>
+            /* UPLOADER BOX */
+            .image-uploader-box {
+                border: 2px dashed var(--tblr-border-color);
+                padding: 40px;
+                text-align: center;
+                cursor: pointer;
+                background: var(--tblr-bg-surface);
+                transition: 0.3s;
+            }
+
+            .image-uploader-box:hover {
+                border-color: var(--tblr-primary);
+                background: var(--tblr-bg-surface-secondary);
+            }
+
+            .upload-placeholder i {
+                font-size: 30px;
+                color: var(--tblr-muted);
+            }
+
+            .upload-placeholder p {
+                margin-top: 10px;
+                color: var(--tblr-muted);
+                font-size: 14px;
+            }
+
+            /* PREVIEW GRID */
+            .image-preview-container {
+                display: grid;
+                grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+                gap: 12px;
+                margin-top: 15px;
+            }
+
+            /* IMAGE CARD */
+            .image-card {
+                position: relative;
+                width: 100%;
+                height: 120px;
+                background: var(--tblr-bg-surface);
+                border: 1px solid var(--tblr-border-color);
+                overflow: hidden;
+            }
+
+            /* IMAGE */
+            .image-card img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
+
+            /* UPLOADING STATE */
+            .image-card.uploading {
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                gap: 10px;
+            }
+
+            /* LOADER */
+            .image-loader {
+                display: flex;
+                gap: 4px;
+            }
+
+            .image-loader span {
+                width: 4px;
+                height: 16px;
+                background: #1db954;
+                animation: bounce 1s infinite ease-in-out;
+            }
+
+            .image-loader span:nth-child(2) {
+                animation-delay: 0.2s;
+            }
+
+            .image-loader span:nth-child(3) {
+                animation-delay: 0.4s;
+            }
+
+            @keyframes bounce {
+
+                0%,
+                100% {
+                    transform: scaleY(0.5);
+                }
+
+                50% {
+                    transform: scaleY(1.2);
+                }
+            }
+
+            /* TEXT */
+            .uploading-text {
+                font-size: 12px;
+                color: var(--tblr-muted);
+            }
+
+            /* DELETE ICON */
+            .image-remove {
+                position: absolute;
+                z-index: 100;
+                top: 6px;
+                right: 6px;
+                background: rgba(0, 0, 0, 0.6);
+                color: #fff;
+                padding: 4px;
+                cursor: pointer;
+            }
+
+
+            /* Dragging ghost */
+            .dragging {
+                opacity: 0.5;
+            }
+
+            /* Selected item */
+            .drag-chosen {
+                transform: scale(1.03);
+                box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+                z-index: 10;
+            }
+        </style>
+    @endpush
     <div class="container-xl">
         <form enctype="multipart/form-data" id="product_form">
             @csrf
@@ -13,7 +141,7 @@
                                 <div class="col-md-12">
                                     <div class="">
                                         <label class="form-label required">Name</label>
-                                        <input type="text" name="name" value="{{ old('name') }}"
+                                        <input type="text" name="name" value="{{ $product->name }}"
                                             class="form-control" required>
                                         <x-input-error :messages="$errors->get('name')" class="mt-2" />
                                     </div>
@@ -26,7 +154,7 @@
                             <div class="col-md-12">
                                 <div class="mb-3">
                                     <label class="form-label">Short Description</label>
-                                    <textarea name="short_description" class="form-control" id="short-description" cols="50" rows="10">{{ old('short_description') }}</textarea>
+                                    <textarea name="short_description" class="form-control" id="short-description" cols="50" rows="10">{{ $product->short_description }}</textarea>
                                     <x-input-error :messages="$errors->get('short_description')" class="mt-2" />
                                 </div>
                             </div>
@@ -35,7 +163,7 @@
                             <div class="col-md-12">
                                 <div class="mb-3">
                                     <label class="form-label required">Content</label>
-                                    <textarea name="long_description" class="form-control" id="long-description" cols="50" rows="10" required>{{ old('long_description') }}</textarea>
+                                    <textarea name="long_description" class="form-control" id="long-description" cols="50" rows="10" required>{{ $product->description }}</textarea>
                                     <x-input-error :messages="$errors->get('long_description')" class="mt-2" />
                                 </div>
                             </div>
@@ -45,7 +173,7 @@
                                 <div class="col-md-3">
                                     <label for="thumbnail" class="form-label required">Thumbnail</label>
                                     <x-input-image imageUpload="thumbnail" id="preview-image" name="thumbnail"
-                                        previewImage="preview-thumbnail" :image="auth()->user()->avatar" class="thumbnail" />
+                                        previewImage="preview-thumbnail" :image="$product->thumbnail" class="thumbnail" />
 
                                     {{-- <x-input-image name="avatar" imageUpload="thumbnail" id="preview-image"
                                     previewImage="preview-user-image" :image="auth()->user()->avatar" class="user-avatar" /> --}}
@@ -63,7 +191,7 @@
                                 <div class="col-md-4">
                                     <div class="mb-3">
                                         <label class="form-label">SKU</label>
-                                        <input type="text" name="sku" value="{{ old('sku') }}"
+                                        <input type="text" name="sku" value="{{ $product->sku }}"
                                             class="form-control">
                                         <x-input-error :messages="$errors->get('sku')" class="mt-2" />
                                     </div>
@@ -74,7 +202,7 @@
                                 <div class="col-md-4">
                                     <div class="mb-3">
                                         <label class="form-label">Price</label>
-                                        <input type="text" name="price" value="{{ old('price') }}"
+                                        <input type="text" name="price" value="{{ $product->price }}"
                                             class="form-control">
                                         <x-input-error :messages="$errors->get('price')" class="mt-2" />
                                     </div>
@@ -83,7 +211,7 @@
                                 <div class="col-md-4">
                                     <div class="mb-3">
                                         <label class="form-label">Special Price</label>
-                                        <input type="text" name="special_price" value="{{ old('special_price') }}"
+                                        <input type="text" name="special_price" value="{{ $product->special_price }}"
                                             class="form-control">
                                         <x-input-error :messages="$errors->get('special_price')" class="mt-2" />
                                     </div>
@@ -98,7 +226,8 @@
                                                 <i class="ti ti-calendar-event fs-2"></i>
                                             </span>
                                             <input class="form-control" placeholder="Select a date" id="from_date"
-                                                value="{{ old('from_date') }}" name="from_date">
+                                                value="{{ old('from_date') ?? $product->special_price_start }}"
+                                                name="from_date">
                                             <x-input-error :messages="$errors->get('from_date')" class="mt-2" />
                                         </div>
                                         {{-- <input required="" id="date" name="dob" class="datepicker" /> --}}
@@ -114,7 +243,8 @@
                                                 <i class="ti ti-calendar-event fs-2"></i>
                                             </span>
                                             <input class="form-control" placeholder="Select a date" id="end_date"
-                                                value="{{ old('end_date') }}" name="end_date">
+                                                value="{{ old('end_date') ?? $product->special_price_end }}"
+                                                name="end_date">
                                             <x-input-error :messages="$errors->get('end_date')" class="mt-2" />
                                         </div>
                                     </div>
@@ -125,7 +255,8 @@
                                     <div class="col-md-12">
                                         <div class="mb-3 ">
                                             <label for="manage-stock" class="form-check">
-                                                <input id="manage-stock" class="form-check-input" type="checkbox">
+                                                <input id="manage-stock" class="form-check-input" type="checkbox"
+                                                    {{ $product->manage_stock == 'yes' ? 'checked' : '' }}>
                                                 <span class="form-check-label">Manage Stock</span>
                                             </label>
                                             <x-input-error :messages="$errors->get('is_featured')" class="mt-2" />
@@ -133,18 +264,22 @@
                                     </div>
 
 
-                                    <div class="col-md-6" style="display: none" id="quantity-field">
+                                    <div class="col-md-6"
+                                        style="display: {{ $product->manage_stock == 'yes' ? 'block' : 'none' }}"
+                                        id="quantity-field">
                                         <div class="mb-3">
                                             <label class="form-label">Quantity</label>
-                                            <input type="text" name="quantity" value="{{ old('quantity') }}"
-                                                class="form-control">
+                                            <input type="text" name="quantity"
+                                                value="{{ old('quantity') ?? $product->qty }}" class="form-control">
                                             <x-input-error :messages="$errors->get('quantity')" class="mt-2" />
                                         </div>
                                     </div>
                                 </div>
 
 
-                                <div class="row" style="display: none" id="stock-status-field">
+                                <div class="row"
+                                    style="display: {{ $product->manage_stock == 'yes' ? 'block' : 'none' }}"
+                                    id="stock-status-field">
                                     <div class="card">
                                         <div class="card-header">
                                             <h3>Stock Status</h3>
@@ -155,19 +290,51 @@
                                                     <label for="inStock" class="form-check">
                                                         <input type="radio" class="form-check-input"
                                                             name="stock_status" value="in_stock" id="inStock"
-                                                            {{ old('stock_status') == 'in_stock' ? 'checked' : '' }}>
+                                                            {{ old('stock_status') == 'in_stock' || $product->in_stock == 1 ? 'checked' : '' }}>
                                                         <span class="form-check-label">In Stock</span>
                                                     </label>
                                                     <label for="outOfStock" class="form-check">
                                                         <input type="radio" class="form-check-input"
                                                             name="stock_status" value="out_of_stock" id="outOfStock"
-                                                            {{ old('stock_status') == 'out_of_stock' ? 'checked' : '' }}>
+                                                            {{ old('stock_status') == 'out_of_stock' || $product->in_stock == 0 ? 'checked' : '' }}>
                                                         <span class="form-check-label">Out of Stock</span>
                                                     </label>
                                                     <x-input-error :messages="$errors->get('stock_status')" class="mt-2" />
                                                 </div>
                                             </div>
                                         </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <div id="product-images" class="card mt-3">
+                        <div class="card-header">
+                            <h3 class="card-title">Product Image</h3>
+                        </div>
+
+                        <div class="card-body">
+                            <div class="col-md-12">
+                                <div class="mb-3">
+                                    <div id="imageUploader" class="image-uploader-box">
+                                        <div class="upload-placeholder">
+                                            <i class="ti ti-upload"></i>
+                                            <p>Drop images here or click to upload</p>
+                                        </div>
+                                    </div>
+
+                                    <div id="imagePreviewContainer" class="image-preview-container">
+                                        @foreach ($product->images ?? [] as $image)
+                                            <div class="image-card" data-id="{{ $image->id }}">
+                                                <span onclick="removeImage('{{ $image->id }}', this)"
+                                                    class="image-remove" data-id="{{ $image->id }}">
+                                                    <i class="ti ti-xbox-x fs-1"></i>
+                                                </span>
+                                                <img src="{{ $image->path }}" />
+                                            </div>
+                                        @endforeach
                                     </div>
                                 </div>
                             </div>
@@ -184,7 +351,8 @@
                             <div class="mb-3">
                                 <select name="store_id" id="select_store" class="form-control select2" required>
                                     <option value="">--- Select Store ---</option>
-
+                                    <option value="{{ $product->store_id }}" selected>{{ $product->store->name }}
+                                    </option>
                                 </select>
                                 <x-input-error :messages="$errors->get('store_id')" class="mt-2" />
                             </div>
@@ -205,7 +373,8 @@
                                             <li>
                                                 <label class="form-check category-wrapper">
                                                     <input type="checkbox" class="form-check-input category-check"
-                                                        name="categories[]" value="{{ $category->id }}">
+                                                        name="categories[]" value="{{ $category->id }}"
+                                                        @checked(in_array($category->id, $product->categories->pluck('id')->toArray()))>
                                                     <span
                                                         class="form-check-label category-label">{{ $category->name }}</span>
                                                 </label>
@@ -217,7 +386,8 @@
                                                                 <label class="form-check category-wrapper">
                                                                     <input type="checkbox"
                                                                         class="form-check-input category-check"
-                                                                        name="categories[]" value="{{ $child->id }}">
+                                                                        name="categories[]" value="{{ $child->id }}"
+                                                                        @checked(in_array($child->id, $product->categories->pluck('id')->toArray()))>
                                                                     <span
                                                                         class="form-check-label category-label">{{ $child->name }}</span>
                                                                 </label>
@@ -230,7 +400,8 @@
                                                                                     <input type="checkbox"
                                                                                         class="form-check-input category-check"
                                                                                         name="categories[]"
-                                                                                        value="{{ $grandChild->id }}">
+                                                                                        value="{{ $grandChild->id }}"
+                                                                                        @checked(in_array($grandChild->id, $product->categories->pluck('id')->toArray()))>
                                                                                     <span
                                                                                         class="form-check-label category-label">{{ $grandChild->name }}</span>
                                                                                 </label>
@@ -263,7 +434,7 @@
                                     <option value="">--- Select Brand ---</option>
                                     @foreach ($brands as $brand)
                                         <option value="{{ $brand->id }}"
-                                            {{ old('brand_id') == $brand->id ? 'selected' : '' }}>
+                                            {{ $product->brand_id == $brand->id ? 'selected' : '' }}>
                                             {{ $brand->name }}
                                         </option>
                                     @endforeach
@@ -298,7 +469,7 @@
                                 <div class="mb-3">
                                     <label class="form-check form-switch form-switch-3">
                                         <input class="form-check-input" id="status" type="checkbox"
-                                            name="is_featured">
+                                            name="is_featured" {{ $product->is_featured ? 'checked' : '' }}>
                                         <span class="form-check-label">Enable</span>
                                     </label>
                                 </div>
@@ -315,11 +486,13 @@
                             <div class="col-md-12">
                                 <div class="mb-3 ">
                                     <label for="hot" class="form-check">
-                                        <input id="hot" class="form-check-input" type="checkbox" name="is_hot">
+                                        <input id="hot" class="form-check-input" type="checkbox" name="is_hot"
+                                            @checked($product->is_hot)>
                                         <span class="form-check-label">Hot</span>
                                     </label>
                                     <label for="new" class="form-check">
-                                        <input id="new" class="form-check-input" type="checkbox" name="is_new">
+                                        <input id="new" class="form-check-input" type="checkbox" name="is_new"
+                                            @checked($product->is_new)>
                                         <span class="form-check-label">New</span>
                                     </label>
                                     <x-input-error :messages="$errors->get('is_featured')" class="mt-2" />
@@ -336,6 +509,11 @@
                             <div class="mb-3">
                                 <select name="tags[]" class="form-control select2" id="select_tag" multiple="multiple">
                                     <option value="">--- Select Tag ---</option>
+                                    @foreach ($product->tags as $item)
+                                        <option value="{{ $item->id }}" @selected(in_array($item->id, $product->tags->pluck('id')->toArray()))>
+                                            {{ $item->name }}
+                                        </option>
+                                    @endforeach
                                 </select>
                                 <x-input-error :messages="$errors->get('tag_id')" class="mt-2" />
                             </div>
@@ -351,7 +529,8 @@
                                 <select name="status" id="status" class="form-control select2" required>
                                     <option value="">--- Select Status ---</option>
                                     @foreach ($statuses as $item)
-                                        <option value="{{ $item->value }}">{{ $item->label() }}</option>
+                                        <option value="{{ $item->value }}" @selected($product->status == $item->value)>
+                                            {{ $item->label() }}</option>
                                     @endforeach
                                 </select>
                                 <x-input-error :messages="$errors->get('status')" class="mt-2" />
@@ -362,7 +541,7 @@
                     <div class="card">
                         <div class="card-body">
                             <div class="w-100 text-center">
-                                <button class="btn btn-primary w-100" type="submit">Create Product</button>
+                                <button class="btn btn-primary w-100" type="submit">Update Product</button>
                             </div>
                         </div>
                     </div>
@@ -374,6 +553,17 @@
 
     @push('scripts')
         <script>
+            Dropzone = window.Dropzone || {};
+            Dropzone.autoDiscover = false;
+        </script>
+        <script src="https://unpkg.com/dropzone@5/dist/min/dropzone.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+
+        <script>
+            if (Dropzone.instances.length) {
+                Dropzone.instances.forEach(dz => dz.destroy());
+            }
+
             $(document).ready(function() {
                 $('#select_store').select2({
                     placeholder: 'Search for stores...',
@@ -600,7 +790,7 @@
                     });
 
                     // Disable End Date initially
-                    $('#end_date').prop('disabled', true);
+                    // $('#end_date').prop('disabled', true);
                 }
 
                 // Extra safety: if user manually clears input
@@ -641,7 +831,7 @@
 
                     let form = $(this);
                     let formData = new FormData(form[0]);
-                    let url = route('admin.products.store');
+                    let url = route('admin.products.update', {{ $product->id }});
 
                     $.ajax({
                         url: url,
@@ -650,9 +840,10 @@
                         processData: false,
                         contentType: false,
                         success: function(response) {
-                            if (response.status) {
-                                // redirect to edit page of the created product
-                                window.location.href = response.redirectUrl;
+                            if(response.status) {
+                                notyf.success(response.message || 'Product updated successfully');
+                            } else {
+                                notyf.error(response.message || 'Failed to update product');
                             }
                         },
                         error: function(xhr, status, error) {
@@ -665,10 +856,159 @@
                                     notyf.error(errors[key][0]);
                                 });
                             }
+
+                            if (xhr.status === 500) {
+                                notyf.error('Server error while updating product');
+                            }
+
+                            if(xhr.status == 419) {
+                                notyf.error('Session expired. Please refresh the page and try again.');
+                            }
                         }
                     });
                 });
+
+
+                Dropzone.autoDiscover = false;
+
+                let myDropzone = new Dropzone("#imageUploader", {
+                    url: route('admin.products.upload-image', {{ $product->id }}),
+                    paramName: "image",
+                    maxFilesize: 10,
+                    acceptedFiles: "image/*",
+                    previewsContainer: false,
+
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+
+                    init: function() {
+
+                        this.on("addedfile", function(file) {
+
+                            let preview = `
+                            <div class="image-card uploading">
+                                <div class="image-loader">
+                                    <span></span><span></span><span></span>
+                                </div>
+                                <div class="uploading-text">Uploading...</div>
+                            </div>
+                        `;
+
+                            file._previewEl = $(preview).appendTo('#imagePreviewContainer');
+                        });
+
+                        this.on("success", function(file, response) {
+
+                            const productImage = response.productImage;
+
+                            let html = `
+                                <div class="image-card" data-id="${productImage.id}">
+                                    <span class="image-remove" data-id="${productImage.id}">
+                                        <i class="ti ti-xbox-x fs-1"></i>
+                                    </span>
+                                    <img src="${productImage.path}" />
+                                </div>
+                            `;
+
+                            file._previewEl.replaceWith(html);
+
+                            enableSortable();
+                        });
+
+                        this.on("error", function(file) {
+                            console.log(file)
+                            const errors = JSON.parse(file.xhr.response).errors;
+                            console.log(errors);
+                            if (file.xhr.status == 422) {
+                                $.each(errors, function(key, value) {
+                                    notyf.error(errors[key][0]);
+                                });
+                            }
+
+                            if (file.xhr.status == 500) {
+                                notyf.error('Server error while uploading image');
+                            }
+
+                            file._previewEl.remove();
+                        });
+                    }
+                });
             });
+
+
+            // remove image
+            function removeImage(imageId, element) {
+                $.ajax({
+                    url: route('admin.products.images.destroy', imageId),
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    success: function(res) {
+                        $(element).closest('.image-card').remove();
+                    },
+                    error: function() {}
+                });
+            }
+
+            // delegate click handler for image removal
+            $(document).on('click', '.image-remove', function() {
+                const imageId = $(this).data('id');
+                removeImage(imageId, this);
+            });
+
+
+            let sortable;
+
+            function enableSortable() {
+                if (sortable) {
+                    sortable.destroy(); // prevent duplicate init
+                }
+
+                sortable = new Sortable(document.getElementById('imagePreviewContainer'), {
+                    animation: 150,
+                    ghostClass: 'dragging',
+                    chosenClass: 'drag-chosen',
+
+                    onEnd: function() {
+                        updateImageOrder();
+                    }
+                });
+            }
+
+            function updateImageOrder() {
+                let order = [];
+
+                $('#imagePreviewContainer .image-card').each(function(index) {
+                    order.push({
+                        id: $(this).data('id'),
+                        position: index + 1
+                    });
+                });
+
+                console.log(order);
+
+                let productId = {{ $product->id }}; // make sure this exists
+
+                $.ajax({
+                    url: route('admin.products.images.reorder', productId),
+                    method: 'POST',
+                    data: {
+                        images: order,
+                        _token: '{{ csrf_token() }}'
+                    },
+                    success: function(res) {
+                        notyf.success(res.message || 'Order updated');
+                    },
+                    error: function() {
+                        notyf.error('Failed to reorder images');
+                    }
+                });
+            }
+
+
+            enableSortable();
         </script>
     @endpush
 @endsection

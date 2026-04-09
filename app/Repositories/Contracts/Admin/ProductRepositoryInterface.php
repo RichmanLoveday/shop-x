@@ -5,6 +5,7 @@ namespace App\Repositories\Contracts\Admin;
 use App\Models\Brand;
 use App\Models\Category;
 use App\Models\Product;
+use App\Models\ProductImage;
 use App\Models\Tag;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -64,5 +65,17 @@ interface ProductRepositoryInterface
     // PRODUCT INTERFACES
     public function createProduct(array $data): Product;
 
+    public function getProduct(int $id): Product;
+
+    public function getProductImages(int $productId): Collection;
+
     public function checkIfProductSlugExit(string $slug): bool;
+
+    public function calculateProductImageMaxOrder(int $productId): int;
+
+    public function uploadProductImage(array $data): ProductImage;
+
+    public function findProductImage(int $id): ProductImage;
+
+    public function updateProduct(Product $product, array $data): Product;
 }

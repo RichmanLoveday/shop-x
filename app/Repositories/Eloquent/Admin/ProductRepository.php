@@ -5,6 +5,7 @@ namespace App\Repositories\Eloquent\Admin;
 use App\Models\Brand;
 use App\Models\Category;
 use App\Models\Product;
+use App\Models\ProductImage;
 use App\Models\Tag;
 use App\Repositories\Contracts\Admin\ProductRepositoryInterface;
 use Illuminate\Database\Eloquent\Collection;
@@ -186,5 +187,46 @@ class ProductRepository implements ProductRepositoryInterface
         return Product::query()
             ->where('slug', $slug)
             ->exists();
+    }
+
+    public function calculateProductImageMaxOrder(int $productId): int
+    {
+        return ProductImage::query()
+            ->where('product_id', $productId)
+            ->max('order') + 1;
+    }
+
+    public function uploadProductImage(array $data): ProductImage
+    {
+        return ProductImage::query()
+            ->create($data);
+    }
+
+    public function findProductImage(int $id): ProductImage
+    {
+        return ProductImage::findOrFail($id);
+    }
+
+    public function getProduct(int $id): Product
+    {
+        return Product::query()
+            ->with(['categories', 'tags', 'brand', 'images', 'store'])
+            ->findOrFail($id);
+    }
+
+    public function updateProduct(Product $product, array $data): Product
+    {
+        $product->update($data);
+
+        return $product->fresh();
+    }
+
+
+    public function getProductImages(int $productId): Collection
+    {
+        return ProductImage::query()
+            ->where('product_id', $productId)
+            ->orderBy('order')
+            ->get();
     }
 }
