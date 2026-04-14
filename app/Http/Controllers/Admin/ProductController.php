@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Enums\ProductAttributeType;
 use App\Enums\ProductStatus;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\ProductAttributeStoreRequest;
 use App\Http\Requests\Admin\ProductStoreRequest;
 use App\Http\Requests\Admin\ProductUpdateRequest;
 use App\Services\Contracts\Admin\BrandServiceInterface;
@@ -136,15 +138,19 @@ class ProductController extends Controller
     {
         $product = $this->productService->getProduct($id);
         // dd($product->toArray());
+        // dd($product->toArray());
         $brands = $this->brandService->allBrands();
         $categories = $this->categoryService->nestedCategories();
         $statuses = ProductStatus::cases();
+        $attributeTypes = ProductAttributeType::cases();
+
+        // dd($attributeTypes);
 
         // dd($statuses);
         // dd($categories);
         $tags = $this->tagService->allTags();
 
-        return view('admin.product.edit', compact('product', 'brands', 'categories', 'tags', 'statuses'));
+        return view('admin.product.edit', compact('product', 'brands', 'categories', 'tags', 'statuses', 'attributeTypes'));
     }
 
     public function update(ProductUpdateRequest $request, int $id)
@@ -161,6 +167,64 @@ class ProductController extends Controller
             logger()->error('Failed to update product: ' . $e->getMessage());
             return response()->json([
                 'message' => 'An error occurred while updating product',
+                'status' => false,
+            ], 500);
+        }
+    }
+
+    public function storeAttributes(ProductAttributeStoreRequest $request, int $id)
+    {
+        // dd($request->all());
+
+        try {
+            $product = $this->productService->addProductAttributes($id, $request->validated());
+            return response()->json([
+                'message' => 'Product attributes added successfully',
+                'product' => $product,
+                'status' => true,
+            ], 200);
+        } catch (\Exception $e) {
+            logger()->error('Failed to add product attributes: ' . $e->getMessage());
+            return response()->json([
+                'message' => 'An error occurred while adding product attributes',
+                'status' => false,
+            ], 500);
+        }
+    }
+
+    public function destroyAttribute(int $productId, int $attributeId)
+    {
+        // dd($productId, $attributeId);
+
+        try {
+            $product = $this->productService->deleteAttribute($attributeId, $productId);
+            return response()->json([
+                'message' => 'Product attributes deleted successfully',
+                'product' => $product,
+                'status' => true,
+            ], 200);
+        } catch (\Exception $e) {
+            logger()->error('Failed to add product attributes: ' . $e->getMessage());
+            return response()->json([
+                'message' => 'An error occurred while deleting product attributes',
+                'status' => false,
+            ], 500);
+        }
+    }
+
+    public function destroyAttributeValue(int $productId, int $attributeId, int $attributeValueId)
+    {
+        try {
+            $product = $this->productService->deleteAttributeValue($attributeValueId, $attributeId, $productId);
+            return response()->json([
+                'message' => 'Product attribute value deleted successfully',
+                'product' => $product,
+                'status' => true,
+            ], 200);
+        } catch (\Exception $e) {
+            logger()->error('Failed to add product attribute value: ' . $e->getMessage());
+            return response()->json([
+                'message' => 'An error occurred while deleting product attribute value',
                 'status' => false,
             ], 500);
         }

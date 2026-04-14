@@ -2,6 +2,7 @@
 
 namespace App\Services\Admin;
 
+use App\Enums\ProductAttributeType;
 use App\Models\Product;
 use App\Models\ProductImage;
 use App\Repositories\Contracts\Admin\ProductRepositoryInterface;
@@ -178,5 +179,90 @@ class ProductService extends BaseService implements ProductServiceInterface
         }
 
         return $productImages->fresh();
+    }
+
+    public function addProductAttributes(int $productId, array $data): Product
+    {
+        // dd($data);
+        return DB::transaction(function () use ($productId, $data) {
+            // check if product exist
+            $product = $this->getProduct($productId);
+
+            // Convert the string from request to an actual Enum instance
+            // dd($data['attribute_type'] ?? null);
+            $type = ProductAttributeType::from($data['attribute_type']);
+            $attributeId = $data['attribute_id'] ?? null;  // get for attribute id or return null
+
+            // dd($attributeId);
+
+            // create new attribute
+            $attribute = $this->productRepo->createOrUpdateAttribute([
+                'name' => $data['attribute_name'],
+                'type' => $type,
+            ], $attributeId);
+
+            // clear existing attribute values
+            $this->productRepo->clearAttributeValues($attribute);
+
+            // clear existing product attribute values
+            $this->productRepo->clearProductAttributeValues($product, $attribute);
+
+            // dd($attribute->toArray());
+
+            // create attribute values
+            $labels = $data['label'] ?? [];
+
+            foreach ($labels as $index => $label) {
+                // check if label is empty
+                if (empty($label))
+                    continue;
+
+                // Check if index exists in color_value, otherwise default to null
+                $hexCode = $data['color_value'][$index] ?? null;
+
+                // new attribute
+                $attributeValue = $this->productRepo->createAttributeValues($attribute->id, [
+                    'label' => $label,
+                    'color' => ($type === ProductAttributeType::COLOR) ? $hexCode : null,
+                ]);
+
+                // attach attribute values to product
+                $this->productRepo->createProductAttributeValues(
+                    $productId,
+                    $attribute->id,
+                    $attributeValue->id
+                );
+            }
+
+            return $product->fresh(['attributeValues',
+                'attributeWithValues' => function ($query) use ($product) {
+                    $query->WithValuesForProduct($product->id);
+                }]);
+        });
+    }
+
+    public function deleteAttribute(int $attributeId, int $productId): bool
+    {
+        $product = $this->getProduct($productId);
+        $attribute = $this->productRepo->getAttribute($attributeId);
+
+        if ($product && $attribute) {
+            return $this->productRepo->deleteAttribute($attribute);
+        }
+
+        return false;
+    }
+
+    public function deleteAttributeValue(int $attributeValueId, int $attributeId, int $productId): bool
+    {
+        $product = $this->getProduct($productId);
+        $attribute = $this->productRepo->getAttribute($attributeId);
+        $attributeValue = $this->productRepo->getAttributeValue($attributeValueId);
+
+        if ($product && $attribute && $attributeValue) {
+            return $this->productRepo->deleteAttributeValue($attributeValue);
+        }
+
+        return false;
     }
 }

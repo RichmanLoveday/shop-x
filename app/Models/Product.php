@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\ProductStatus;
 use App\Enums\ProductType;
+use Dom\Attr;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -76,5 +77,27 @@ class Product extends Model implements HasMedia
     public function store(): BelongsTo
     {
         return $this->belongsTo(Store::class);
+    }
+
+    public function attribute(): BelongsToMany
+    {
+        return $this
+            ->belongsToMany(Attribute::class, 'product_attribute_values')
+            ->withPivot('attribute_value_id');
+    }
+
+    public function attributeValues(): BelongsToMany
+    {
+        return $this
+            ->belongsToMany(AttributeValue::class, 'product_attribute_values')
+            ->withPivot('attribute_id');
+    }
+
+    public function attributeWithValues(): BelongsToMany
+    {
+        return $this
+            ->belongsToMany(Attribute::class, 'product_attribute_values')
+            ->distinct()
+            ->orderBy('id', 'asc');
     }
 }

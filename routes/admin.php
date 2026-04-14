@@ -153,6 +153,11 @@ Route::middleware('auth:admin')
             Route::post('/product/images/{productId}/reorder', 'reorderProductImages')->name('products.images.reorder');
             Route::get('/product/{id}/edit', 'edit')->name('products.edit');
             Route::post('/product/{id}', 'update')->name('products.update');
+
+            /* Product Attribute Routes */
+            Route::post('/product/attributes/{product}/store', 'storeAttributes')->name('products.attributes.store');
+            Route::delete('/product/attributes/{product}/destroy/{attribute}', 'destroyAttribute')->name('products.attributes.destroy');
+            Route::delete('/product/attributes/{product}/{attributeId}/value/destroy/{attributeValue}', 'destroyAttributeValue')->name('products.attributes.value.destroy');
         });
 
         // Stores Controller routes

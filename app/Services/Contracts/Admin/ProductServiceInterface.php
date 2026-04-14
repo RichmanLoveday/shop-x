@@ -22,4 +22,10 @@ interface ProductServiceInterface
     public function deleteProductImage(int $id): bool;
 
     public function reorderProductImages(int $productId, array $images): Collection;
+
+    public function addProductAttributes(int $productId, array $data): Product;
+
+    public function deleteAttribute(int $attributeId, int $productId): bool;
+
+    public function deleteAttributeValue(int $attributeValueId, int $attributeId, int $productId): bool;
 }

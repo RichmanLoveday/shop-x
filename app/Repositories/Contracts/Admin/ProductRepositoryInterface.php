@@ -2,11 +2,15 @@
 
 namespace App\Repositories\Contracts\Admin;
 
+use App\Models\Attribute;
+use App\Models\AttributeValue;
 use App\Models\Brand;
 use App\Models\Category;
 use App\Models\Product;
+use App\Models\ProductAttributeValue;
 use App\Models\ProductImage;
 use App\Models\Tag;
+use Dom\Attr;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
 use PhpCsFixer\Tokenizer\CT;
@@ -78,4 +82,22 @@ interface ProductRepositoryInterface
     public function findProductImage(int $id): ProductImage;
 
     public function updateProduct(Product $product, array $data): Product;
+
+    public function createOrUpdateAttribute(array $data, ?int $attributeId = null): Attribute;
+
+    public function createAttributeValues(int $attributeId, array $data): AttributeValue;
+
+    public function createProductAttributeValues(int $productId, int $attributeId, int $attribute_value_id): ProductAttributeValue;
+
+    public function clearProductAttributeValues(Product $product, Attribute $attribute): void;
+
+    public function clearAttributeValues(Attribute $attribute): void;
+
+    public function getAttribute(int $attributeId): Attribute;
+
+    public function getAttributeValue(int $attribute_value_id): AttributeValue;
+
+    public function deleteAttribute(Attribute $attribute): bool;
+
+    public function deleteAttributeValue(AttributeValue $attributeValue): bool;
 }

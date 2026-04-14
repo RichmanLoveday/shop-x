@@ -2,6 +2,7 @@
 @section('contents')
     @push('styles')
         <link href="https://unpkg.com/dropzone@5/dist/min/dropzone.min.css" rel="stylesheet" />
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@simonwep/pickr/dist/themes/classic.min.css" />
         <style>
             /* UPLOADER BOX */
             .image-uploader-box {
@@ -340,6 +341,32 @@
                             </div>
                         </div>
                     </div>
+
+
+                    <div id="product-images" class="card mt-3">
+                        <div class="card-header">
+                            <h3 class="card-title">Product Attributes</h3>
+                        </div>
+
+                        <div class="card-body">
+                            <div class="col-md-12">
+                                <div class="mb-3 ">
+                                    <div class="accordion" id="accordion-default">
+                                        @foreach ($product->attributeWithValues as $attributeWithValue)
+                                            @include('admin.product.partials.attributes', [
+                                                'attribute' => $attributeWithValue,
+                                                'product' => $product,
+                                                'attributeTypes' => $attributeTypes,
+                                            ])
+                                        @endforeach
+                                    </div>
+
+                                    <button class="btn btn-primary mt-3" id="add-attribute-btn" type="button">Add
+                                        Attribute</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="col-md-4 space-y-3">
@@ -558,7 +585,639 @@
         </script>
         <script src="https://unpkg.com/dropzone@5/dist/min/dropzone.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/@simonwep/pickr/dist/pickr.min.js"></script>
 
+
+        <script>
+            $(function() {
+
+                // initialize color picker
+                const pickerInstances = {};
+                let uniqueCounter = 0;
+
+                function generateUniqueId(prefix = 'picker-') {
+                    uniqueCounter++;
+                    return `${prefix}${uniqueCounter}-${Date.now()}`;
+                }
+
+                function createPicker(pickerId, defaultColor, inputSelector) {
+                    if (pickerInstances[pickerId]) {
+                        pickerInstances[pickerId].destroyAndRemove();
+                    }
+
+                    const picker = Pickr.create({
+                        el: `#${pickerId}`,
+                        theme: 'classic',
+                        default: defaultColor,
+
+                        components: {
+
+                            // Main components
+                            preview: true,
+                            opacity: true,
+                            hue: true,
+
+                            // Input / output Options
+                            interaction: {
+                                hex: true,
+                                rgba: true,
+                                hsla: true,
+                                hsva: true,
+                                cmyk: true,
+                                input: true,
+                                clear: true,
+                                save: true,
+                            }
+                        }
+                    });
+
+                    picker.on('change', (color) => {
+                        const selectedColor = color.toHEXA().toString();
+                        $(`#${pickerId}`).css('background-color', selectedColor);
+                        $(inputSelector).val(selectedColor);
+                    });
+                }
+
+
+                function destroyPicker(pickerId) {
+                    if (pickerInstances[pickerId]) {
+                        pickerInstances[pickerId].destroyAndRemove();
+                        delete pickerInstances[pickerId];
+                    }
+                }
+
+
+                function initColorPickersInContainer(container) {
+                    container.find('.color-preview').each(function() {
+                        const $this = $(this);
+                        const pickerId = $this.attr('id');
+                        const currentColor = $this.css('background-color') || "#000000";
+                        console.log(currentColor);
+                        createPicker(pickerId, currentColor, `input[data-picker-id="${pickerId}"]`);
+                    });
+                }
+
+                let count = 0;
+                $('#add-attribute-btn').on('click', function() {
+                    count++;
+                    const collapseId = `collapse-${count}-default`;
+                    const headerId = `header${count}`;
+
+                    const accordionItem =
+                        `<div class="accordion-item" data-index="${count}">
+                            <div class="accordion-header" id="${headerId}">
+                                <button class="accordion-button" type="button" data-bs-toggle="collapse"
+                                    data-bs-target="#${collapseId}" aria-controls="${collapseId}" aria-expanded="true">
+                                    New Attribute #${count}
+                                    <div class="accordion-button-toggle">
+                                        <!-- Download SVG icon from http://tabler.io/icons/icon/chevron-down -->
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24"
+                                            height="24" viewBox="0 0 24 24" fill="none"
+                                            stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                            stroke-linejoin="round" class="icon icon-1">
+                                            <path d="M6 9l6 6l6 -6"></path>
+                                        </svg>
+                                    </div>
+                                </button>
+                                <span class="delete-btn btn btn-sm btn-danger p-2 fs-2"
+                                    style="margin-right: 10px;">
+                                    <i class="ti ti-trash"></i>
+                                </span>
+                            </div>
+                            <div id="${collapseId}" class="accordion-collapse collapse"
+                                data-bs-parent="#accordion-default">
+                                <form action="" method="POST">
+                                    @csrf
+                                    <div class="accordion-body">
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <label for="" class="form-label">Name</label>
+                                                <input type="text" class="form-control" name="attribute_name"
+                                                    id="">
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label for="" class="form-label">Type</label>
+                                                <select name="attribute_type" id="" class="form-control main-type">
+                                                    <option value="text">Text</option>
+                                                    <option value="color">Color</option>
+                                                </select>
+                                            </div>
+                                        </div>
+
+                                        <table class="table table-bordered section-table mt-3" style="display: none;">
+                                            <thead>
+                                                <tr>
+                                                    <th>Label</th>
+                                                    <th class="value-header">Value</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody class="section-table-body">
+
+                                            </tbody>
+                                        </table>
+
+                                        <div class="mt-2">
+                                            <button class="btn btn-sm btn-primary add-row-btn" type="button">Add Row</button>
+                                            <button class="btn btn-sm btn-success save-btn">Save</button>
+                                        </div>
+                                    </div>
+                                </form>
+
+                            </div>
+                        </div>`;
+
+                    $('#accordion-default').append(accordionItem);
+                });
+
+
+
+
+                $(document).on('click', '.add-row-btn', function() {
+                    const accordionBody = $(this).closest('.accordion-body');
+                    const type = accordionBody.find('.main-type').val();
+                    const table = accordionBody.find('.section-table');
+                    const tbody = table.find('tbody');
+                    table.show();
+
+                    const pickerId = generateUniqueId();
+                    console.log(pickerId);
+                    let rowHtml = '';
+
+                    if (type === 'color') {
+                        rowHtml = `
+                        <tr>
+                             <td>
+                            <input type="text" class="form-control label-input"
+                                name="label[]" id=""
+                                placeholder="">
+                        </td>
+
+                        <td>
+                            <div class="d-flex align-items-center gap-2">
+                                <div id="${pickerId}" class="color-preview"></div>
+                                <input type="hidden" data-picker-id="${pickerId}" class="color-value"
+                                    name="color_value[]" id="">
+                                <span
+                                    class="review-row-btn ms-2 fs-2 cursor-pointer">
+                                    <i class="ti ti-trash"></i>
+                                </span>
+                            </div>
+                        </td>
+                        </tr>
+                        `;
+                    } else {
+                        rowHtml = `
+                       <tr>
+                         <td colspan="2">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <input type="text" class="form-control label-input" name="label[]" id="" placeholder="Label">
+                                <span class="review-row-btn ms-2 fs-2 cursor-pointer">
+                                    <i class="ti ti-trash"></i>
+                                </span>
+                            </div>
+                        </td>
+                        </tr>
+                        `;
+                    }
+
+                    tbody.append(rowHtml);
+
+                    // initialize color picker
+                    if (type === 'color') {
+                        createPicker(pickerId, '#000000', `input[data-picker-id="${pickerId}"]`);
+                    }
+                });
+
+
+                // remove attribute values
+                $(document).on('click', '.review-row-btn', function() {
+                    // alert('hshshs')
+                    const $btn = $(this);
+                    const $row = $btn.closest('tr');
+                    const valueId = $btn.data('attribute-value-id');
+                    const attributeId = $btn.data('attribute-id');
+                    const productId = $btn.data('product-id');
+
+                    // console.log(valueId, attributeId, productId);
+
+                    const originalHtml = $btn.html();
+                    $btn.html('<span class="spinner-border spinner-border-sm"></span>').prop('disabled', true);
+
+                    if (valueId) {
+                        $.ajax({
+                            url: route('admin.products.attributes.value.destroy', [productId,
+                                attributeId, valueId
+                            ]),
+                            method: 'DELETE',
+                            data: {
+                                _token: $('meta[name="csrf-token"]').attr('content')
+                            },
+                            success: function(res) {
+                                if (res.status) {
+                                    $row.fadeOut(300, () => $row.remove());
+                                    notyf.success(res.message || 'Value deleted');
+                                }
+                            },
+                            error: function() {
+                                notyf.error('Failed to delete value');
+                                $btn.html(originalHtml).prop('disabled', false);
+                            }
+                        });
+                    } else {
+                        // New row - just remove
+                        $row.fadeOut(300, () => {
+                            $row.remove();
+                            const $table = $btn.closest('.section-table');
+                            if ($table.find('tbody tr').length === 0) {
+                                $table.hide();
+                            }
+                        });
+                    }
+                });
+
+
+                // change type => rebuild rows and manage picker
+                $(document).on("change", ".main-type", function() {
+                    const accordionBody = $(this).closest('.accordion-body');
+                    const type = $(this).val();
+                    const table = accordionBody.find('.section-table');
+                    const tbody = table.find('tbody');
+
+                    // collect row values and destroy any existing pickers
+                    const labels = [];
+
+                    tbody.find('tr').each(function() {
+                        const colorPreview = $(this).find('.color-preview');
+                        if (colorPreview.length) {
+                            destroyPicker(colorPreview.att('id'));
+                        }
+
+
+                        const labelVal = $(this).find('.label-input').val();
+                        labels.push(labelVal || '');
+                    });
+
+                    tbody.empty();
+
+                    labels.forEach(label => {
+                        const pickerId = generateUniqueId();
+                        let rowHtml = "";
+
+
+                        if (type === 'color') {
+                            rowHtml = `
+                        <tr>
+                             <td>
+                            <input type="text" class="form-control label-input"
+                                name="label[]" id=""
+                                placeholder="" value="${label}">
+                        </td>
+
+                        <td>
+                            <div class="d-flex align-items-center gap-2">
+                                <div id="${pickerId}" class="color-preview"></div>
+                                <input type="hidden" data-picker-id="${pickerId}" class="color-value"
+                                    name="color_value[]" id="">
+                                <span
+                                    class="review-row-btn ms-2 fs-2 cursor-pointer">
+                                    <i class="ti ti-trash"></i>
+                                </span>
+                            </div>
+                        </td>
+                        </tr>
+                        `;
+                        } else {
+                            rowHtml = `
+                       <tr>
+                         <td colspan="2">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <input type="text" class="form-control label-input" name="label[]" id="" placeholder="Label" value="${label}">
+                                <span class="review-row-btn ms-2 fs-2 cursor-pointer">
+                                    <i class="ti ti-trash"></i>
+                                </span>
+                            </div>
+                        </td>
+                        </tr>
+                        `;
+                        }
+
+                        tbody.append(rowHtml);
+
+                        // initialize color picker
+                        if (type === 'color') {
+                            createPicker(pickerId, '#000000', `input[data-picker-id="${pickerId}"]`);
+                        }
+                    })
+
+
+                    // hide table when label is empty
+                    if (labels.length > 0) {
+                        table.show();
+                    } else {
+                        table.hide();
+                    }
+                });
+
+
+                // $(document).on('click', '.delete-btn', function() {
+                //     const accordionItem = $(this).closest('.accordion-item');
+                //     accordionItem.find('.color-preview').each(function() {
+                //         destroyPicker($(this).attr('id'));
+                //     });
+
+
+                //     $.ajax({
+                //         url: '',
+                //         method: "DELETE",
+                //         data: {},
+                //         before
+                //         success: function(res) {},
+                //         error: function(res) {},
+                //     })
+
+                //     accordionItem.remove();
+                // });
+
+
+                // delete attribute from DOM
+                $(document).on('click', '.delete-btn', function() {
+                    const $btn = $(this);
+                    const $accordionItem = $btn.closest('.accordion-item');
+                    const attributeId = $btn.data('attribute-id');
+                    const productId = $btn.data('product-id');
+
+                    if (!attributeId || !productId) {
+                        Swal.fire('Error', 'Attribute ID not found', 'error');
+                        return;
+                    }
+
+                    // SweetAlert Confirmation
+                    Swal.fire({
+                        title: 'Are you sure?',
+                        text: "You won't be able to revert this! All values under this attribute will also be deleted.",
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#d33',
+                        cancelButtonColor: '#3085d6',
+                        confirmButtonText: 'Yes, delete it!',
+                        cancelButtonText: 'Cancel'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+
+                            // Show spinner on button
+                            const originalHtml = $btn.html();
+                            $btn.html(
+                                    '<span class="spinner-border spinner-border-sm" role="status"></span>'
+                                    )
+                                .prop('disabled', true);
+
+                            $.ajax({
+                                url: route('admin.products.attributes.destroy', [productId,
+                                    attributeId
+                                ]),
+                                method: "DELETE",
+                                data: {
+                                    _token: "{{ csrf_token() }}"
+                                },
+                                success: function(res) {
+                                    if (res.status === true) {
+                                        // Destroy color pickers before removing
+                                        $accordionItem.find('.color-preview').each(
+                                        function() {
+                                            destroyPicker($(this).attr('id'));
+                                        });
+
+                                        // Remove with animation
+                                        $accordionItem.fadeOut(400, function() {
+                                            $(this).remove();
+
+                                            // Optional: Show empty state if no attributes left
+                                            if ($(
+                                                    '#accordion-default .accordion-item')
+                                                .length === 0) {
+                                                $('#accordion-default').html(
+                                                    '<p class="text-muted p-4 text-center">No attributes added yet.</p>'
+                                                );
+                                            }
+                                        });
+
+                                        Swal.fire({
+                                            title: 'Deleted!',
+                                            text: res.message ||
+                                                'Attribute has been deleted successfully.',
+                                            icon: 'success',
+                                            timer: 2000,
+                                            showConfirmButton: false
+                                        });
+                                    }
+                                },
+                                error: function(xhr) {
+                                    console.error(xhr);
+                                    Swal.fire({
+                                        title: 'Error!',
+                                        text: xhr.responseJSON?.message ||
+                                            'Failed to delete attribute',
+                                        icon: 'error'
+                                    });
+
+                                    // Restore button
+                                    $btn.html(originalHtml).prop('disabled', false);
+                                }
+                            });
+                        }
+                    });
+                });
+
+
+                // save attribute to database
+                $(document).on('click', '.save-btn', function(e) {
+                    e.preventDefault();
+                    const form = $(this).closest('form');
+                    const data = form.serialize();
+
+                    // console.log(data);
+                    $.ajax({
+                        url: route('admin.products.attributes.store', {{ $product->id }}),
+                        method: "POST",
+                        data: data,
+                        success: function(res) {
+                            // Re-render all attributes with fresh data
+                            if (res.product.attribute_with_values && res.product
+                                .attribute_with_values.length > 0) {
+
+                                let html = '';
+
+                                res.product.attribute_with_values.forEach(function(attribute) {
+                                    html += renderAttributeAccordion(attribute, res
+                                        .product);
+                                });
+
+                                $('#accordion-default').html(html);
+
+
+                                // Re-initialize color pickers if needed
+                                initColorPickersInContainer($('#accordion-default'));
+                                notyf.success(res.message);
+
+                            }
+                        },
+                        error: function(res) {
+                            // console.log(res);
+
+                            if (res.status === 422) {
+                                const errors = res.responseJSON.errors;
+                                $.each(errors, function(key, value) {
+                                    notyf.error(value[0]);
+                                });
+                            }
+
+                            if (res.status === 500) {
+                                notyf.error(res.responseJSON.message ||
+                                    'Server error while saving attribute');
+                            }
+                        }
+                    });
+                });
+
+
+
+                function renderAttributeAccordion(attribute, product) {
+                    const isColor = attribute.type === 'color';
+                    let rowsHtml = '';
+
+                    // Generate rows for values
+                    if (attribute.values && attribute.values.length > 0) {
+                        attribute.values.forEach(function(value, index) {
+                            const pickerId = isColor ? `pickr-${attribute.id}-${index}-${Date.now()}` : '';
+
+                            if (isColor) {
+                                rowsHtml += `
+                                <tr>
+                                    <td>
+                                        <input type="text" class="form-control label-input"
+                                            value="${value.label}" name="label[]" placeholder="">
+                                    </td>
+                                    <td>
+                                        <div class="d-flex align-items-center gap-2">
+                                            <div id="${pickerId}" class="color-preview"
+                                                style="background-color: ${value.color || '#ffffff'};"></div>
+                                            <input type="hidden" value="${value.color || ''}"
+                                                data-picker-id="${pickerId}" class="color-value" name="color_value[]">
+                                            <span data-attribute-value-id="${value.id}"
+                                                 data-product-id="${product.id}"
+                                                 data-attribute-id="${attribute.id}" class="review-row-btn ms-2 fs-2 cursor-pointer text-danger delete-row">
+                                                <i class="ti ti-trash"></i>
+                                            </span>
+                                        </div>
+                                    </td>
+                                </tr>`;
+                            } else {
+                                rowsHtml += `
+                                <tr>
+                                    <td colspan="2">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <input type="text" class="form-control label-input"
+                                                value="${value.label}" name="label[]" placeholder="Label">
+                                            <span data-attribute-value-id="${value.id}"
+                                                 data-product-id="${product.id}"
+                                                 data-attribute-id="${attribute.id}" class="review-row-btn ms-2 fs-2 cursor-pointer text-danger delete-row">
+                                                <i class="ti ti-trash"></i>
+                                            </span>
+                                        </div>
+                                    </td>
+                                </tr>`;
+                            }
+                        });
+                    }
+
+                    const tableStyle = (attribute.values && attribute.values.length > 0) ? '' : 'display: none;';
+
+                    return `
+                        <div class="accordion-item">
+                            <div class="accordion-header">
+                                <button class="accordion-button" type="button" data-bs-toggle="collapse"
+                                    data-bs-target="#collapse-${attribute.id}-default" aria-expanded="true">
+                                    ${attribute.name}
+                                    <div class="accordion-button-toggle">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                            class="icon icon-1">
+                                            <path d="M6 9l6 6l6 -6"></path>
+                                        </svg>
+                                    </div>
+                                </button>
+                                <span data-product-id="${product.id}" class="delete-btn btn btn-sm btn-danger p-2 fs-2" style="margin-right: 10px;" data-attribute-id="${attribute.id}">
+                                    <i class="ti ti-trash"></i>
+                                </span>
+                            </div>
+                            <div id="collapse-${attribute.id}-default" class="accordion-collapse collapse" data-bs-parent="#accordion-default">
+                                <form method="POST" class="attribute-form">
+                                    @csrf
+                                    <div class="accordion-body">
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <label class="form-label">Name</label>
+                                                <input type="text" class="form-control" name="attribute_name"
+                                                    value="${attribute.name}">
+                                                <input type="hidden" name="attribute_id" value="${attribute.id}">
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label">Type</label>
+                                                <select name="attribute_type" class="form-control main-type">
+                                                    ${generateTypeOptions(attribute.type)}
+                                                </select>
+                                            </div>
+                                        </div>
+
+                                        <table class="table table-bordered section-table mt-3" style="${tableStyle}">
+                                            <thead>
+                                                <tr>
+                                                    <th>Label</th>
+                                                    <th class="value-header">Value</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                ${rowsHtml}
+                                            </tbody>
+                                        </table>
+
+                                        <div class="mt-2">
+                                            <button type="button" class="btn btn-sm btn-primary add-row-btn">Add Row</button>
+                                            <button type="button" class="btn btn-sm btn-success save-btn">Save</button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>`;
+                }
+
+                // Helper function to generate type options
+                function generateTypeOptions(currentType) {
+                    let options = '';
+                    const types = [{
+                            value: 'text',
+                            label: 'Text'
+                        },
+                        {
+                            value: 'color',
+                            label: 'Color'
+                        }
+                    ];
+
+                    types.forEach(type => {
+                        const selected = type.value === currentType ? 'selected' : '';
+                        options += `<option value="${type.value}" ${selected}>${type.label}</option>`;
+                    });
+                    return options;
+                }
+
+
+                // initialize existing color pickers on page load
+                $(document).ready(function() {
+                    initColorPickersInContainer($('#accordion-default'));
+                });
+            });
+        </script>
         <script>
             if (Dropzone.instances.length) {
                 Dropzone.instances.forEach(dz => dz.destroy());
@@ -840,7 +1499,7 @@
                         processData: false,
                         contentType: false,
                         success: function(response) {
-                            if(response.status) {
+                            if (response.status) {
                                 notyf.success(response.message || 'Product updated successfully');
                             } else {
                                 notyf.error(response.message || 'Failed to update product');
@@ -861,8 +1520,9 @@
                                 notyf.error('Server error while updating product');
                             }
 
-                            if(xhr.status == 419) {
-                                notyf.error('Session expired. Please refresh the page and try again.');
+                            if (xhr.status == 419) {
+                                notyf.error(
+                                    'Session expired. Please refresh the page and try again.');
                             }
                         }
                     });
