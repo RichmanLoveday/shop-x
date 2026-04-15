@@ -5,12 +5,14 @@ namespace App\Services\Admin;
 use App\Enums\ProductAttributeType;
 use App\Models\Product;
 use App\Models\ProductImage;
+use App\Models\ProductVariant;
 use App\Repositories\Contracts\Admin\ProductRepositoryInterface;
 use App\Services\Contracts\Admin\ProductServiceInterface;
 use App\Services\BaseService;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Collection as SupportCollection;
 use Illuminate\Support\Str;
 use Pest\Support\Arr;
 
@@ -234,6 +236,9 @@ class ProductService extends BaseService implements ProductServiceInterface
                 );
             }
 
+            // regenerate product variants
+            $this->regenerateProductVariants($product);
+
             return $product->fresh(['attributeValues',
                 'attributeWithValues' => function ($query) use ($product) {
                     $query->WithValuesForProduct($product->id);
@@ -264,5 +269,107 @@ class ProductService extends BaseService implements ProductServiceInterface
         }
 
         return false;
+    }
+
+    private function regenerateProductVariants(Product $product)
+    {
+        // clear existing variants
+        $this->clearExistingVariants($product);
+        // dd('product variant cleared');
+
+        // get current attribute values group by attributes
+        $attributeGroups = $this->getAttributeGroups($product);
+
+        // dd($attributeGroups->toArray());
+
+        // throw error if group is empty
+        if ($attributeGroups->isEmpty()) {
+            throw new \Exception('No attribute values found for variant generation');
+        }
+
+        // make combinations
+        $combination = $this->cartesianProduct($attributeGroups);
+        // dd($combination);
+
+        $this->createVariantsCombinations($product, $combination);
+    }
+
+    private function clearExistingVariants(Product $product): void
+    {
+        foreach ($product->variants as $variant) {
+            $this->productRepo->clearExistingProductVariantAttributeValue($variant->id);
+            $variant->delete();
+        }
+    }
+
+    private function getAttributeGroups(Product $product): SupportCollection
+    {
+        $groupedAttributes = $this->productRepo->getGroupProductAttributes($product->id);
+
+        $attributeGroups = collect();
+
+        foreach ($groupedAttributes as $attribute => $items) {
+            $attributeValueIds = $items->pluck('attribute_value_id')->toArray();
+            $attributeValues = $this->productRepo->getAttributeValues($attributeValueIds);
+            $attributeGroups->push($attributeValues);
+        }
+
+        return $attributeGroups;
+    }
+
+    private function cartesianProduct(SupportCollection $attributeGroups): array
+    {
+        $result = [[]];
+
+        foreach ($attributeGroups as $attributeValues) {
+            $temp = [];
+
+            foreach ($result as $resultItem) {
+                foreach ($attributeValues as $attributeValue) {
+                    $temp[] = array_merge($resultItem, [$attributeValue]);
+                }
+            }
+
+            $result = $temp;
+        }
+
+        return $result;
+    }
+
+    private function createVariantsCombinations(Product $product, array $combinations)
+    {
+        // dd($combinations);
+        foreach ($combinations as $combination) {
+            $variant = $this->createSingleVariant($product, $combination);
+
+            // Prepare pivot data with attribute_id + attribute_value_id
+            $pivotData = collect($combination)->mapWithKeys(function ($attrValue) {
+                return [
+                    $attrValue->id => [
+                        'attribute_id' => $attrValue->attribute_id
+                    ]
+                ];
+            })->toArray();
+
+            // Attach with extra pivot data
+            $variant->attributeValues()->attach($pivotData);
+        }
+    }
+
+    private function createSingleVariant(Product $product, array $combination): ProductVariant
+    {
+        // dd($combination);
+        $variantName = collect($combination)
+            ->pluck('label')
+            ->map(fn($label) => strtoupper(trim($label)))
+            ->implode('/');
+
+        return $this->productRepo->createProductVariant([
+            'product_id' => $product->id,
+            'name' => $variantName,
+            'price' => 0,
+            'sku' => '',
+            'qty' => 0,
+        ]);
     }
 }

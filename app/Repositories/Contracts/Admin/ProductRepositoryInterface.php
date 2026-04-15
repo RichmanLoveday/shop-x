@@ -9,6 +9,7 @@ use App\Models\Category;
 use App\Models\Product;
 use App\Models\ProductAttributeValue;
 use App\Models\ProductImage;
+use App\Models\ProductVariant;
 use App\Models\Tag;
 use Dom\Attr;
 use Illuminate\Database\Eloquent\Collection;
@@ -100,4 +101,12 @@ interface ProductRepositoryInterface
     public function deleteAttribute(Attribute $attribute): bool;
 
     public function deleteAttributeValue(AttributeValue $attributeValue): bool;
+
+    public function clearExistingProductVariantAttributeValue(int $variantId): void;
+
+    public function getGroupProductAttributes(int $productId): Collection;
+
+    public function getAttributeValues(array $attributeValueIds): Collection;
+
+    public function createProductVariant(array $data): ProductVariant;
 }

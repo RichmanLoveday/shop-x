@@ -100,4 +100,9 @@ class Product extends Model implements HasMedia
             ->distinct()
             ->orderBy('id', 'asc');
     }
+
+    public function variants(): HasMany
+    {
+        return $this->hasMany(ProductVariant::class);
+    }
 }

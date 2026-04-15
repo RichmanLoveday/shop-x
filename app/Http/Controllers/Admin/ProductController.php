@@ -178,9 +178,12 @@ class ProductController extends Controller
 
         try {
             $product = $this->productService->addProductAttributes($id, $request->validated());
+            $attributeTypes = ProductAttributeType::cases();
+            $html = view('admin.product.partials.attributes', compact('product', 'attributeTypes'))->render();
+
             return response()->json([
                 'message' => 'Product attributes added successfully',
-                'product' => $product,
+                'html' => $html,
                 'status' => true,
             ], 200);
         } catch (\Exception $e) {

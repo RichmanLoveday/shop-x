@@ -9,6 +9,8 @@ use App\Models\Category;
 use App\Models\Product;
 use App\Models\ProductAttributeValue;
 use App\Models\ProductImage;
+use App\Models\ProductVariant;
+use App\Models\ProductVariantAttributeValue;
 use App\Models\Tag;
 use App\Repositories\Contracts\Admin\ProductRepositoryInterface;
 use Dom\Attr;
@@ -214,7 +216,7 @@ class ProductRepository implements ProductRepositoryInterface
     public function getProduct(int $id): Product
     {
         return Product::query()
-            ->with(['categories', 'tags', 'brand', 'images', 'store', 'attributeValues',
+            ->with(['categories', 'tags', 'brand', 'images', 'store', 'attributeValues', 'variants',
                 'attributeWithValues' => function ($query) use ($id) {
                     $query->WithValuesForProduct($id);
                 }])
@@ -299,5 +301,33 @@ class ProductRepository implements ProductRepositoryInterface
     public function deleteAttributeValue(AttributeValue $attributeValue): bool
     {
         return $attributeValue->delete();
+    }
+
+    public function clearExistingProductVariantAttributeValue(int $variantId): void
+    {
+        ProductVariantAttributeValue::query()
+            ->where('product_variant_id', $variantId)
+            ->delete();
+    }
+
+    public function getGroupProductAttributes(int $productId): Collection
+    {
+        return ProductAttributeValue::query()
+            ->where('product_id', $productId)
+            ->get()
+            ->groupBy('attribute_id');
+    }
+
+    public function getAttributeValues(array $attributeValueIds): Collection
+    {
+        return AttributeValue::query()
+            ->whereIn('id', $attributeValueIds)
+            ->get();
+    }
+
+    public function createProductVariant(array $data): ProductVariant
+    {
+        return ProductVariant::query()
+            ->firstOrCreate($data);
     }
 }

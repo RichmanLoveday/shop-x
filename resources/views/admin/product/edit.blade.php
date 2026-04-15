@@ -350,19 +350,27 @@
 
                         <div class="card-body">
                             <div class="col-md-12">
-                                <div class="mb-3 ">
-                                    <div class="accordion" id="accordion-default">
-                                        @foreach ($product->attributeWithValues as $attributeWithValue)
-                                            @include('admin.product.partials.attributes', [
-                                                'attribute' => $attributeWithValue,
-                                                'product' => $product,
-                                                'attributeTypes' => $attributeTypes,
-                                            ])
-                                        @endforeach
-                                    </div>
+                                <div class="mb-3 " id="accordion-partial">
+                                    @include('admin.product.partials.attributes', [
+                                        'product' => $product,
+                                        'attributeTypes' => $attributeTypes,
+                                    ])
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
-                                    <button class="btn btn-primary mt-3" id="add-attribute-btn" type="button">Add
-                                        Attribute</button>
+                    <div id="product-images" class="card mt-3">
+                        <div class="card-header">
+                            <h3 class="card-title">Product Variants</h3>
+                        </div>
+
+                        <div class="card-body">
+                            <div class="col-md-12">
+                                <div class="mb-3 " id="accordion-partial">
+                                    <div class="accordion" id="accordion-default">
+                                       @include('admin.product.partials.variants')
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -968,7 +976,7 @@
                             const originalHtml = $btn.html();
                             $btn.html(
                                     '<span class="spinner-border spinner-border-sm" role="status"></span>'
-                                    )
+                                )
                                 .prop('disabled', true);
 
                             $.ajax({
@@ -983,9 +991,9 @@
                                     if (res.status === true) {
                                         // Destroy color pickers before removing
                                         $accordionItem.find('.color-preview').each(
-                                        function() {
-                                            destroyPicker($(this).attr('id'));
-                                        });
+                                            function() {
+                                                destroyPicker($(this).attr('id'));
+                                            });
 
                                         // Remove with animation
                                         $accordionItem.fadeOut(400, function() {
@@ -993,7 +1001,8 @@
 
                                             // Optional: Show empty state if no attributes left
                                             if ($(
-                                                    '#accordion-default .accordion-item')
+                                                    '#accordion-default .accordion-item'
+                                                )
                                                 .length === 0) {
                                                 $('#accordion-default').html(
                                                     '<p class="text-muted p-4 text-center">No attributes added yet.</p>'
@@ -1041,24 +1050,13 @@
                         method: "POST",
                         data: data,
                         success: function(res) {
-                            // Re-render all attributes with fresh data
-                            if (res.product.attribute_with_values && res.product
-                                .attribute_with_values.length > 0) {
 
-                                let html = '';
-
-                                res.product.attribute_with_values.forEach(function(attribute) {
-                                    html += renderAttributeAccordion(attribute, res
-                                        .product);
-                                });
-
-                                $('#accordion-default').html(html);
-
+                            if (res.status) {
+                                $('#accordion-partial').html(res.html);
 
                                 // Re-initialize color pickers if needed
                                 initColorPickersInContainer($('#accordion-default'));
                                 notyf.success(res.message);
-
                             }
                         },
                         error: function(res) {
@@ -1078,139 +1076,6 @@
                         }
                     });
                 });
-
-
-
-                function renderAttributeAccordion(attribute, product) {
-                    const isColor = attribute.type === 'color';
-                    let rowsHtml = '';
-
-                    // Generate rows for values
-                    if (attribute.values && attribute.values.length > 0) {
-                        attribute.values.forEach(function(value, index) {
-                            const pickerId = isColor ? `pickr-${attribute.id}-${index}-${Date.now()}` : '';
-
-                            if (isColor) {
-                                rowsHtml += `
-                                <tr>
-                                    <td>
-                                        <input type="text" class="form-control label-input"
-                                            value="${value.label}" name="label[]" placeholder="">
-                                    </td>
-                                    <td>
-                                        <div class="d-flex align-items-center gap-2">
-                                            <div id="${pickerId}" class="color-preview"
-                                                style="background-color: ${value.color || '#ffffff'};"></div>
-                                            <input type="hidden" value="${value.color || ''}"
-                                                data-picker-id="${pickerId}" class="color-value" name="color_value[]">
-                                            <span data-attribute-value-id="${value.id}"
-                                                 data-product-id="${product.id}"
-                                                 data-attribute-id="${attribute.id}" class="review-row-btn ms-2 fs-2 cursor-pointer text-danger delete-row">
-                                                <i class="ti ti-trash"></i>
-                                            </span>
-                                        </div>
-                                    </td>
-                                </tr>`;
-                            } else {
-                                rowsHtml += `
-                                <tr>
-                                    <td colspan="2">
-                                        <div class="d-flex justify-content-between align-items-center">
-                                            <input type="text" class="form-control label-input"
-                                                value="${value.label}" name="label[]" placeholder="Label">
-                                            <span data-attribute-value-id="${value.id}"
-                                                 data-product-id="${product.id}"
-                                                 data-attribute-id="${attribute.id}" class="review-row-btn ms-2 fs-2 cursor-pointer text-danger delete-row">
-                                                <i class="ti ti-trash"></i>
-                                            </span>
-                                        </div>
-                                    </td>
-                                </tr>`;
-                            }
-                        });
-                    }
-
-                    const tableStyle = (attribute.values && attribute.values.length > 0) ? '' : 'display: none;';
-
-                    return `
-                        <div class="accordion-item">
-                            <div class="accordion-header">
-                                <button class="accordion-button" type="button" data-bs-toggle="collapse"
-                                    data-bs-target="#collapse-${attribute.id}-default" aria-expanded="true">
-                                    ${attribute.name}
-                                    <div class="accordion-button-toggle">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                                            class="icon icon-1">
-                                            <path d="M6 9l6 6l6 -6"></path>
-                                        </svg>
-                                    </div>
-                                </button>
-                                <span data-product-id="${product.id}" class="delete-btn btn btn-sm btn-danger p-2 fs-2" style="margin-right: 10px;" data-attribute-id="${attribute.id}">
-                                    <i class="ti ti-trash"></i>
-                                </span>
-                            </div>
-                            <div id="collapse-${attribute.id}-default" class="accordion-collapse collapse" data-bs-parent="#accordion-default">
-                                <form method="POST" class="attribute-form">
-                                    @csrf
-                                    <div class="accordion-body">
-                                        <div class="row">
-                                            <div class="col-md-6">
-                                                <label class="form-label">Name</label>
-                                                <input type="text" class="form-control" name="attribute_name"
-                                                    value="${attribute.name}">
-                                                <input type="hidden" name="attribute_id" value="${attribute.id}">
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label class="form-label">Type</label>
-                                                <select name="attribute_type" class="form-control main-type">
-                                                    ${generateTypeOptions(attribute.type)}
-                                                </select>
-                                            </div>
-                                        </div>
-
-                                        <table class="table table-bordered section-table mt-3" style="${tableStyle}">
-                                            <thead>
-                                                <tr>
-                                                    <th>Label</th>
-                                                    <th class="value-header">Value</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                ${rowsHtml}
-                                            </tbody>
-                                        </table>
-
-                                        <div class="mt-2">
-                                            <button type="button" class="btn btn-sm btn-primary add-row-btn">Add Row</button>
-                                            <button type="button" class="btn btn-sm btn-success save-btn">Save</button>
-                                        </div>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>`;
-                }
-
-                // Helper function to generate type options
-                function generateTypeOptions(currentType) {
-                    let options = '';
-                    const types = [{
-                            value: 'text',
-                            label: 'Text'
-                        },
-                        {
-                            value: 'color',
-                            label: 'Color'
-                        }
-                    ];
-
-                    types.forEach(type => {
-                        const selected = type.value === currentType ? 'selected' : '';
-                        options += `<option value="${type.value}" ${selected}>${type.label}</option>`;
-                    });
-                    return options;
-                }
-
 
                 // initialize existing color pickers on page load
                 $(document).ready(function() {
