@@ -88,7 +88,7 @@ class ProductService extends BaseService implements ProductServiceInterface
         $payload['brand_id'] = $data['brand_id'];
         $payload['short_description'] = $data['short_description'];
         $payload['description'] = $data['long_description'];
-        $payload['sku'] = $data['sku'];
+        // $payload['sku'] = $data['sku'];
         $payload['price'] = $data['price'];
         $payload['special_price'] = $data['special_price'];
         $payload['special_price_start'] = $data['from_date'];
@@ -239,39 +239,55 @@ class ProductService extends BaseService implements ProductServiceInterface
             // regenerate product variants
             $this->regenerateProductVariants($product);
 
-            return $product->fresh(['attributeValues',
+            return $product->fresh(['attributeValues', 'variants', 'attributes',
                 'attributeWithValues' => function ($query) use ($product) {
                     $query->WithValuesForProduct($product->id);
                 }]);
         });
     }
 
-    public function deleteAttribute(int $attributeId, int $productId): bool
+    public function deleteAttribute(int $attributeId, int $productId): Product
     {
         $product = $this->getProduct($productId);
         $attribute = $this->productRepo->getAttribute($attributeId);
 
-        if ($product && $attribute) {
-            return $this->productRepo->deleteAttribute($attribute);
+        if (!$product || !$attribute) {
+            throw new \Exception('Either product or attribute not found');
         }
 
-        return false;
+        $this->productRepo->deleteAttribute($attribute);
+
+        $this->regenerateProductVariants($product, false);
+
+        return $product->fresh(['attributeValues', 'variants',
+            'attributeWithValues' => function ($query) use ($product) {
+                $query->WithValuesForProduct($product->id);
+            }]);
     }
 
-    public function deleteAttributeValue(int $attributeValueId, int $attributeId, int $productId): bool
+    public function deleteAttributeValue(int $attributeValueId, int $attributeId, int $productId): Product
     {
+        // dd($attributeValueId);
         $product = $this->getProduct($productId);
         $attribute = $this->productRepo->getAttribute($attributeId);
         $attributeValue = $this->productRepo->getAttributeValue($attributeValueId);
 
-        if ($product && $attribute && $attributeValue) {
-            return $this->productRepo->deleteAttributeValue($attributeValue);
+        if (!$product || !$attribute || !$attributeValue) {
+            throw new \Exception('Either product, attribute, attribute value not found');
         }
 
-        return false;
+        $this->productRepo->deleteAttributeValue($attributeValue);
+
+        // regenerate product variants
+        $this->regenerateProductVariants($product, false);
+
+        return $product->fresh(['attributeValues', 'variants',
+            'attributeWithValues' => function ($query) use ($product) {
+                $query->WithValuesForProduct($product->id);
+            }]);
     }
 
-    private function regenerateProductVariants(Product $product)
+    private function regenerateProductVariants(Product $product, bool $requireAttributes = true): void
     {
         // clear existing variants
         $this->clearExistingVariants($product);
@@ -284,7 +300,10 @@ class ProductService extends BaseService implements ProductServiceInterface
 
         // throw error if group is empty
         if ($attributeGroups->isEmpty()) {
-            throw new \Exception('No attribute values found for variant generation');
+            if ($requireAttributes) {
+                throw new \Exception('No attribute values found for variant generation');
+            }
+            return;
         }
 
         // make combinations
@@ -364,12 +383,51 @@ class ProductService extends BaseService implements ProductServiceInterface
             ->map(fn($label) => strtoupper(trim($label)))
             ->implode('/');
 
-        return $this->productRepo->createProductVariant([
+        // Generate SKU
+        $skuPart = collect($combination)
+            ->pluck('label')
+            ->map(fn($label) => strtoupper(substr(trim($label), 0, 3)))
+            ->implode('');
+
+        return $this->productRepo->createOrUpdateProductVariant([
             'product_id' => $product->id,
             'name' => $variantName,
             'price' => 0,
-            'sku' => '',
+            'sku' => $product->sku . '-' . $skuPart,
             'qty' => 0,
+            'in_stock' => true,
         ]);
+    }
+
+    public function updateProductVariant(int $productId, array $data): ProductVariant
+    {
+        $product = $this->getProduct($productId);
+        $variantId = $data['variant_id'] ?? null;
+
+        if (!$product || !$variantId) {
+            throw new \Exception('Product or Variant ID is required');
+        }
+
+        $variant = $this->productRepo->getProductVariant($variantId);
+
+        // Security check: Make sure variant belongs to this product
+        if (!$variant || $variant->product_id !== $product->id) {
+            throw new \Exception('Variant not found or does not belong to this product');
+        }
+
+        // Build clean payload
+        $payload = [
+            'product_id' => $product->id,
+            'sku' => $data['variant_sku'] ?? $variant->sku,
+            'price' => (float) ($data['variant_price'] ?? 0),
+            'special_price' => $data['variant_special_price'] ? (float) $data['variant_special_price'] : null,
+            'manage_stock' => isset($data['variant_manage_stock']) ? 1 : 0,
+            'qty' => (int) ($data['variant_quantity'] ?? 0),
+            'in_stock' => $data['variant_stock_status'] === 'in_stock' ? 1 : 0,
+            'is_active' => $data['variant_is_active'],
+            'is_default' => $data['variant_is_default'],
+        ];
+
+        return $this->productRepo->createOrUpdateProductVariant($payload, $variantId);
     }
 }

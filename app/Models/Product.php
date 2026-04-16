@@ -79,7 +79,7 @@ class Product extends Model implements HasMedia
         return $this->belongsTo(Store::class);
     }
 
-    public function attribute(): BelongsToMany
+    public function attributes(): BelongsToMany
     {
         return $this
             ->belongsToMany(Attribute::class, 'product_attribute_values')

@@ -108,5 +108,7 @@ interface ProductRepositoryInterface
 
     public function getAttributeValues(array $attributeValueIds): Collection;
 
-    public function createProductVariant(array $data): ProductVariant;
+    public function createOrUpdateProductVariant(array $data, ?int $variantId = null): ProductVariant;
+
+    public function getProductVariant(int $productVariantId): ProductVariant;
 }

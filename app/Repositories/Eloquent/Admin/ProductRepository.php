@@ -216,7 +216,7 @@ class ProductRepository implements ProductRepositoryInterface
     public function getProduct(int $id): Product
     {
         return Product::query()
-            ->with(['categories', 'tags', 'brand', 'images', 'store', 'attributeValues', 'variants',
+            ->with(['categories', 'tags', 'brand', 'images', 'store', 'attributeValues', 'variants', 'attributes',
                 'attributeWithValues' => function ($query) use ($id) {
                     $query->WithValuesForProduct($id);
                 }])
@@ -325,9 +325,18 @@ class ProductRepository implements ProductRepositoryInterface
             ->get();
     }
 
-    public function createProductVariant(array $data): ProductVariant
+    public function getProductVariant(int $productVariantId): ProductVariant
     {
-        return ProductVariant::query()
-            ->firstOrCreate($data);
+        return ProductVariant::query()->findOrFail($productVariantId);
+    }
+
+    public function createOrUpdateProductVariant(array $data, ?int $variantId = null): ProductVariant
+    {
+        return ProductVariant::updateOrCreate(
+            [
+                'id' => $variantId ?? null,
+            ],
+            $data
+        );
     }
 }

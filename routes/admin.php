@@ -158,6 +158,7 @@ Route::middleware('auth:admin')
             Route::post('/product/attributes/{product}/store', 'storeAttributes')->name('products.attributes.store');
             Route::delete('/product/attributes/{product}/destroy/{attribute}', 'destroyAttribute')->name('products.attributes.destroy');
             Route::delete('/product/attributes/{product}/{attributeId}/value/destroy/{attributeValue}', 'destroyAttributeValue')->name('products.attributes.value.destroy');
+            Route::post('/product/{product}/variant/update', 'updateProductVariant')->name('products.variant');
         });
 
         // Stores Controller routes

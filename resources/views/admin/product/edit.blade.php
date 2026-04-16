@@ -184,7 +184,7 @@
                     </div>
 
 
-                    <div class="card">
+                    <div class="card disabled-placeholder {{ $product->attributes->isNotEmpty() ? 'disabled' : '' }}">
                         <div class="card-body">
                             <div class="row mb-5">
 
@@ -275,6 +275,7 @@
                                             <x-input-error :messages="$errors->get('quantity')" class="mt-2" />
                                         </div>
                                     </div>
+
                                 </div>
 
 
@@ -367,10 +368,11 @@
 
                         <div class="card-body">
                             <div class="col-md-12">
-                                <div class="mb-3 " id="accordion-partial">
-                                    <div class="accordion" id="accordion-default">
-                                       @include('admin.product.partials.variants')
-                                    </div>
+                                <div class="mb-3 " id="accordion-variant-partial">
+                                    @include('admin.product.partials.variants', [
+                                        'product' => $product,
+                                    ])
+
                                 </div>
                             </div>
                         </div>
@@ -748,7 +750,7 @@
                     table.show();
 
                     const pickerId = generateUniqueId();
-                    console.log(pickerId);
+                    // console.log(pickerId);
                     let rowHtml = '';
 
                     if (type === 'color') {
@@ -823,6 +825,10 @@
                             success: function(res) {
                                 if (res.status) {
                                     $row.fadeOut(300, () => $row.remove());
+
+                                    // $('#accordion-partial').html(res.html);
+                                    $('#accordion-variant-partial').html(res.variants);
+
                                     notyf.success(res.message || 'Value deleted');
                                 }
                             },
@@ -999,6 +1005,17 @@
                                         $accordionItem.fadeOut(400, function() {
                                             $(this).remove();
 
+                                            // $('#accordion-partial').html(res.html);
+                                            $('#accordion-variant-partial').html(res
+                                                .variants);
+
+                                            // add product pricing filled
+                                            if (res.attributes.length === 0) {
+                                                $('.disabled-placeholder').removeClass(
+                                                    'disabled')
+                                            }
+
+
                                             // Optional: Show empty state if no attributes left
                                             if ($(
                                                     '#accordion-default .accordion-item'
@@ -1053,6 +1070,12 @@
 
                             if (res.status) {
                                 $('#accordion-partial').html(res.html);
+                                $('#accordion-variant-partial').html(res.variants);
+
+                                // add product pricing filled
+                                if (res.attributes.length > 0) {
+                                    $('.disabled-placeholder').addClass('disabled')
+                                }
 
                                 // Re-initialize color pickers if needed
                                 initColorPickersInContainer($('#accordion-default'));
@@ -1512,9 +1535,7 @@
                     });
                 });
 
-                console.log(order);
-
-                let productId = {{ $product->id }}; // make sure this exists
+                let productId = {{ $product->id }};
 
                 $.ajax({
                     url: route('admin.products.images.reorder', productId),
@@ -1531,6 +1552,65 @@
                     }
                 });
             }
+
+
+            function handleVariantManageStockChange(element) {
+                const isChecked = $(element).is(':checked');
+                const variantQty = $(element).closest('.row').find('.variant-quantity');
+                const variantStockStatus = $(element).closest('.row').find('.variant-stock-status');
+
+                if (isChecked) {
+                    variantQty.show();
+                    variantStockStatus.show();
+                } else {
+                    variantQty.hide();
+                    variantStockStatus.hide();
+                }
+            }
+
+
+            function submitVariantForm(e) {
+                e.preventDefault();
+                const $form = $(this);
+                const $btn = $form.find('.save-variant-btn');
+                const data = $form.serialize();
+
+                $.ajax({
+                    url: route('admin.products.variant', [{{ $product->id }}]),
+                    type: 'POST',
+                    data: data,
+                    beforeSend: function() { // ← Fixed: beforeSend (not beforeSending)
+                        $btn.prop('disabled', true)
+                            .html('<span class="spinner-border spinner-border-sm me-2"></span>Saving...');
+                    },
+                    success: function(res) {
+                        console.log(res);
+
+                        if (res.status) {
+                            notyf.success(res.message);
+                            $btn.prop('disabled', false)
+                                .html('Save');
+                        }
+                    },
+                    error: function(res) {
+                        if (res.status === 422) {
+                            const errors = res.responseJSON.errors;
+                            $.each(errors, function(key, value) {
+                                notyf.error(value[0]);
+                            });
+                        }
+
+                        if (res.status === 500) {
+                            notyf.error(res.responseJSON.message ||
+                                'Server error while saving attribute');
+                        }
+
+                        $btn.prop('disabled', false)
+                            .html('Save');
+                    }
+                });
+            }
+            $('#variant-form').on('submit', submitVariantForm);
 
 
             enableSortable();

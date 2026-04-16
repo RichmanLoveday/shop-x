@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\ProductAttributeStoreRequest;
 use App\Http\Requests\Admin\ProductStoreRequest;
 use App\Http\Requests\Admin\ProductUpdateRequest;
+use App\Http\Requests\Admin\ProductVariantRequestUpdate;
 use App\Services\Contracts\Admin\BrandServiceInterface;
 use App\Services\Contracts\Admin\CategoryServiceInterface;
 use App\Services\Contracts\Admin\ProductServiceInterface;
@@ -180,10 +181,13 @@ class ProductController extends Controller
             $product = $this->productService->addProductAttributes($id, $request->validated());
             $attributeTypes = ProductAttributeType::cases();
             $html = view('admin.product.partials.attributes', compact('product', 'attributeTypes'))->render();
+            $variants = view('admin.product.partials.variants', compact('product'))->render();
 
             return response()->json([
                 'message' => 'Product attributes added successfully',
                 'html' => $html,
+                'attributes' => $product->attributes,
+                'variants' => $variants,
                 'status' => true,
             ], 200);
         } catch (\Exception $e) {
@@ -201,9 +205,15 @@ class ProductController extends Controller
 
         try {
             $product = $this->productService->deleteAttribute($attributeId, $productId);
+            $attributeTypes = ProductAttributeType::cases();
+            $html = view('admin.product.partials.attributes', compact('product', 'attributeTypes'))->render();
+            $variants = view('admin.product.partials.variants', compact('product'))->render();
+
             return response()->json([
                 'message' => 'Product attributes deleted successfully',
-                'product' => $product,
+                'html' => $html,
+                'attributes' => $product->attributes,
+                'variants' => $variants,
                 'status' => true,
             ], 200);
         } catch (\Exception $e) {
@@ -219,15 +229,40 @@ class ProductController extends Controller
     {
         try {
             $product = $this->productService->deleteAttributeValue($attributeValueId, $attributeId, $productId);
+            $attributeTypes = ProductAttributeType::cases();
+            $html = view('admin.product.partials.attributes', compact('product', 'attributeTypes'))->render();
+            $variants = view('admin.product.partials.variants', compact('product'))->render();
+
             return response()->json([
                 'message' => 'Product attribute value deleted successfully',
-                'product' => $product,
+                'html' => $html,
+                'variants' => $variants,
                 'status' => true,
             ], 200);
         } catch (\Exception $e) {
             logger()->error('Failed to add product attribute value: ' . $e->getMessage());
             return response()->json([
                 'message' => 'An error occurred while deleting product attribute value',
+                'status' => false,
+            ], 500);
+        }
+    }
+
+    public function updateProductVariant(ProductVariantRequestUpdate $request, int $productId)
+    {
+        try {
+            // dd($request->all());
+            $variant = $this->productService->updateProductVariant($productId, $request->all());
+
+            return response()->json([
+                'message' => 'Product variant updated successfully',
+                'variant' => $variant,
+                'status' => true,
+            ], 200);
+        } catch (\Exception $e) {
+            logger()->error('Failed to update product variant: ' . $e->getMessage());
+            return response()->json([
+                'message' => 'An error occurred while updating product variant',
                 'status' => false,
             ], 500);
         }

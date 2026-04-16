@@ -5,6 +5,7 @@ namespace App\Services\Contracts\Admin;
 use App\Models\Category;
 use App\Models\Product;
 use App\Models\ProductImage;
+use App\Models\ProductVariant;
 use Illuminate\Database\Eloquent\Collection;
 
 interface ProductServiceInterface
@@ -25,7 +26,9 @@ interface ProductServiceInterface
 
     public function addProductAttributes(int $productId, array $data): Product;
 
-    public function deleteAttribute(int $attributeId, int $productId): bool;
+    public function deleteAttribute(int $attributeId, int $productId): Product;
 
-    public function deleteAttributeValue(int $attributeValueId, int $attributeId, int $productId): bool;
+    public function deleteAttributeValue(int $attributeValueId, int $attributeId, int $productId): Product;
+
+    public function updateProductVariant(int $productId, array $data): ProductVariant;
 }
