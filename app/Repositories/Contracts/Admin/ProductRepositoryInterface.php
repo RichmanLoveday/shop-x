@@ -111,4 +111,8 @@ interface ProductRepositoryInterface
     public function createOrUpdateProductVariant(array $data, ?int $variantId = null): ProductVariant;
 
     public function getProductVariant(int $productVariantId): ProductVariant;
+
+    public function getAllProducts(): LengthAwarePaginator;
+
+    public function resetDefaultVariants(int $productId, int $variantId): void;
 }

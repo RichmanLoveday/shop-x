@@ -30,7 +30,7 @@ return new class extends Migration {
             $table->string('sku')->nullable();
             $table->enum('manage_stock', ['yes', 'no'])->default('no')->nullable();
             $table->integer('qty')->nullable();
-            $table->boolean('in_stock')->nullable();
+            $table->boolean('stock_status')->nullable();
             $table->integer('viewed')->nullable();
             $table->enum('status', array_column(ProductStatus::cases(), 'value'))->nullable();
             $table->boolean('is_featured')->nullable();

@@ -8,6 +8,7 @@ use Dom\Attr;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
@@ -104,5 +105,11 @@ class Product extends Model implements HasMedia
     public function variants(): HasMany
     {
         return $this->hasMany(ProductVariant::class);
+    }
+
+    
+    public function primaryVariant(): HasOne
+    {
+        return $this->hasOne(ProductVariant::class)->where('is_default', true);
     }
 }

@@ -40,6 +40,7 @@ class ProductStoreRequest extends FormRequest
             'is_featured' => ['nullable'],
             'categories' => ['required', 'array'],
             'categories.*' => ['required', 'exists:categories,id'],
+            'manage_stock' => ['nullable'],
             'is_new' => ['nullable'],
             'is_hot' => ['nullable'],
             'tags' => ['nullable', 'array'],

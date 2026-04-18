@@ -7,6 +7,7 @@ use App\Models\Product;
 use App\Models\ProductImage;
 use App\Models\ProductVariant;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 interface ProductServiceInterface
 {
@@ -14,7 +15,7 @@ interface ProductServiceInterface
 
     public function updateProduct(int $id, array $data): Product;
 
-    public function allProducts(): Collection;
+    public function allProducts(): LengthAwarePaginator;
 
     public function getProduct(int $id): Product;
 
@@ -30,5 +31,5 @@ interface ProductServiceInterface
 
     public function deleteAttributeValue(int $attributeValueId, int $attributeId, int $productId): Product;
 
-    public function updateProductVariant(int $productId, array $data): ProductVariant;
+    public function updateProductVariant(int $productId, array $data): Product;
 }

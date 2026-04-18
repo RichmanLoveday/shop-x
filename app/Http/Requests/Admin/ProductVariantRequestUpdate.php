@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Admin;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class ProductVariantRequestUpdate extends FormRequest
 {
@@ -29,6 +30,11 @@ class ProductVariantRequestUpdate extends FormRequest
             'variant_is_active' => 'boolean',
             'variant_is_default' => 'boolean',
             'attribute_id' => 'nullable|integer',
+            // Enforce price > 0 when it's the default variant
+            'variant_price' => Rule::when(
+                fn($input) => (bool) ($input['variant_is_default'] ?? false),
+                ['gt:0']
+            ),
         ];
     }
 
@@ -52,6 +58,7 @@ class ProductVariantRequestUpdate extends FormRequest
             'variant_quantity.integer' => 'Quantity must be a whole number.',
             'variant_quantity.min' => 'Quantity cannot be negative.',
             'variant_stock_status.in' => 'Stock status must be either "In Stock" or "Out of Stock".',
+            'variant_price.gt' => 'Default variant must have a price greater than zero.',
         ];
     }
 

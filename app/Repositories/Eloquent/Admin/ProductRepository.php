@@ -116,6 +116,7 @@ class ProductRepository implements ProductRepositoryInterface
     public function getAllTags(): LengthAwarePaginator
     {
         return Tag::query()
+            ->latest()
             ->paginate(20);
     }
 
@@ -330,6 +331,16 @@ class ProductRepository implements ProductRepositoryInterface
         return ProductVariant::query()->findOrFail($productVariantId);
     }
 
+    public function resetDefaultVariants(int $productId, int $currentVariantId): void
+    {
+        ProductVariant::query()
+            ->where('product_id', $productId)
+            ->where('id', '!=', $currentVariantId)
+            ->update([
+                'is_default' => false
+            ]);
+    }
+
     public function createOrUpdateProductVariant(array $data, ?int $variantId = null): ProductVariant
     {
         return ProductVariant::updateOrCreate(
@@ -338,5 +349,11 @@ class ProductRepository implements ProductRepositoryInterface
             ],
             $data
         );
+    }
+
+    public function getAllProducts(): LengthAwarePaginator
+    {
+        return Product::with(['categories', 'tags', 'brand', 'images', 'store', 'primaryVariant'])
+            ->paginate(25);
     }
 }

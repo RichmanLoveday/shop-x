@@ -14,11 +14,14 @@ use App\Services\Contracts\Admin\CategoryServiceInterface;
 use App\Services\Contracts\Admin\ProductServiceInterface;
 use App\Services\Contracts\Admin\StoreServiceInterface;
 use App\Services\Contracts\Admin\TagServiceInterface;
+use App\Traits\Alert;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class ProductController extends Controller
 {
+    use Alert;
+
     public function __construct(
         protected StoreServiceInterface $storeService,
         protected CategoryServiceInterface $categoryService,
@@ -29,7 +32,9 @@ class ProductController extends Controller
 
     public function index(): View
     {
-        $products = [];
+        $products = $this->productService->allProducts();
+
+        // dd($products->toArray());
 
         return view('admin.product.index', compact('products'));
     }
@@ -159,8 +164,11 @@ class ProductController extends Controller
         try {
             $product = $this->productService->updateProduct($id, $request->validated());
 
+            $this->updated('Product updated successfully');
+
             return response()->json([
                 'message' => 'Product updated successfully',
+                'redirectUrl' => route('admin.products.index'),
                 'product' => $product,
                 'status' => true,
             ]);
@@ -252,11 +260,12 @@ class ProductController extends Controller
     {
         try {
             // dd($request->all());
-            $variant = $this->productService->updateProductVariant($productId, $request->all());
+            $product = $this->productService->updateProductVariant($productId, $request->all());
+            $variants = view('admin.product.partials.variants', compact('product'))->render();
 
             return response()->json([
                 'message' => 'Product variant updated successfully',
-                'variant' => $variant,
+                'variants' => $variants,
                 'status' => true,
             ], 200);
         } catch (\Exception $e) {

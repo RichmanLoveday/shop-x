@@ -11,6 +11,7 @@ use App\Services\Contracts\Admin\ProductServiceInterface;
 use App\Services\BaseService;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Collection as SupportCollection;
 use Illuminate\Support\Str;
@@ -37,8 +38,8 @@ class ProductService extends BaseService implements ProductServiceInterface
         $payload['special_price_start'] = $data['from_date'];
         $payload['special_price_end'] = $data['end_date'];
         $payload['qty'] = $data['quantity'];
-        $payload['manage_stock'] = isset($data['stock_status']) && $data['stock_status'] == 'in_stock' ? 'yes' : 'no';
-        $payload['in_stock'] = isset($data['stock_status']) && $data['stock_status'] == 'in_stock' ? 1 : 0;
+        $payload['manage_stock'] = isset($data['manage_stock']) && $data['manage_stock'] == 'on' ? 'yes' : 'no';
+        $payload['stock_status'] = isset($data['in_stock']) && $data['in_stock'] == 'in_stock' ? 1 : 0;
         $payload['status'] = $data['status'];
         $payload['is_featured'] = isset($data['is_featured']) ? 1 : 0;
         $payload['is_hot'] = isset($data['is_hot']) ? 1 : 0;
@@ -69,13 +70,14 @@ class ProductService extends BaseService implements ProductServiceInterface
         return $this->productRepo->getProduct($id);
     }
 
-    public function allProducts(): Collection
+    public function allProducts(): LengthAwarePaginator
     {
-        throw new \Exception('Not implemented');
+        return $this->productRepo->getAllProducts();
     }
 
     public function updateProduct(int $id, array $data): Product
     {
+        // dd($data);
         // check if product exist
         $product = $this->productRepo->getProduct($id);
 
@@ -94,8 +96,8 @@ class ProductService extends BaseService implements ProductServiceInterface
         $payload['special_price_start'] = $data['from_date'];
         $payload['special_price_end'] = $data['end_date'];
         $payload['qty'] = $data['quantity'];
-        $payload['manage_stock'] = isset($data['stock_status']) && $data['stock_status'] == 'in_stock' ? 'yes' : 'no';
-        $payload['in_stock'] = isset($data['stock_status']) && $data['stock_status'] == 'in_stock' ? 1 : 0;
+        $payload['manage_stock'] = isset($data['manage_stock']) && $data['stock_status'] == 'on' ? 'yes' : 'no';
+        $payload['stock_status'] = isset($data['in_stock']) && $data['in_stock'] == 'in_stock' ? 1 : 0;
         $payload['status'] = $data['status'];
         $payload['is_featured'] = isset($data['is_featured']) ? 1 : 0;
         $payload['is_hot'] = isset($data['is_hot']) ? 1 : 0;
@@ -395,11 +397,12 @@ class ProductService extends BaseService implements ProductServiceInterface
             'price' => 0,
             'sku' => $product->sku . '-' . $skuPart,
             'qty' => 0,
-            'in_stock' => true,
+            'stock_status' => true,
+            'is_active' => true,
         ]);
     }
 
-    public function updateProductVariant(int $productId, array $data): ProductVariant
+    public function updateProductVariant(int $productId, array $data): Product
     {
         $product = $this->getProduct($productId);
         $variantId = $data['variant_id'] ?? null;
@@ -423,11 +426,18 @@ class ProductService extends BaseService implements ProductServiceInterface
             'special_price' => $data['variant_special_price'] ? (float) $data['variant_special_price'] : null,
             'manage_stock' => isset($data['variant_manage_stock']) ? 1 : 0,
             'qty' => (int) ($data['variant_quantity'] ?? 0),
-            'in_stock' => $data['variant_stock_status'] === 'in_stock' ? 1 : 0,
+            'stock_status' => $data['variant_stock_status'] === 'in_stock' ? 1 : 0,
             'is_active' => $data['variant_is_active'],
             'is_default' => $data['variant_is_default'],
         ];
 
-        return $this->productRepo->createOrUpdateProductVariant($payload, $variantId);
+        // If this variant is being set as default, reset all others first
+        if (!empty($payload['is_default'])) {
+            $this->productRepo->resetDefaultVariants($product->id, $variantId);
+        }
+
+        $this->productRepo->createOrUpdateProductVariant($payload, $variantId);
+
+        return $product->fresh('variants');
     }
 }

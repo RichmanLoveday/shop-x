@@ -15,10 +15,10 @@ enum ProductStatus: string
     public function label(): string
     {
         return match ($this) {
-            self::ACTIVE => 'active',
-            self::INACTIVE => 'inactive',
-            self::DRAFT => 'draft',
-            self::PENDING => 'pending',
+            self::ACTIVE => 'Active',
+            self::INACTIVE => 'In-active',
+            self::DRAFT => 'Draft',
+            self::PENDING => 'Pending',
         };
     }
 

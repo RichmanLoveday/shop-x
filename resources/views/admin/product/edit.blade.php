@@ -256,8 +256,8 @@
                                     <div class="col-md-12">
                                         <div class="mb-3 ">
                                             <label for="manage-stock" class="form-check">
-                                                <input id="manage-stock" class="form-check-input" type="checkbox"
-                                                    {{ $product->manage_stock == 'yes' ? 'checked' : '' }}>
+                                                <input id="manage-stock" name="manage_stock" class="form-check-input"
+                                                    type="checkbox" {{ $product->manage_stock == 'yes' ? 'checked' : '' }}>
                                                 <span class="form-check-label">Manage Stock</span>
                                             </label>
                                             <x-input-error :messages="$errors->get('is_featured')" class="mt-2" />
@@ -292,13 +292,13 @@
                                                     <label for="inStock" class="form-check">
                                                         <input type="radio" class="form-check-input"
                                                             name="stock_status" value="in_stock" id="inStock"
-                                                            {{ old('stock_status') == 'in_stock' || $product->in_stock == 1 ? 'checked' : '' }}>
+                                                            {{ old('stock_status') == 'in_stock' || $product->stock_status == 1 ? 'checked' : '' }}>
                                                         <span class="form-check-label">In Stock</span>
                                                     </label>
                                                     <label for="outOfStock" class="form-check">
                                                         <input type="radio" class="form-check-input"
                                                             name="stock_status" value="out_of_stock" id="outOfStock"
-                                                            {{ old('stock_status') == 'out_of_stock' || $product->in_stock == 0 ? 'checked' : '' }}>
+                                                            {{ old('stock_status') == 'out_of_stock' || $product->stock_status == 0 ? 'checked' : '' }}>
                                                         <span class="form-check-label">Out of Stock</span>
                                                     </label>
                                                     <x-input-error :messages="$errors->get('stock_status')" class="mt-2" />
@@ -575,7 +575,7 @@
                         </div>
                     </div>
 
-                    <div class="card">
+                    <div class="card sticky-top">
                         <div class="card-body">
                             <div class="w-100 text-center">
                                 <button class="btn btn-primary w-100" type="submit">Update Product</button>
@@ -738,8 +738,6 @@
 
                     $('#accordion-default').append(accordionItem);
                 });
-
-
 
 
                 $(document).on('click', '.add-row-btn', function() {
@@ -961,7 +959,20 @@
                     const productId = $btn.data('product-id');
 
                     if (!attributeId || !productId) {
-                        Swal.fire('Error', 'Attribute ID not found', 'error');
+                        // Remove with animation
+                        $accordionItem.fadeOut(400, function() {
+                            $(this).remove();
+
+                            // Optional: Show empty state if no attributes left
+                            if ($(
+                                    '#accordion-default .accordion-item'
+                                )
+                                .length === 0) {
+                                $('#accordion-default').html(
+                                    '<p class="text-muted p-4 text-center">No attributes added yet.</p>'
+                                );
+                            }
+                        });
                         return;
                     }
 
@@ -1011,8 +1022,9 @@
 
                                             // add product pricing filled
                                             if (res.attributes.length === 0) {
-                                                $('.disabled-placeholder').removeClass(
-                                                    'disabled')
+                                                $('.disabled-placeholder')
+                                                    .removeClass(
+                                                        'disabled')
                                             }
 
 
@@ -1281,7 +1293,7 @@
 
                 // handle manage stock toggle
                 $('#manage-stock').on('change', function(el) {
-                    console.log(el);
+                    // console.log(el);
                     if ($(this).is(':checked')) {
                         // show quantity and stock status fields
                         $('#quantity-field').show();
@@ -1388,7 +1400,8 @@
                         contentType: false,
                         success: function(response) {
                             if (response.status) {
-                                notyf.success(response.message || 'Product updated successfully');
+                                // notyf.success(response.message || 'Product updated successfully');
+                                window.location.href = response.redirectUrl;
                             } else {
                                 notyf.error(response.message || 'Failed to update product');
                             }
@@ -1587,9 +1600,14 @@
                         console.log(res);
 
                         if (res.status) {
+                            $('#accordion-variant-partial').html(res.variants);
+
                             notyf.success(res.message);
                             $btn.prop('disabled', false)
                                 .html('Save');
+
+                            // Re-attach submit handler to newly rendered forms
+                            $('.variant-form').off('submit').on('submit', submitVariantForm);
                         }
                     },
                     error: function(res) {
@@ -1610,8 +1628,8 @@
                     }
                 });
             }
-            $('#variant-form').on('submit', submitVariantForm);
 
+            $('.variant-form').on('submit', submitVariantForm);
 
             enableSortable();
         </script>

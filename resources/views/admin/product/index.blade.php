@@ -108,7 +108,8 @@
                                     Create Product
                                 </button>
                                 <ul class="dropdown-menu">
-                                    <li><a class="dropdown-item" href="{{ route('admin.products.create') }}">Physical</a></li>
+                                    <li><a class="dropdown-item" href="{{ route('admin.products.create') }}">Physical</a>
+                                    </li>
                                     <li><a class="dropdown-item" href="#">Digital</a></li>
                                 </ul>
                             </div>
@@ -120,38 +121,111 @@
                                 <thead>
                                     <tr>
                                         <th>No.</th>
-                                        <th>Name</th>
-                                        <th>Email</th>
-                                        <th>Role</th>
+                                        <th>Image</th>
+                                        <th>Product</th>
+                                        <th>Price</th>
+                                        <th>Stock Status</th>
+                                        <th>Quantity</th>
+                                        <th>Status</th>
+                                        <th>Store</th>
+                                        <th>Created At</th>
                                         <th class="w-1">Action</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {{-- @forelse ($admins as $admin)
+                                    @forelse ($products as $product)
+                                        @php
+                                            $stockStatusBg = 'bg-danger';
+                                            $stockStatusText = 'out_of_stock';
+
+                                            if ($product->primaryVariant) {
+                                                if ($product->primaryVariant?->stock_status) {
+                                                    $stockStatusBg = 'bg-success';
+                                                    $stockStatusText = 'in_stock';
+                                                }
+                                            } else {
+                                                if ($product->stock_status) {
+                                                    $stockStatusBg = 'bg-success';
+                                                    $stockStatusText = 'in_stock';
+                                                }
+                                            }
+
+                                        @endphp
+
                                         <tr>
                                             <td>{{ $loop->iteration }}</td>
-                                            <td>{{ $admin->name }}</td>
-                                            <td>{{ $admin->email }}</td>
-                                            <td>
-                                                @foreach ($admin->getRoleNames() as $role)
-                                                    <span class="badge bg-primary-lt">{{ $role }}</span>
-                                                @endforeach
+                                            <td><img src="{{ $product->thumbnail }}" class="w-8 h-8" alt="">
                                             </td>
                                             <td>
+                                                <div>
+                                                    <a href="{{ route('admin.products.edit', $product->id) }}">{{ $product->name }}
+                                                    </a>
+                                                </div>
+                                                <small
+                                                    class="text-muted text-sm text-capitalize">{{ $product->product_type?->label() }}</small>
                                             </td>
+                                            <td>
+                                                <div>
+                                                    @if ($product->primaryVariant)
+                                                        @if ($product->primaryVariant->special_price > 0)
+                                                            <div>
+                                                                {{ $product->primaryVariant->special_price }}
+                                                            </div>
+                                                            <div class="text-danger text-sm text-decoration-line-through">
+                                                                {{ $product->primaryVariant->price }}
+                                                            </div>
+                                                        @else
+                                                            {{ $product->primaryVariant->price }}
+                                                        @endif
+                                                    @else
+                                                        @if ($product->special_price > 0)
+                                                            <div>
+                                                                {{ $product->special_price }}
+                                                            </div>
+                                                            <div class="text-danger text-sm text-decoration-line-through">
+                                                                {{ $product->price }}
+                                                            </div>
+                                                        @else
+                                                            {{ $product->price }}
+                                                        @endif
+                                                    @endif
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <small
+                                                    class="badge badge-sm text-white {{ $stockStatusBg }}">{{ $stockStatusText }}</small>
+                                            </td>
+                                            <td>
+                                                @if ($product->primaryVariant)
+                                                    @if ($product->primaryVariant?->manage_stock == 'yes')
+                                                        {{ $product->primaryVariant->qty }}
+                                                    @else
+                                                        ∞
+                                                    @endif
+                                                @else
+                                                    @if ($product->manage_stock == 'yes')
+                                                        {{ $product->qty }}
+                                                    @else
+                                                        ∞
+                                                    @endif
+                                                @endif
+                                            </td>
+                                            <td>
+                                                <span
+                                                    class="badge badge-sm text-white {{ $product->status?->color() }}">{{ $product->status?->label() }}
+                                                </span>
+                                            </td>
+                                            <td>{{ $product->store->name }}</td>
+                                            <td>{{ date('Y-m-d', strtotime($product->created_at)) }}</td>
                                             <td>
                                                 <div class="d-flex w-100 justify-content-between space-x-1">
                                                     <a class=" text-decoration-none"
-                                                        href="{{ route('admin.role-user.edit', $admin->id) }}">
+                                                        href="{{ route('admin.products.edit', $product->id) }}">
                                                         <i class="ti ti-edit fs-1"></i>
                                                     </a>
 
-                                                    <a class="resend-mail disable text-decoration-none"
-                                                        href="{{ route('admin.role-user.resend-mail', $admin->id) }}"><i
-                                                            class="ti ti-mail fs-1"></i></a>
-
                                                     <a class="delete-item text-decoration-none text-danger"
-                                                        href="{{ route('admin.role-user.destroy', $admin->id) }}">
+                                                        href="{{ route('admin.role-user.destroy', $product->id) }}">
                                                         <i class="ti ti-trash fs-1"></i>
                                                     </a>
                                                 </div>
@@ -159,9 +233,9 @@
                                         </tr>
                                     @empty
                                         <tr>
-                                            <td colspan="5" class="text-center">No role users found.</td>
+                                            <td colspan="5" class="text-center">No product found.</td>
                                         </tr>
-                                    @endforelse --}}
+                                    @endforelse
                                 </tbody>
                             </table>
 

@@ -19,7 +19,7 @@ return new class extends Migration {
             $table->string('sku')->nullable();
             $table->boolean('manage_stock')->nullable();
             $table->integer('qty')->nullable();
-            $table->boolean('in_stock')->nullable();
+            $table->boolean('stock_status')->nullable();
             $table->boolean('is_active')->nullable();
             $table->boolean('is_default')->nullable();
             $table->integer('position')->nullable();
