@@ -145,20 +145,21 @@ Route::middleware('auth:admin')
 
         Route::controller(ProductController::class)->group(function () {
             Route::get('/products', 'index')->name('products.index');
-            Route::get('/product/create', 'create')->name('products.create');
+            Route::get('/product/{type}/create', 'create')->name('products.create');
             Route::get('/product/storename/{name}')->name('products.storename');
-            Route::post('/product/store', 'store')->name('products.store');
-            Route::post('/product/upload/image/{productId}', 'uploadImage')->name('products.upload-image');
+            Route::post('/product/{type}/store', 'store')->name('products.store');
+            Route::post('/product/upload/image/{type}/{productId}', 'uploadImage')->name('products.upload-image');
             Route::delete('/product/images/{id}', 'destroyProductImage')->name('products.images.destroy');
-            Route::post('/product/images/{productId}/reorder', 'reorderProductImages')->name('products.images.reorder');
+            Route::post('/product/images/{type}/{productId}/reorder', 'reorderProductImages')->name('products.images.reorder');
             Route::get('/product/{id}/edit', 'edit')->name('products.edit');
-            Route::post('/product/{id}', 'update')->name('products.update');
+            Route::post('/product/{type}/{id}', 'update')->name('products.update');
 
             /* Product Attribute Routes */
             Route::post('/product/attributes/{product}/store', 'storeAttributes')->name('products.attributes.store');
             Route::delete('/product/attributes/{product}/destroy/{attribute}', 'destroyAttribute')->name('products.attributes.destroy');
             Route::delete('/product/attributes/{product}/{attributeId}/value/destroy/{attributeValue}', 'destroyAttributeValue')->name('products.attributes.value.destroy');
             Route::post('/product/{product}/variant/update', 'updateProductVariant')->name('products.variant');
+            Route::get('/product/digital/{product}/edit', 'editDigitalProduct')->name('product.digital.edit');
         });
 
         // Stores Controller routes

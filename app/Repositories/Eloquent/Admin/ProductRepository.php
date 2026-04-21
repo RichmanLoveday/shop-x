@@ -2,6 +2,7 @@
 
 namespace App\Repositories\Eloquent\Admin;
 
+use App\Enums\ProductType;
 use App\Models\Attribute;
 use App\Models\AttributeValue;
 use App\Models\Brand;
@@ -214,9 +215,10 @@ class ProductRepository implements ProductRepositoryInterface
         return ProductImage::findOrFail($id);
     }
 
-    public function getProduct(int $id): Product
+    public function getProduct(int $id, ProductType|string $type = ProductType::PHYSICAL): Product
     {
         return Product::query()
+            ->where('product_type', $type)
             ->with(['categories', 'tags', 'brand', 'images', 'store', 'attributeValues', 'variants', 'attributes',
                 'attributeWithValues' => function ($query) use ($id) {
                     $query->WithValuesForProduct($id);
@@ -354,6 +356,6 @@ class ProductRepository implements ProductRepositoryInterface
     public function getAllProducts(): LengthAwarePaginator
     {
         return Product::with(['categories', 'tags', 'brand', 'images', 'store', 'primaryVariant'])
-            ->paginate(25);
+            ->paginate(5);
     }
 }

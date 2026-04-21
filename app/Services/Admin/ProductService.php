@@ -3,6 +3,7 @@
 namespace App\Services\Admin;
 
 use App\Enums\ProductAttributeType;
+use App\Enums\ProductType;
 use App\Models\Product;
 use App\Models\ProductImage;
 use App\Models\ProductVariant;
@@ -16,6 +17,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Collection as SupportCollection;
 use Illuminate\Support\Str;
 use Pest\Support\Arr;
+use Exception;
 
 class ProductService extends BaseService implements ProductServiceInterface
 {
@@ -23,9 +25,13 @@ class ProductService extends BaseService implements ProductServiceInterface
         protected ProductRepositoryInterface $productRepo,
     ) {}
 
-    public function addProduct(array $data): Product
+    public function addProduct(array $data, string $type): Product
     {
         // dd($data);
+        if (!ProductType::tryFrom($type)) {
+            abort(404, 'Invalid product type.');
+        }
+
         $payload['name'] = $data['name'];
         $payload['store_id'] = $data['store_id'];
         $payload['brand_id'] = $data['brand_id'];
@@ -38,12 +44,13 @@ class ProductService extends BaseService implements ProductServiceInterface
         $payload['special_price_start'] = $data['from_date'];
         $payload['special_price_end'] = $data['end_date'];
         $payload['qty'] = $data['quantity'];
-        $payload['manage_stock'] = isset($data['manage_stock']) && $data['manage_stock'] == 'on' ? 'yes' : 'no';
+        $payload['manage_stock'] = isset($data['manage_stock']) ? 'yes' : 'no';
         $payload['stock_status'] = isset($data['in_stock']) && $data['in_stock'] == 'in_stock' ? 1 : 0;
         $payload['status'] = $data['status'];
         $payload['is_featured'] = isset($data['is_featured']) ? 1 : 0;
         $payload['is_hot'] = isset($data['is_hot']) ? 1 : 0;
         $payload['is_new'] = isset($data['is_new']) ? 1 : 0;
+        $payload['product_type'] = $type;
 
         $document = $data['thumbnail'] ?? null;
 
@@ -59,15 +66,15 @@ class ProductService extends BaseService implements ProductServiceInterface
             $product->categories()->sync($data['categories']);
 
             // attach tags
-            $product->tags()->sync($data['tags']);
+            isset($data['tags']) ? $product->tags()->sync($data['tags']) : '';
 
             return $product->fresh();
         });
     }
 
-    public function getProduct(int $id): Product
+    public function getProduct(int $id, ProductType|string $type = ProductType::PHYSICAL): Product
     {
-        return $this->productRepo->getProduct($id);
+        return $this->productRepo->getProduct($id, $type);
     }
 
     public function allProducts(): LengthAwarePaginator
@@ -75,11 +82,16 @@ class ProductService extends BaseService implements ProductServiceInterface
         return $this->productRepo->getAllProducts();
     }
 
-    public function updateProduct(int $id, array $data): Product
+    public function updateProduct(int $id, ProductType|string $type, array $data): Product
     {
         // dd($data);
+        if (!ProductType::tryFrom($type)) {
+            abort(404, 'Invalid product type.');
+        }
         // check if product exist
-        $product = $this->productRepo->getProduct($id);
+        $product = $this->productRepo->getProduct($id, $type);
+
+        // dd($product);
 
         if (!$product)
             throw new \Exception('Product not found');
@@ -96,15 +108,18 @@ class ProductService extends BaseService implements ProductServiceInterface
         $payload['special_price_start'] = $data['from_date'];
         $payload['special_price_end'] = $data['end_date'];
         $payload['qty'] = $data['quantity'];
-        $payload['manage_stock'] = isset($data['manage_stock']) && $data['stock_status'] == 'on' ? 'yes' : 'no';
-        $payload['stock_status'] = isset($data['in_stock']) && $data['in_stock'] == 'in_stock' ? 1 : 0;
+        $payload['manage_stock'] = isset($data['manage_stock']) ? 'yes' : 'no';
+        $payload['stock_status'] = isset($data['stock_status']) && $data['stock_status'] == 'in_stock' ? 1 : 0;
         $payload['status'] = $data['status'];
         $payload['is_featured'] = isset($data['is_featured']) ? 1 : 0;
         $payload['is_hot'] = isset($data['is_hot']) ? 1 : 0;
         $payload['is_new'] = isset($data['is_new']) ? 1 : 0;
+        $payload['product_type'] = $type;
         $payload['slug'] = $product->name != $data['name'] ? $this->generateSlug($data['name'], fn($slug) => $this->productRepo->checkIfProductSlugExit($slug)) : $product->slug;
 
         $document = $data['thumbnail'] ?? null;
+
+        // dd($payload);
 
         return DB::transaction(function () use ($product, $payload, $document, $data) {
             $updatedProduct = $this->productRepo->updateProduct($product, $payload);
@@ -118,16 +133,16 @@ class ProductService extends BaseService implements ProductServiceInterface
             $updatedProduct->categories()->sync($data['categories']);
 
             // attach tags
-            $updatedProduct->tags()->sync($data['tags']);
+            isset($data['tags']) ? $updatedProduct->tags()->sync($data['tags']) : '';
 
             return $updatedProduct->fresh();
         });
     }
 
-    public function uploadImage(int $productId, array $data): ProductImage
+    public function uploadImage(int $productId, array $data, ProductType|string $type = ProductType::PHYSICAL): ProductImage
     {
         // check if product exist in both product image model and products model
-        if (!$this->productRepo->getProduct($productId))
+        if (!$this->productRepo->getProduct($productId, $type))
             throw new \Exception('Product not found');
 
         // check if product image is already more that 5 images
@@ -158,6 +173,7 @@ class ProductService extends BaseService implements ProductServiceInterface
     public function deleteProductImage(int $id): bool
     {
         $productImage = $this->productRepo->findProductImage($id);
+        // dd($productImage);
 
         // Delete associated media from Spatie Media Library
         $productImage->getMedia('product_image')->each->delete();
@@ -165,9 +181,9 @@ class ProductService extends BaseService implements ProductServiceInterface
         return $productImage->delete();
     }
 
-    public function reorderProductImages(int $productId, array $images): Collection
+    public function reorderProductImages(int $productId, array $images, ProductType|string $type = ProductType::PHYSICAL): Collection
     {
-        $productImages = $this->productRepo->getProduct($productId)->images;
+        $productImages = $this->productRepo->getProduct($productId, $type)->images;
 
         // Create a map of id to position
         $orderMap = [];
@@ -185,12 +201,12 @@ class ProductService extends BaseService implements ProductServiceInterface
         return $productImages->fresh();
     }
 
-    public function addProductAttributes(int $productId, array $data): Product
+    public function addProductAttributes(int $productId, array $data, ProductType|string $type = ProductType::PHYSICAL): Product
     {
         // dd($data);
-        return DB::transaction(function () use ($productId, $data) {
+        return DB::transaction(function () use ($productId, $data, $type) {
             // check if product exist
-            $product = $this->getProduct($productId);
+            $product = $this->getProduct($productId, $type);
 
             // Convert the string from request to an actual Enum instance
             // dd($data['attribute_type'] ?? null);
@@ -248,9 +264,9 @@ class ProductService extends BaseService implements ProductServiceInterface
         });
     }
 
-    public function deleteAttribute(int $attributeId, int $productId): Product
+    public function deleteAttribute(int $attributeId, int $productId, ProductType|string $type = ProductType::PHYSICAL): Product
     {
-        $product = $this->getProduct($productId);
+        $product = $this->getProduct($productId, $type);
         $attribute = $this->productRepo->getAttribute($attributeId);
 
         if (!$product || !$attribute) {
@@ -267,10 +283,10 @@ class ProductService extends BaseService implements ProductServiceInterface
             }]);
     }
 
-    public function deleteAttributeValue(int $attributeValueId, int $attributeId, int $productId): Product
+    public function deleteAttributeValue(int $attributeValueId, int $attributeId, int $productId, ProductType|string $type = ProductType::PHYSICAL): Product
     {
         // dd($attributeValueId);
-        $product = $this->getProduct($productId);
+        $product = $this->getProduct($productId, $type);
         $attribute = $this->productRepo->getAttribute($attributeId);
         $attributeValue = $this->productRepo->getAttributeValue($attributeValueId);
 
@@ -402,9 +418,9 @@ class ProductService extends BaseService implements ProductServiceInterface
         ]);
     }
 
-    public function updateProductVariant(int $productId, array $data): Product
+    public function updateProductVariant(int $productId, array $data, ProductType|string $type = ProductType::PHYSICAL): Product
     {
-        $product = $this->getProduct($productId);
+        $product = $this->getProduct($productId, $type);
         $variantId = $data['variant_id'] ?? null;
 
         if (!$product || !$variantId) {

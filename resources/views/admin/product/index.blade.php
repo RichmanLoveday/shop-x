@@ -108,9 +108,18 @@
                                     Create Product
                                 </button>
                                 <ul class="dropdown-menu">
-                                    <li><a class="dropdown-item" href="{{ route('admin.products.create') }}">Physical</a>
+                                    <li>
+                                        <a class="dropdown-item"
+                                            href="{{ route('admin.products.create', App\Enums\ProductType::PHYSICAL) }}">
+                                            Physical
+                                        </a>
                                     </li>
-                                    <li><a class="dropdown-item" href="#">Digital</a></li>
+                                    <li>
+                                        <a class="dropdown-item"
+                                            href="{{ route('admin.products.create', App\Enums\ProductType::DIGITAL) }}">
+                                            Digital
+                                        </a>
+                                    </li>
                                 </ul>
                             </div>
                         </div>
@@ -137,6 +146,8 @@
                                         @php
                                             $stockStatusBg = 'bg-danger';
                                             $stockStatusText = 'out_of_stock';
+                                            $digitalProductType = \App\Enums\ProductType::DIGITAL;
+                                            $physicalProductType = \App\Enums\ProductType::PHYSICAL;
 
                                             if ($product->primaryVariant) {
                                                 if ($product->primaryVariant?->stock_status) {
@@ -220,7 +231,7 @@
                                             <td>
                                                 <div class="d-flex w-100 justify-content-between space-x-1">
                                                     <a class=" text-decoration-none"
-                                                        href="{{ route('admin.products.edit', $product->id) }}">
+                                                        href="{{ $product->product_type === $physicalProductType ? route('admin.products.edit', $product->id) : route('admin.product.digital.edit', $product->id) }}">
                                                         <i class="ti ti-edit fs-1"></i>
                                                     </a>
 
@@ -240,8 +251,9 @@
                             </table>
 
                         </div>
+
                         <div class="card-footer">
-                            {{-- {{ $kycRequests->links() }} --}}
+                            {{ $products->links() }}
                         </div>
                     </div>
                 </div>

@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Admin;
 
 use App\Enums\ProductStatus;
+use App\Enums\ProductType;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -25,6 +26,7 @@ class ProductStoreRequest extends FormRequest
     public function rules(): array
     {
         return [
+            // 'type' => ['required', Rule::enum(ProductType::class)],
             'name' => ['required', 'string', 'max:255'],
             'short_description' => ['nullable', 'string', 'max:2000'],
             'long_description' => ['required', 'string'],

@@ -32,7 +32,7 @@ class Product extends Model implements HasMedia
         'sku',
         'manage_stock',
         'qty',
-        'in_stock',
+        'stock_status',
         'viewed',
         'thumbnail',
         'status',
@@ -107,7 +107,7 @@ class Product extends Model implements HasMedia
         return $this->hasMany(ProductVariant::class);
     }
 
-    
+
     public function primaryVariant(): HasOne
     {
         return $this->hasOne(ProductVariant::class)->where('is_default', true);

@@ -640,8 +640,9 @@
                     e.preventDefault();
 
                     let form = $(this);
+                    let type = "{{ request()->type }}"
                     let formData = new FormData(form[0]);
-                    let url = route('admin.products.store');
+                    let url = route('admin.products.store', type);
 
                     $.ajax({
                         url: url,
@@ -651,14 +652,19 @@
                         contentType: false,
                         success: function(response) {
                             if (response.status) {
+                                const product = response.product;
+                                const redirectUrl = type === 'physical' ? route(
+                                    'admin.products.edit', product.id) : route(
+                                    'admin.product.digital.edit', product.id);
+
                                 // redirect to edit page of the created product
-                                window.location.href = response.redirectUrl;
+                                window.location.href = redirectUrl;
                             }
                         },
                         error: function(xhr, status, error) {
                             if (xhr.status === 422) {
                                 let errors = xhr.responseJSON.errors;
-                                console.log(errors);
+                                // console.log(errors);
 
                                 // Display new errors
                                 $.each(errors, function(key, value) {

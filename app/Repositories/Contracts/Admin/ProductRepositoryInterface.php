@@ -2,6 +2,7 @@
 
 namespace App\Repositories\Contracts\Admin;
 
+use App\Enums\ProductType;
 use App\Models\Attribute;
 use App\Models\AttributeValue;
 use App\Models\Brand;
@@ -70,7 +71,7 @@ interface ProductRepositoryInterface
     // PRODUCT INTERFACES
     public function createProduct(array $data): Product;
 
-    public function getProduct(int $id): Product;
+    public function getProduct(int $id, ProductType|string $type = ProductType::PHYSICAL): Product;
 
     public function getProductImages(int $productId): Collection;
 

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Enums\ProductAttributeType;
 use App\Enums\ProductStatus;
+use App\Enums\ProductType;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\ProductAttributeStoreRequest;
 use App\Http\Requests\Admin\ProductStoreRequest;
@@ -50,15 +51,15 @@ class ProductController extends Controller
         return view('admin.product.create', compact('brands', 'categories', 'tags', 'statuses'));
     }
 
-    public function store(ProductStoreRequest $request)
+    public function store(ProductStoreRequest $request, string $type)
     {
+        // dd($type);
         try {
-            $product = $this->productService->addProduct($request->validated());
+            $product = $this->productService->addProduct($request->validated(), $type);
 
             return response()->json([
                 'message' => 'Product created successfully',
                 'product' => $product,
-                'redirectUrl' => route('admin.products.edit', $product->id) . '#product-images',
                 'status' => true,
             ]);
         } catch (\Exception $e) {
@@ -70,7 +71,7 @@ class ProductController extends Controller
         }
     }
 
-    public function uploadImage(Request $request, int $productId)
+    public function uploadImage(Request $request, string $type, int $productId)
     {
         // dd($request->all());
 
@@ -79,7 +80,7 @@ class ProductController extends Controller
         ]);
 
         try {
-            $productImage = $this->productService->uploadImage($productId, $request->only('image'));
+            $productImage = $this->productService->uploadImage($productId, $request->only('image'), $type);
 
             return response()->json([
                 'message' => 'Product image added successfully',
@@ -113,7 +114,7 @@ class ProductController extends Controller
         }
     }
 
-    public function reorderProductImages(Request $request, int $id)
+    public function reorderProductImages(Request $request, string $type, int $id)
     {
         // dd($request->images, $id);
         // validate request
@@ -124,7 +125,7 @@ class ProductController extends Controller
         ]);
 
         try {
-            $images = $this->productService->reorderProductImages($id, $request->images);
+            $images = $this->productService->reorderProductImages($id, $request->images, $type);
 
             return response()->json([
                 'message' => 'Images reordered successfully',
@@ -159,10 +160,30 @@ class ProductController extends Controller
         return view('admin.product.edit', compact('product', 'brands', 'categories', 'tags', 'statuses', 'attributeTypes'));
     }
 
-    public function update(ProductUpdateRequest $request, int $id)
+    public function editDigitalProduct(Request $request, int $id)
     {
+        $product = $this->productService->getProduct($id, ProductType::DIGITAL);
+        // dd($product->toArray());
+        // dd($product->toArray());
+        $brands = $this->brandService->allBrands();
+        $categories = $this->categoryService->nestedCategories();
+        $statuses = ProductStatus::cases();
+        $attributeTypes = ProductAttributeType::cases();
+
+        // dd($attributeTypes);
+
+        // dd($statuses);
+        // dd($categories);
+        $tags = $this->tagService->allTags();
+
+        return view('admin.product.digital-edit', compact('product', 'brands', 'categories', 'tags', 'statuses', 'attributeTypes'));
+    }
+
+    public function update(ProductUpdateRequest $request, string $type, int $id)
+    {
+        // dd($id, $type);
         try {
-            $product = $this->productService->updateProduct($id, $request->validated());
+            $product = $this->productService->updateProduct($id, $type, $request->validated());
 
             $this->updated('Product updated successfully');
 
