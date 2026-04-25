@@ -107,9 +107,13 @@ class Product extends Model implements HasMedia
         return $this->hasMany(ProductVariant::class);
     }
 
-
     public function primaryVariant(): HasOne
     {
         return $this->hasOne(ProductVariant::class)->where('is_default', true);
+    }
+
+    public function files(): HasMany
+    {
+        return $this->hasMany(ProductFile::class);
     }
 }

@@ -127,6 +127,233 @@
                 box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
                 z-index: 10;
             }
+
+            .file-preview-container {
+                display: flex;
+                flex-direction: column;
+                gap: 12px;
+                margin-top: 15px;
+            }
+
+            /* FULL WIDTH */
+            .file-card {
+                width: 100%;
+                padding: 16px 18px;
+
+                background: var(--tblr-bg-surface);
+                border: 1px solid var(--tblr-border-color);
+
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                gap: 15px;
+
+                transition: background 0.2s ease, box-shadow 0.2s ease;
+            }
+
+            /* Hover = subtle elevation */
+            .file-card:hover {
+                background: var(--tblr-bg-surface-secondary);
+                box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+            }
+
+            /* LEFT SIDE */
+            .file-info {
+                flex: 1;
+                overflow: hidden;
+            }
+
+            .file-name {
+                font-size: 14px;
+                color: var(--tblr-body-color);
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+
+            .file-size {
+                font-size: 12px;
+                color: var(--tblr-muted);
+            }
+
+            /* RIGHT SIDE */
+            .file-meta {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            }
+
+            /* PROGRESS BAR */
+            .file-progress {
+                width: 200px;
+                height: 6px;
+                background: var(--tblr-border-color);
+                position: relative;
+            }
+
+            .file-progress-bar {
+                height: 100%;
+                width: 0%;
+                background: #1db954;
+                transition: width 0.2s ease;
+            }
+
+            /* PERCENT TEXT */
+            .file-percentage {
+                font-size: 12px;
+                color: var(--tblr-muted);
+                min-width: 45px;
+                text-align: right;
+                font-weight: 500;
+            }
+
+            /* REMOVE ICON */
+            /* REMOVE BUTTON (clean + subtle) */
+            .file-remove {
+                width: 28px;
+                height: 28px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+
+                border-radius: 6px;
+                background: transparent;
+                color: var(--tblr-muted);
+
+                cursor: pointer;
+                transition: all 0.2s ease;
+            }
+
+            /* Hover effect */
+            .file-remove:hover {
+                background: rgba(255, 0, 0, 0.08);
+                color: var(--tblr-danger);
+            }
+
+            /* Icon sizing */
+            .file-remove i {
+                font-size: 16px;
+            }
+
+
+            .file-progress {
+                width: 220px;
+                height: 6px;
+                background: rgba(0, 0, 0, 0.05);
+                overflow: hidden;
+                position: relative;
+            }
+
+            /* PROGRESS BAR */
+            .file-progress-bar {
+                height: 100%;
+                width: 0%;
+
+                background: linear-gradient(90deg,
+                        #1db954,
+                        #1ed760);
+
+                transition: width 0.25s ease;
+
+                position: relative;
+            }
+
+            /* subtle shine animation */
+            .file-progress-bar::after {
+                content: "";
+                position: absolute;
+                top: 0;
+                left: -40%;
+                width: 40%;
+                height: 100%;
+
+                background: rgba(255, 255, 255, 0.4);
+                transform: skewX(-20deg);
+
+                animation: shimmer 1.2s infinite;
+            }
+
+
+            .file-progress-bar.stop-animation::after {
+                animation: none !important;
+                display: none;
+            }
+
+            /* smooth status area */
+            .file-status {
+                margin-top: 10px;
+                font-size: 13px;
+                color: var(--tblr-muted);
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            }
+
+            /* spinner */
+            .processing-spinner {
+                width: 16px;
+                height: 16px;
+                border: 2px solid rgba(29, 185, 84, 0.15);
+                border-top-color: #1db954;
+                border-radius: 50%;
+                animation: spinSmooth 0.8s linear infinite;
+            }
+
+            /* completed badge */
+            .upload-complete-badge {
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+                font-size: 13px;
+                font-weight: 600;
+                color: #1db954;
+            }
+
+            /* completed text */
+            .completed-text {
+                font-size: 13px;
+                font-weight: 500;
+                color: #1db954;
+            }
+
+            /* failed text */
+            .failed-text {
+                font-size: 13px;
+                font-weight: 500;
+                color: #dc3545;
+            }
+
+            /* processing card subtle effect */
+            .processing-state {
+                border-color: rgba(29, 185, 84, 0.35);
+            }
+
+            /* completed card */
+            .completed-state {
+                border-color: rgba(29, 185, 84, 0.45);
+            }
+
+            /* smooth rotation */
+            @keyframes spinSmooth {
+                from {
+                    transform: rotate(0deg);
+                }
+
+                to {
+                    transform: rotate(360deg);
+                }
+            }
+
+            /* shimmer effect */
+            @keyframes shimmer {
+                0% {
+                    left: -40%;
+                }
+
+                100% {
+                    left: 120%;
+                }
+            }
         </style>
     @endpush
     <div class="container-xl">
@@ -311,30 +538,94 @@
                         </div>
                     </div>
 
-
                     <div id="product-images" class="card mt-3">
                         <div class="card-header">
-                            <h3 class="card-title">Product Image</h3>
+                            <h3 class="card-title">Product Files</h3>
                         </div>
 
                         <div class="card-body">
                             <div class="col-md-12">
                                 <div class="mb-3">
-                                    <div id="imageUploader" class="image-uploader-box">
+
+                                    <div id="digitalUploader" class="image-uploader-box">
                                         <div class="upload-placeholder">
-                                            <i class="ti ti-upload"></i>
-                                            <p>Drop images here or click to upload</p>
+                                            <i class="ti ti-file-upload"></i>
+                                            <p>Drop digital files here</p>
                                         </div>
                                     </div>
 
-                                    <div id="imagePreviewContainer" class="image-preview-container">
-                                        @foreach ($product->images ?? [] as $image)
-                                            <div class="image-card" data-id="{{ $image->id }}">
-                                                <span onclick="removeImage('{{ $image->id }}', this)"
-                                                    class="image-remove" data-id="{{ $image->id }}">
-                                                    <i class="ti ti-xbox-x fs-1"></i>
-                                                </span>
-                                                <img src="{{ $image->path }}" />
+                                    <div id="digitalPreviewContainer" class="file-preview-container">
+                                        @foreach ($product->files as $file)
+                                            @php
+                                                $status = $file->status->value;
+                                            @endphp
+
+                                            <div class="file-card dz-preview
+                                                {{ $status === 'processing' ? 'processing-state' : '' }}
+                                                {{ $status === 'completed' ? 'completed-state' : '' }}
+                                                {{ $status === 'already_processed' ? 'completed-state' : '' }}
+                                            "data-file-id="{{ $file->id }}"
+                                                data-status="{{ $status }}"
+                                                data-product-id="{{ $file->product_id }}">
+
+                                                <div class="file-info">
+                                                    <div class="file-name" data-dz-name>{{ $file->filename }}</div>
+                                                    <div class="file-size" data-dz-size>
+                                                        {{ number_format($file->size / 1024, 2) }} KB</div>
+
+                                                    {{-- STATUS --}}
+                                                    <div class="file-status">
+
+                                                        @if ($status === 'processing')
+                                                            <span class="processing-spinner"></span>
+                                                            Processing file...
+                                                        @elseif ($status === 'completed')
+                                                            <span class="completed-text">
+                                                                Ready for use
+                                                            </span>
+                                                        @elseif ($status === 'already_processed')
+                                                            <span class="completed-text">
+                                                                Already processed
+                                                            </span>
+                                                        @elseif ($status === 'failed')
+                                                            <span class="failed-text">
+                                                                Upload failed
+                                                            </span>
+                                                        @else
+                                                            <span>
+                                                                Preparing upload...
+                                                            </span>
+                                                        @endif
+
+                                                    </div>
+                                                </div>
+
+                                                <div class="file-meta">
+
+                                                    <div class="file-progress">
+                                                        <div class="file-progress-bar
+                                                            {{ in_array($status, ['completed', 'processing', 'already_processed']) ? 'stop-animation' : '' }}"
+                                                            data-dz-uploadprogress
+                                                            style="width: {{ in_array($status, ['completed', 'processing', 'already_processed']) ? '100%' : '0%' }}">
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="file-percentage">
+                                                        @if ($status === 'completed')
+                                                            <span class="upload-complete-badge">
+                                                                <i class="ti ti-circle-check"></i>
+                                                                Completed
+                                                            </span>
+                                                        @else
+                                                            <span class="dz-upload-percent">0%</span>
+                                                        @endif
+                                                    </div>
+
+                                                    <div class="file-remove delete-file"
+                                                        data-file-id="{{ $file->id }}" data-dz-remove>
+                                                        <i class="ti ti-xbox-x"></i>
+                                                    </div>
+                                                </div>
                                             </div>
                                         @endforeach
                                     </div>
@@ -749,53 +1040,6 @@
                     }
                 });
 
-
-                // code block to handle date pickers with litepicker
-                if (window.Litepicker) {
-                    // FROM DATE PICKER
-                    fromPicker = new Litepicker({
-                        element: document.getElementById('from_date'),
-                        minDate: new Date(), // block past dates
-                        buttonText: {
-                            previousMonth: `<i class="ti ti-chevron-left fs-2"></i>`,
-                            nextMonth: `<i class="ti ti-chevron-right fs-2"></i>`,
-                        },
-
-                        setup: (picker) => {
-                            picker.on('selected', (date) => {
-                                // Enable End Date
-                                $('#end_date').prop('disabled', false);
-
-                                // Set minimum selectable date for End Date
-                                toPicker.setOptions({
-                                    minDate: date.clone().add(1,
-                                        'day') // must be greater than start date
-                                });
-                            });
-
-                            picker.on('clear', () => {
-                                // Clear and disable End Date if From Date is cleared
-                                $('#end_date').val('').prop('disabled', true);
-                                toPicker.clearSelection();
-                            });
-                        }
-                    });
-
-                    // TO DATE PICKER
-                    toPicker = new Litepicker({
-                        element: document.getElementById('end_date'),
-                        buttonText: {
-                            previousMonth: `<i class="ti ti-chevron-left fs-2"></i>`,
-                            nextMonth: `<i class="ti ti-chevron-right fs-2"></i>`,
-                        },
-                        minDate: null // will be set dynamically
-
-                    });
-
-                    // Disable End Date initially
-                    // $('#end_date').prop('disabled', true);
-                }
-
                 // Extra safety: if user manually clears input
                 $('#from_date').on('input', function() {
                     if (!$(this).val()) {
@@ -875,15 +1119,58 @@
                 });
 
 
-                Dropzone.autoDiscover = false;
-                let type = "{{ \App\Enums\ProductType::DIGITAL }}";
+                let previewTemplate = `
+                    <div class="file-card dz-preview">
 
-                let myDropzone = new Dropzone("#imageUploader", {
-                    url: route('admin.products.upload-image', [type, {{ $product->id }}]),
-                    paramName: "image",
-                    maxFilesize: 10,
-                    acceptedFiles: "image/*",
-                    previewsContainer: false,
+                        <div class="file-info">
+                            <div class="file-name" data-dz-name></div>
+                            <div class="file-size" data-dz-size></div>
+
+                            <!-- Status Area -->
+                            <div class="file-status">
+                                <span class="processing-spinner"></span>
+                                Preparing upload...
+                            </div>
+                        </div>
+
+                        <div class="file-meta">
+
+                            <div class="file-progress">
+                                <div class="file-progress-bar" data-dz-uploadprogress></div>
+                            </div>
+
+                            <div class="file-percentage">
+                                <span class="dz-upload-percent">0%</span>
+                            </div>
+
+                            <div class="file-remove" data-dz-remove>
+                                <i class="ti ti-xbox-x"></i>
+                            </div>
+
+                        </div>
+
+                    </div>
+                `;
+
+                let type = "{{ \App\Enums\ProductType::DIGITAL }}";
+                Dropzone.autoDiscover = false;
+
+                let digitalDropzone = new Dropzone("#digitalUploader", {
+                    url: route('admin.product.digital.file-upload', [type, {{ $product->id }}]),
+
+                    paramName: "file",
+                    maxFilesize: 1024,
+                    acceptedFiles: ".zip,.pdf,.mp4,.mp3",
+
+                    chunking: true,
+                    forceChunking: true,
+                    chunkSize: 2 * 1024 * 1024,
+                    parallelChunkUploads: true,
+                    retryChunks: true,
+                    retryChunksLimit: 3,
+                    acceptedFiles: "images/*, application/pdf, video/*, audio/*, application/*",
+                    previewTemplate: previewTemplate,
+                    previewsContainer: "#digitalPreviewContainer",
 
                     headers: {
                         'X-CSRF-TOKEN': '{{ csrf_token() }}'
@@ -892,80 +1179,208 @@
                     init: function() {
 
                         this.on("addedfile", function(file) {
+                            let container = $("#digitalPreviewContainer");
+                            let preview = $(file.previewElement);
 
-                            let preview = `
-                            <div class="image-card uploading">
-                                <div class="image-loader">
-                                    <span></span><span></span><span></span>
-                                </div>
-                                <div class="uploading-text">Uploading...</div>
-                            </div>
-                        `;
-
-                            file._previewEl = $(preview).appendTo('#imagePreviewContainer');
+                            preview.detach();
+                            container.prepend(preview);
                         });
 
+                        // Update percentage manually
+                        this.on("uploadprogress", function(file, progress) {
+                            let percent = Math.round(progress);
+                            let el = $(file.previewElement);
+
+                            el.find(".dz-upload-percent")
+                                .text(percent + "%");
+
+                            el.find(".file-status")
+                                .html(`
+                            <span class="processing-spinner"></span>
+                            Uploading...
+                            `);
+                        });
+
+                        // When upload finishes
                         this.on("success", function(file, response) {
 
-                            const productImage = response.productImage;
+                            let fileId = response?.digitalFile?.id;
+                            let productId = response?.digitalFile?.product_id;
+                            let el = $(file.previewElement);
 
-                            let html = `
-                                <div class="image-card" data-id="${productImage.id}">
-                                    <span class="image-remove" data-id="${productImage.id}">
-                                        <i class="ti ti-xbox-x fs-1"></i>
-                                    </span>
-                                    <img src="${productImage.path}" />
-                                </div>
-                            `;
 
-                            file._previewEl.replaceWith(html);
+                            if (response?.digitalFile && response?.digitalFile?.id) {
+                                el.find(".file-remove")
+                                    .addClass("delete-file")
+                                    .attr("data-file-id", response.digitalFile.id);
+                            }
 
-                            enableSortable();
+                            checkStatus(productId, fileId, el);
                         });
 
                         this.on("error", function(file) {
-                            console.log(file)
-                            const errors = JSON.parse(file.xhr.response).errors;
-                            console.log(errors);
-                            if (file.xhr.status == 422) {
-                                $.each(errors, function(key, value) {
-                                    notyf.error(errors[key][0]);
-                                });
-                            }
+                            let el = $(file.previewElement);
 
-                            if (file.xhr.status == 500) {
-                                notyf.error('Server error while uploading image');
-                            }
+                            el.find(".file-status")
+                                .html(`
+                                    <span class="failed-text">
+                                        Upload failed
+                                    </span>
+                                `);
 
-                            file._previewEl.remove();
+                            notyf.error("Upload failed");
                         });
                     }
                 });
             });
 
 
-            // remove image
-            function removeImage(imageId, element) {
-                // let type = "{{ \App\Enums\ProductType::DIGITAL }}";
+            $(".dz-preview").each(function() {
+
+                let el = $(this);
+                let productId = el.data("product-id");
+                let fileId = el.data("file-id");
+                let status = el.data("status");
+
+                console.log(status, productId, fileId);
+
+                // only poll if still processing
+                if (status === "processing") {
+                    checkStatus(productId, fileId, el);
+                }
+            });
+
+
+            function updateFileUI(el, status) {
+
+                const bar = el.find(".file-progress-bar");
+                const percent = el.find(".dz-upload-percent");
+                const fileStatus = el.find(".file-status");
+
+                bar.css("width", "100%")
+                    .addClass("stop-animation");
+
+                if (status === "processing") {
+
+                    percent.text("100%");
+                    fileStatus.html(`
+                    <span class="processing-spinner"></span>
+                    Processing file...
+                `);
+
+                    el.addClass("processing-state");
+
+                } else if (status === "completed") {
+
+                    percent.html(`
+                    <span class="upload-complete-badge">
+                        <i class="ti ti-circle-check"></i>
+                        Completed
+                    </span>
+                `);
+
+                    fileStatus.html(`
+                    <span class="completed-text">
+                        Ready for use
+                    </span>
+                `);
+
+                    el.removeClass("processing-state")
+                        .addClass("completed-state");
+
+                } else if (status === "already_processed") {
+
+                    fileStatus.html(`
+                    <span class="completed-text">
+                        Already processed
+                    </span>
+                `);
+                } else if (status === 'failed') {
+                    fileStatus.html(`
+                         <span class="failed-text">
+                            Upload failed
+                        </span>
+                    `);
+                }
+            }
+
+
+
+            function checkStatus(productId = null, fileId = null, el) {
+
+                let interval = setInterval(() => {
+
+                    if (!fileId) return;
+
+                    $.get(route('admin.product.digital.status', [productId, fileId]), function(response) {
+
+                        updateFileUI(el, response.status);
+
+                        // STOP polling when finished
+                        if (
+                            response.status === "completed" ||
+                            response.status === "failed" ||
+                            response.status === "already_processed"
+                        ) {
+                            clearInterval(interval);
+                        }
+                    });
+
+                }, 2000);
+            }
+
+
+            $(document).on('click', '.delete-file', function() {
+                const button = $(this);
+                const fileId = button.attr('data-file-id');
+                const productId = "{{ $product->id }}";
+
+
+                // prevent multible deleting
+                if (button.hasClass('deleting')) {
+                    return;
+                }
+
+                button.addClass('deleting');
+
+                button.html(`
+                    <span class="processing-spinner"></span>
+                `);
+
+
                 $.ajax({
-                    url: route('admin.products.images.destroy', [imageId]),
-                    method: 'DELETE',
+                    method: "DELETE",
+                    url: route('admin.product.digital.product.file.destroy', [productId, fileId]),
                     headers: {
                         'X-CSRF-TOKEN': '{{ csrf_token() }}'
                     },
-                    success: function(res) {
-                        $(element).closest('.image-card').remove();
-                    },
-                    error: function() {}
-                });
-            }
+                    success: function(response) {
+                        if (response.status === true) {
+                            button.closest('.file-card').fadeOut(300, function() {
+                                $(this).remove();
+                            });
 
-            // delegate click handler for image removal
-            $(document).on('click', '.image-remove', function() {
-                const imageId = $(this).data('id');
-                removeImage(imageId, this);
+                            notyf.success(response.message);
+                        } else {
+                            restoreDeleteButton(button);
+                            notyf.error("Failed to delete file");
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        restoreDeleteButton(button);
+                        notyf.error("Something went wrong");
+                    }
+                });
             });
 
+
+            function restoreDeleteButton(button) {
+                button.removeClass('deleting');
+
+                button.html(`
+                    <i class="ti ti-xbox-x"></i>
+                `);
+            }
 
             let sortable;
 

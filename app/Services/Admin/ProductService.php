@@ -3,17 +3,26 @@
 namespace App\Services\Admin;
 
 use App\Enums\ProductAttributeType;
+use App\Enums\ProductFilesStatus;
 use App\Enums\ProductType;
+use App\Jobs\DeleteDigitalFileJob;
+use App\Jobs\ProcessDigitalFileJob;
+use App\Models\Admin;
 use App\Models\Product;
+use App\Models\ProductFile;
 use App\Models\ProductImage;
 use App\Models\ProductVariant;
+use App\Models\User;
 use App\Repositories\Contracts\Admin\ProductRepositoryInterface;
 use App\Services\Contracts\Admin\ProductServiceInterface;
 use App\Services\BaseService;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Collection as SupportCollection;
 use Illuminate\Support\Str;
 use Pest\Support\Arr;

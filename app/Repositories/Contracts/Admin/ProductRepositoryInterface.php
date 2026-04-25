@@ -9,6 +9,7 @@ use App\Models\Brand;
 use App\Models\Category;
 use App\Models\Product;
 use App\Models\ProductAttributeValue;
+use App\Models\ProductFile;
 use App\Models\ProductImage;
 use App\Models\ProductVariant;
 use App\Models\Tag;
@@ -116,4 +117,8 @@ interface ProductRepositoryInterface
     public function getAllProducts(): LengthAwarePaginator;
 
     public function resetDefaultVariants(int $productId, int $variantId): void;
+
+    public function createDigitalFile(array $data): ProductFile;
+
+    public function findDigitalFile(int $id, int $productId): ProductFile;
 }

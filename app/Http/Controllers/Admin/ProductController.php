@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Enums\ProductAttributeType;
+use App\Enums\ProductFilesStatus;
 use App\Enums\ProductStatus;
 use App\Enums\ProductType;
 use App\Http\Controllers\Controller;
@@ -10,6 +11,7 @@ use App\Http\Requests\Admin\ProductAttributeStoreRequest;
 use App\Http\Requests\Admin\ProductStoreRequest;
 use App\Http\Requests\Admin\ProductUpdateRequest;
 use App\Http\Requests\Admin\ProductVariantRequestUpdate;
+use App\Services\Admin\ProductDigitalFileService;
 use App\Services\Contracts\Admin\BrandServiceInterface;
 use App\Services\Contracts\Admin\CategoryServiceInterface;
 use App\Services\Contracts\Admin\ProductServiceInterface;
@@ -17,6 +19,7 @@ use App\Services\Contracts\Admin\StoreServiceInterface;
 use App\Services\Contracts\Admin\TagServiceInterface;
 use App\Traits\Alert;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 
 class ProductController extends Controller
@@ -29,6 +32,7 @@ class ProductController extends Controller
         protected BrandServiceInterface $brandService,
         protected TagServiceInterface $tagService,
         protected ProductServiceInterface $productService,
+        protected ProductDigitalFileService $productDigitalFileService,
     ) {}
 
     public function index(): View
@@ -292,9 +296,90 @@ class ProductController extends Controller
         } catch (\Exception $e) {
             logger()->error('Failed to update product variant: ' . $e->getMessage());
             return response()->json([
-                'message' => 'An error occurred while updating product variant',
+                'message' => 'An e1`111rror occurred while updating product variant',
                 'status' => false,
             ], 500);
+        }
+    }
+
+    public function uploadDigitalProduct(Request $request, string $type, int $productId)
+    {
+        try {
+            // dd($request->all());
+            $admin = Auth::guard('admin')->user();
+            $result = $this->productDigitalFileService->handleChunkUpload($productId, $admin, $type, $request->all());
+
+            // dd($product);
+
+            return response()->json([
+                'message' => ProductFilesStatus::from($result['status'])->message(),
+                'digitalFile' => $result['digitalFile'] ?? (object) [],
+                'status' => $result['status'],
+            ], 200);
+        } catch (\Exception $e) {
+            logger()->error(
+                'Failed to upload digital product: ' . $e->getMessage()
+            );
+
+            return response()->json([
+                'message' => 'An error occurred while uploading digital product',
+                'status' => 'failed',
+            ], 500);
+        }
+    }
+
+    public function getDigitalFile(int $productId, $fileId)
+    {
+        // dd($productId, $fileId);
+
+        try {
+            $digitalFile = $this->productDigitalFileService->getDigitalFile($productId, $fileId, ProductType::DIGITAL->value);
+            return response()->json([
+                'message' => $digitalFile->status->message(),
+                'status' => $digitalFile->status->value,
+            ], 200);
+        } catch (\Exception $e) {
+            logger()->error(
+                'Failed to get digital files: ' . $e->getMessage()
+            );
+
+            return response()->json([
+                'message' => 'An error occurred while getting digital files',
+                'status' => 'failed',
+            ], 500);
+        }
+    }
+
+    public function checkDigitalFileStatus(int $productId, int $fileId)
+    {
+        try {
+            $digitalFile = $this->productDigitalFileService->getDigitalFile($productId, $fileId, ProductType::DIGITAL->value);
+            // dd($digitalFile->toArray());
+            // var_dump($digitalFile->status);
+            return response()->json([
+                // 'digitalFile' => $digitalFile,
+                'message' => $digitalFile->status->message(),
+                'status' => $digitalFile->status->value,
+            ], 200);
+        } catch (\Exception $e) {
+        }
+    }
+
+    public function destroyDigitalProductFile(int $productId, int $fileId)
+    {
+        try {
+            $this->productDigitalFileService->deleteDigitalFile($productId, $fileId);
+
+            return response()->json([
+                'message' => 'File deleted successfully',
+                'status' => true,
+            ], 200);
+        } catch (\Exception $e) {
+            logger()->error('Failed to delete file: ' . $e);
+            return response()->json([
+                'status' => false,
+                'message' => 'An error occurred while deleting file',
+            ]);
         }
     }
 }

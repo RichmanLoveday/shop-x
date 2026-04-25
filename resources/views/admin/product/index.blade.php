@@ -169,7 +169,8 @@
                                             </td>
                                             <td>
                                                 <div>
-                                                    <a href="{{ route('admin.products.edit', $product->id) }}">{{ $product->name }}
+                                                    <a
+                                                        href="{{ $product->product_type === $physicalProductType ? route('admin.products.edit', $product->id) : route('admin.product.digital.edit', $product->id) }}">{{ $product->name }}
                                                     </a>
                                                 </div>
                                                 <small

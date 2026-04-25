@@ -9,6 +9,7 @@ use App\Models\Brand;
 use App\Models\Category;
 use App\Models\Product;
 use App\Models\ProductAttributeValue;
+use App\Models\ProductFile;
 use App\Models\ProductImage;
 use App\Models\ProductVariant;
 use App\Models\ProductVariantAttributeValue;
@@ -219,7 +220,9 @@ class ProductRepository implements ProductRepositoryInterface
     {
         return Product::query()
             ->where('product_type', $type)
-            ->with(['categories', 'tags', 'brand', 'images', 'store', 'attributeValues', 'variants', 'attributes',
+            ->with(['categories', 'tags', 'brand', 'images', 'store', 'attributeValues', 'variants', 'attributes', 'files' => function ($query) {
+                $query->orderBy('id', 'DESC');
+            },
                 'attributeWithValues' => function ($query) use ($id) {
                     $query->WithValuesForProduct($id);
                 }])
@@ -355,7 +358,29 @@ class ProductRepository implements ProductRepositoryInterface
 
     public function getAllProducts(): LengthAwarePaginator
     {
-        return Product::with(['categories', 'tags', 'brand', 'images', 'store', 'primaryVariant'])
+        return Product::with([
+            'categories',
+            'tags',
+            'brand',
+            'images',
+            'store',
+            'primaryVariant',
+            // 'productFiles'
+        ])
+            ->orderByDesc('id')
             ->paginate(5);
+    }
+
+    public function createDigitalFile(array $data): ProductFile
+    {
+        return ProductFile::create($data);
+    }
+
+    public function findDigitalFile(int $id, int $productId): ProductFile
+    {
+        return ProductFile::with(['product'])
+            ->where('id', $id)
+            ->where('product_id', $productId)
+            ->firstOrFail();
     }
 }
