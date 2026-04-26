@@ -23,6 +23,8 @@ class ServicesServiceProvider extends ServiceProvider
         \App\Services\Contracts\Admin\BrandServiceInterface::class => \App\Services\Admin\BrandService::class,
         \App\Services\Contracts\Admin\StoreServiceInterface::class => \App\Services\Admin\StoreService::class,
         \App\Services\Contracts\Admin\ProductDigitalFileServiceInterface::class => \App\Services\Admin\ProductDigitalFileService::class,
+        \App\Services\Contracts\Admin\ProductImagesServiceInterface::class => \App\Services\Admin\ProductImagesService::class,
+        \App\Services\Contracts\Admin\ProductAttributesVariantsInterface::class => \App\Services\Admin\ProductAttributesVariantsService::class,
     ];
 
     /**

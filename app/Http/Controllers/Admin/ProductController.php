@@ -14,6 +14,8 @@ use App\Http\Requests\Admin\ProductVariantRequestUpdate;
 use App\Services\Admin\ProductDigitalFileService;
 use App\Services\Contracts\Admin\BrandServiceInterface;
 use App\Services\Contracts\Admin\CategoryServiceInterface;
+use App\Services\Contracts\Admin\ProductAttributesVariantsInterface;
+use App\Services\Contracts\Admin\ProductImagesServiceInterface;
 use App\Services\Contracts\Admin\ProductServiceInterface;
 use App\Services\Contracts\Admin\StoreServiceInterface;
 use App\Services\Contracts\Admin\TagServiceInterface;
@@ -33,6 +35,8 @@ class ProductController extends Controller
         protected TagServiceInterface $tagService,
         protected ProductServiceInterface $productService,
         protected ProductDigitalFileService $productDigitalFileService,
+        protected ProductImagesServiceInterface $productImagesService,
+        protected ProductAttributesVariantsInterface $productAttributeVariants,
     ) {}
 
     public function index(): View
@@ -84,7 +88,7 @@ class ProductController extends Controller
         ]);
 
         try {
-            $productImage = $this->productService->uploadImage($productId, $request->only('image'), $type);
+            $productImage = $this->productImagesService->uploadImage($productId, $request->only('image'), $type);
 
             return response()->json([
                 'message' => 'Product image added successfully',
@@ -103,7 +107,7 @@ class ProductController extends Controller
     public function destroyProductImage(int $id)
     {
         try {
-            $this->productService->deleteProductImage($id);
+            $this->productImagesService->deleteProductImage($id);
 
             return response()->json([
                 'message' => 'Image removed successfully',
@@ -129,7 +133,7 @@ class ProductController extends Controller
         ]);
 
         try {
-            $images = $this->productService->reorderProductImages($id, $request->images, $type);
+            $images = $this->productImagesService->reorderProductImages($id, $request->images, $type);
 
             return response()->json([
                 'message' => 'Images reordered successfully',
@@ -211,7 +215,7 @@ class ProductController extends Controller
         // dd($request->all());
 
         try {
-            $product = $this->productService->addProductAttributes($id, $request->validated());
+            $product = $this->productAttributeVariants->addProductAttributes($id, $request->validated());
             $attributeTypes = ProductAttributeType::cases();
             $html = view('admin.product.partials.attributes', compact('product', 'attributeTypes'))->render();
             $variants = view('admin.product.partials.variants', compact('product'))->render();
@@ -237,7 +241,7 @@ class ProductController extends Controller
         // dd($productId, $attributeId);
 
         try {
-            $product = $this->productService->deleteAttribute($attributeId, $productId);
+            $product = $this->productAttributeVariants->deleteAttribute($attributeId, $productId);
             $attributeTypes = ProductAttributeType::cases();
             $html = view('admin.product.partials.attributes', compact('product', 'attributeTypes'))->render();
             $variants = view('admin.product.partials.variants', compact('product'))->render();
@@ -261,7 +265,7 @@ class ProductController extends Controller
     public function destroyAttributeValue(int $productId, int $attributeId, int $attributeValueId)
     {
         try {
-            $product = $this->productService->deleteAttributeValue($attributeValueId, $attributeId, $productId);
+            $product = $this->productAttributeVariants->deleteAttributeValue($attributeValueId, $attributeId, $productId);
             $attributeTypes = ProductAttributeType::cases();
             $html = view('admin.product.partials.attributes', compact('product', 'attributeTypes'))->render();
             $variants = view('admin.product.partials.variants', compact('product'))->render();
@@ -285,7 +289,7 @@ class ProductController extends Controller
     {
         try {
             // dd($request->all());
-            $product = $this->productService->updateProductVariant($productId, $request->all());
+            $product = $this->productAttributeVariants->updateProductVariant($productId, $request->all());
             $variants = view('admin.product.partials.variants', compact('product'))->render();
 
             return response()->json([

@@ -147,6 +147,7 @@ Route::middleware('auth:admin')
             Route::get('/products', 'index')->name('products.index');
             Route::get('/product/{type}/create', 'create')->name('products.create');
             Route::post('/product/{type}/store', 'store')->name('products.store');
+            Route::delete('/product/{product}/destroy', 'destroyProduct')->name('product.destroy');
 
             /* Digital Product Routes */
             Route::post('/product/digital/{type}/{product}/file-upload', 'uploadDigitalProduct')->name('product.digital.file-upload');
