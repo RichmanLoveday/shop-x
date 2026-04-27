@@ -2,123 +2,61 @@
 
 namespace App\Repositories\Contracts\Admin;
 
-use App\Enums\ProductType;
-use App\Models\Attribute;
-use App\Models\AttributeValue;
-use App\Models\Brand;
-use App\Models\Category;
-use App\Models\Product;
-use App\Models\ProductAttributeValue;
-use App\Models\ProductFile;
-use App\Models\ProductImage;
-use App\Models\ProductVariant;
-use App\Models\Tag;
-use Dom\Attr;
-use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Pagination\LengthAwarePaginator;
-use PhpCsFixer\Tokenizer\CT;
+use App\Repositories\Contracts\Core\BaseProductRepositoryInterface;
 
-interface ProductRepositoryInterface
+interface ProductRepositoryInterface extends BaseProductRepositoryInterface
 {
-    // CATEGORY INTERFACES
-    public function addCategory(array $data): Category;
+    // public function updateStatus(): Product;
 
-    public function getAllCategories(): Collection;
+    // public function createProduct(array $data): Product;
 
-    public function calculatePosition(int $parent_id = null): ?int;
+    // public function getProduct(int $id, ProductType|string $type = ProductType::PHYSICAL): Product;
 
-    public function updateCategory(int $id, array $data): Category;
+    // public function getProductImages(int $productId): Collection;
 
-    public function categoriesByParents(?int $parent_id = null): Collection;
+    // public function checkIfProductSlugExit(string $slug): bool;
 
-    public function getNestedCategories(): Collection;
+    // public function calculateProductImageMaxOrder(int $productId): int;
 
-    public function hasThreeOrMoreChildren(int $parent_id): bool;
+    // public function uploadProductImage(array $data): ProductImage;
 
-    public function updateCategoryTree(int $id, array $data): Category;
+    // public function findProductImage(int $id): ProductImage;
 
-    public function getCategory(int $id): Category;
+    // public function updateProduct(Product $product, array $data): Product;
 
-    public function checkIfProductCategorySlugExit(string $slug): bool;
+    // public function createOrUpdateAttribute(array $data, ?int $attributeId = null): Attribute;
 
-    public function searchCategory(string $name): Collection;
+    // public function createAttributeValues(int $attributeId, array $data): AttributeValue;
 
-    // TAG INTERFACES
-    public function createTag(array $data): Tag;
+    // public function createProductAttributeValues(int $productId, int $attributeId, int $attribute_value_id): ProductAttributeValue;
 
-    public function checkIfTagSlugExit(string $slug): bool;
+    // public function clearProductAttributeValues(Product $product, Attribute $attribute): void;
 
-    public function getAllTags(): LengthAwarePaginator;
+    // public function clearAttributeValues(Attribute $attribute): void;
 
-    public function getTag(int $id): Tag;
+    // public function getAttribute(int $attributeId): Attribute;
 
-    public function updateTag(int $id, array $data): Tag;
+    // public function getAttributeValue(int $attribute_value_id): AttributeValue;
 
-    public function findTag(string $name): Collection;
+    // public function deleteAttribute(Attribute $attribute): bool;
 
-    // BRAND INTERFACES
-    public function createBrand(array $data): Brand;
+    // public function deleteAttributeValue(AttributeValue $attributeValue): bool;
 
-    public function updateBrand(int $id, array $data): Brand;
+    // public function clearExistingProductVariantAttributeValue(int $variantId): void;
 
-    public function getBrand(int $id): Brand;
+    // public function getGroupProductAttributes(int $productId): Collection;
 
-    public function getAllBrand(): LengthAwarePaginator;
+    // public function getAttributeValues(array $attributeValueIds): Collection;
 
-    public function checkIfBrandSlugExit(string $slug): bool;
+    // public function createOrUpdateProductVariant(array $data, ?int $variantId = null): ProductVariant;
 
-    public function findBrand(string $name): Collection;
+    // public function getProductVariant(int $productVariantId): ProductVariant;
 
-    // PRODUCT INTERFACES
-    public function createProduct(array $data): Product;
+    // public function getAllProducts(): LengthAwarePaginator;
 
-    public function getProduct(int $id, ProductType|string $type = ProductType::PHYSICAL): Product;
+    // public function resetDefaultVariants(int $productId, int $variantId): void;
 
-    public function getProductImages(int $productId): Collection;
+    // public function createDigitalFile(array $data): ProductFile;
 
-    public function checkIfProductSlugExit(string $slug): bool;
-
-    public function calculateProductImageMaxOrder(int $productId): int;
-
-    public function uploadProductImage(array $data): ProductImage;
-
-    public function findProductImage(int $id): ProductImage;
-
-    public function updateProduct(Product $product, array $data): Product;
-
-    public function createOrUpdateAttribute(array $data, ?int $attributeId = null): Attribute;
-
-    public function createAttributeValues(int $attributeId, array $data): AttributeValue;
-
-    public function createProductAttributeValues(int $productId, int $attributeId, int $attribute_value_id): ProductAttributeValue;
-
-    public function clearProductAttributeValues(Product $product, Attribute $attribute): void;
-
-    public function clearAttributeValues(Attribute $attribute): void;
-
-    public function getAttribute(int $attributeId): Attribute;
-
-    public function getAttributeValue(int $attribute_value_id): AttributeValue;
-
-    public function deleteAttribute(Attribute $attribute): bool;
-
-    public function deleteAttributeValue(AttributeValue $attributeValue): bool;
-
-    public function clearExistingProductVariantAttributeValue(int $variantId): void;
-
-    public function getGroupProductAttributes(int $productId): Collection;
-
-    public function getAttributeValues(array $attributeValueIds): Collection;
-
-    public function createOrUpdateProductVariant(array $data, ?int $variantId = null): ProductVariant;
-
-    public function getProductVariant(int $productVariantId): ProductVariant;
-
-    public function getAllProducts(): LengthAwarePaginator;
-
-    public function resetDefaultVariants(int $productId, int $variantId): void;
-
-    public function createDigitalFile(array $data): ProductFile;
-
-    public function findDigitalFile(int $id, int $productId): ProductFile;
+    // public function findDigitalFile(int $id, int $productId): ProductFile;
 }

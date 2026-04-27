@@ -3,7 +3,7 @@
 namespace App\Services\Admin;
 
 use App\Models\Category;
-use App\Repositories\Contracts\Admin\ProductRepositoryInterface;
+use App\Repositories\Contracts\Admin\CategoryRepositoryInterface;
 use App\Services\Contracts\Admin\CategoryServiceInterface;
 use App\Services\BaseService;
 use Illuminate\Database\Eloquent\Collection;
@@ -15,20 +15,20 @@ use Exception;
 class CategoryService extends BaseService implements CategoryServiceInterface
 {
     public function __construct(
-        protected ProductRepositoryInterface $productRepo
+        protected CategoryRepositoryInterface $categoryRepo,
     ) {}
 
     public function addNewCategory(array $data): Category
     {
         // extract needed data
         $payload['name'] = $data['name'];
-        $payload['slug'] = $this->generateSlug($data['name'], fn($slug) => $this->productRepo->checkIfProductCategorySlugExit($slug));
+        $payload['slug'] = $this->generateSlug($data['name'], fn($slug) => $this->categoryRepo->checkIfProductCategorySlugExit($slug));
         $payload['parent_id'] = $data['parent_id'];
         $payload['is_active'] = $data['is_active'];
-        $payload['position'] = $this->productRepo->calculatePosition($data['parent_id'] ?? null);
+        $payload['position'] = $this->categoryRepo->calculatePosition($data['parent_id'] ?? null);
 
         // Check max children (not depth)
-        if (!is_null($data['parent_id']) && $this->productRepo->hasThreeOrMoreChildren($data['parent_id'])) {
+        if (!is_null($data['parent_id']) && $this->categoryRepo->hasThreeOrMoreChildren($data['parent_id'])) {
             throw ValidationException::withMessages([
                 'parent_id' => 'Maximum depth reached',
             ]);
@@ -36,12 +36,12 @@ class CategoryService extends BaseService implements CategoryServiceInterface
 
         // dd($payload);
         // create new category
-        return $this->productRepo->addCategory($payload);
+        return $this->categoryRepo->addCategory($payload);
     }
 
     public function allCategories(): Collection
     {
-        return $this->productRepo->getAllCategories();
+        return $this->categoryRepo->getAllCategories();
     }
 
     public function nestedCategories(?int $parentId = null, int $depth = 0, int $maxDepth = 3): Collection|array
@@ -49,7 +49,7 @@ class CategoryService extends BaseService implements CategoryServiceInterface
         if ($depth >= $maxDepth)
             return [];
 
-        $categories = $this->productRepo->categoriesByParents($parentId);
+        $categories = $this->categoryRepo->categoriesByParents($parentId);
 
         // loop through and get nested children based on id, depth, and max depth
         foreach ($categories as $cat) {
@@ -59,7 +59,7 @@ class CategoryService extends BaseService implements CategoryServiceInterface
 
         return $categories;
 
-        // return $this->productRepo->getNestedCategories();
+        // return $this->categoryRepo->getNestedCategories();
     }
 
     public function reOrderCategory(array $nodes, ?int $parentId = null): Collection
@@ -74,14 +74,14 @@ class CategoryService extends BaseService implements CategoryServiceInterface
                 $data['position'] = $position;
 
                 // Check max children (not depth)
-                // if (!is_null($data['parent_id']) && $this->productRepo->hasThreeOrMoreChildren($parentId)) {
+                // if (!is_null($data['parent_id']) && $this->categoryRepo->hasThreeOrMoreChildren($parentId)) {
                 //     throw ValidationException::withMessages([
                 //         'parent_id' => 'Maximum depth reached',
                 //     ]);
                 // }
 
                 // update category tree
-                $category = $this->productRepo->updateCategoryTree($id, $data);
+                $category = $this->categoryRepo->updateCategoryTree($id, $data);
 
                 // check if node has children and it is an array
                 if (isset($node['children']) && is_array($node['children'])) {
@@ -102,7 +102,7 @@ class CategoryService extends BaseService implements CategoryServiceInterface
         // extract needed data
         $payload['name'] = $data['name'];
         $payload['parent_id'] = $data['parent_id'];
-        $payload['slug'] = $category->name !== $data['name'] ? $this->generateSlug($data['name'], fn($slug) => $this->productRepo->checkIfProductCategorySlugExit($slug)) : $category->slug;
+        $payload['slug'] = $category->name !== $data['name'] ? $this->generateSlug($data['name'], fn($slug) => $this->categoryRepo->checkIfProductCategorySlugExit($slug)) : $category->slug;
         $payload['is_active'] = $data['is_active'];
 
         $newParentId = $data['parent_id'] ?? null;
@@ -110,10 +110,10 @@ class CategoryService extends BaseService implements CategoryServiceInterface
 
         $payload['position'] = $isSameParent
             ? $category->position
-            : $this->productRepo->calculatePosition($newParentId);
+            : $this->categoryRepo->calculatePosition($newParentId);
 
         // Check max children (not depth)
-        if (!is_null($data['parent_id']) && $this->productRepo->hasThreeOrMoreChildren($data['parent_id'])) {
+        if (!is_null($data['parent_id']) && $this->categoryRepo->hasThreeOrMoreChildren($data['parent_id'])) {
             throw ValidationException::withMessages([
                 'parent_id' => 'Maximum depth reached',
             ]);
@@ -121,7 +121,7 @@ class CategoryService extends BaseService implements CategoryServiceInterface
 
         // dd($payload);
         // create new category
-        return $this->productRepo->updateCategory($categoryId, $payload);
+        return $this->categoryRepo->updateCategory($categoryId, $payload);
     }
 
     public function deleteCategory(int $categoryId): bool
@@ -138,11 +138,11 @@ class CategoryService extends BaseService implements CategoryServiceInterface
 
     public function getCategory(int $categoryId): Category
     {
-        return $this->productRepo->getCategory($categoryId);
+        return $this->categoryRepo->getCategory($categoryId);
     }
 
     public function search(string $name): Collection
     {
-        return $this->productRepo->searchCategory($name);
+        return $this->categoryRepo->searchCategory($name);
     }
 }

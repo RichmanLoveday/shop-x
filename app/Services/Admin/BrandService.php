@@ -3,7 +3,7 @@
 namespace App\Services\Admin;
 
 use App\Models\Brand;
-use App\Repositories\Contracts\Admin\ProductRepositoryInterface;
+use App\Repositories\Contracts\Admin\BrandRepositoryInterface;
 use App\Services\Contracts\Admin\BrandServiceInterface;
 use App\Services\BaseService;
 use Illuminate\Database\Eloquent\Collection;
@@ -16,7 +16,7 @@ use Exception;
 class BrandService extends BaseService implements BrandServiceInterface
 {
     public function __construct(
-        protected ProductRepositoryInterface $productRepo
+        protected BrandRepositoryInterface $brandRepo
     ) {}
 
     public function addBrand(array $data): Brand
@@ -24,13 +24,13 @@ class BrandService extends BaseService implements BrandServiceInterface
         // dd($data);
         $payload['name'] = $data['name'];
         $payload['is_active'] = isset($data['status']) ? 1 : 0;
-        $payload['slug'] = $this->generateSlug($data['name'], fn($slug) => $this->productRepo->checkIfBrandSlugExit($slug));
+        $payload['slug'] = $this->generateSlug($data['name'], fn($slug) => $this->brandRepo->checkIfBrandSlugExit($slug));
 
         // get the brand logo from the file request data
         $document = $data['brand_logo'] ?? Null;
 
         return DB::transaction(function () use ($payload, $document) {
-            $brand = $this->productRepo->createBrand($payload);
+            $brand = $this->brandRepo->createBrand($payload);
 
             // Handle document upload if provided
             if ($document instanceof UploadedFile) {
@@ -47,13 +47,13 @@ class BrandService extends BaseService implements BrandServiceInterface
 
         $payload['name'] = $data['name'];
         $payload['is_active'] = isset($data['status']) ? 1 : 0;
-        $payload['slug'] = $brand->name !== $data['name'] ? $this->generateSlug($data['name'], fn($slug) => $this->productRepo->checkIfBrandSlugExit($slug)) : $brand->slug;
+        $payload['slug'] = $brand->name !== $data['name'] ? $this->generateSlug($data['name'], fn($slug) => $this->brandRepo->checkIfBrandSlugExit($slug)) : $brand->slug;
 
         // get the brand logo from the file request data
         $document = $data['brand_logo'] ?? Null;
 
         return DB::transaction(function () use ($id, $payload, $document) {
-            $brand = $this->productRepo->updateBrand($id, $payload);
+            $brand = $this->brandRepo->updateBrand($id, $payload);
 
             // Handle document upload if provided
             if ($document instanceof UploadedFile) {
@@ -66,12 +66,12 @@ class BrandService extends BaseService implements BrandServiceInterface
 
     public function allBrands(): LengthAwarePaginator
     {
-        return $this->productRepo->getAllBrand();
+        return $this->brandRepo->getAllBrand();
     }
 
     public function getBrand(int $id): Brand
     {
-        return $this->productRepo->getBrand($id);
+        return $this->brandRepo->getBrand($id);
     }
 
     public function delete(int $id): bool
@@ -83,6 +83,6 @@ class BrandService extends BaseService implements BrandServiceInterface
 
     public function findBrand(string $brandName): Collection
     {
-        return $this->productRepo->findBrand($brandName);
+        return $this->brandRepo->findBrand($brandName);
     }
 }

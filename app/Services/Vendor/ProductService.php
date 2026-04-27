@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Services\Admin;
+namespace App\Services\Vendor;
 
 use App\Enums\ProductType;
 use App\Models\Admin;
 use App\Models\Product;
-use App\Repositories\Contracts\Admin\ProductRepositoryInterface;
-use App\Services\Contracts\Admin\ProductDigitalFileServiceInterface;
-use App\Services\Contracts\Admin\ProductServiceInterface;
+use App\Repositories\Contracts\Vendor\ProductRepositoryInterface;
+use App\Services\Contracts\Vendor\ProductDigitalFileServiceInterface;
+use App\Services\Contracts\Vendor\ProductServiceInterface;
 use App\Services\BaseService;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -22,7 +22,7 @@ class ProductService extends BaseService implements ProductServiceInterface
         protected ProductDigitalFileServiceInterface $productDigitalFile,
     ) {}
 
-    public function addProduct(array $data, string $type): Product
+    public function addProduct(array $data, int $storeId, string $type): Product
     {
         // dd($data);
         if (!ProductType::tryFrom($type)) {
@@ -30,7 +30,7 @@ class ProductService extends BaseService implements ProductServiceInterface
         }
 
         $payload['name'] = $data['name'];
-        $payload['store_id'] = $data['store_id'];
+        $payload['store_id'] = $storeId;
         $payload['brand_id'] = $data['brand_id'];
         $payload['slug'] = $this->generateSlug($data['name'], fn($slug) => $this->productRepo->checkIfProductSlugExit($slug));
         $payload['short_description'] = $data['short_description'];
@@ -69,24 +69,24 @@ class ProductService extends BaseService implements ProductServiceInterface
         });
     }
 
-    public function getProduct(int $id, ProductType|string $type = ProductType::PHYSICAL): Product
+    public function getProduct(int $id, int $storeId, ProductType|string $type = ProductType::PHYSICAL): Product
     {
         return $this->productRepo->getProduct($id, $type);
     }
 
-    public function allProducts(): LengthAwarePaginator
+    public function allProducts(int $storeId): LengthAwarePaginator
     {
-        return $this->productRepo->getAllProducts();
+        return $this->productRepo->getAllProducts($storeId);
     }
 
-    public function updateProduct(int $id, ProductType|string $type, array $data): Product
+    public function updateProduct(int $id, int $storeId, ProductType|string $type, array $data): Product
     {
         // dd($data);
         if (!ProductType::tryFrom($type)) {
             abort(404, 'Invalid product type.');
         }
         // check if product exist
-        $product = $this->productRepo->getProduct($id, $type);
+        $product = $this->productRepo->getProduct($id, $storeId, $type);
 
         // dd($product);
 
@@ -118,8 +118,8 @@ class ProductService extends BaseService implements ProductServiceInterface
 
         // dd($payload);
 
-        return DB::transaction(function () use ($product, $payload, $document, $data) {
-            $updatedProduct = $this->productRepo->updateProduct($product, $payload);
+        return DB::transaction(function () use ($product, $storeId, $payload, $document, $data) {
+            $updatedProduct = $this->productRepo->updateProduct($product, $storeId, $payload);
 
             // Handle document upload if provided
             if ($document instanceof UploadedFile) {
@@ -136,10 +136,10 @@ class ProductService extends BaseService implements ProductServiceInterface
         });
     }
 
-    public function deleteProduct(int $id, Admin $user, ProductType|string $type): bool
+    public function deleteProduct(int $id, int $storeId, Admin $user, ProductType|string $type): bool
     {
         // check if product exist
-        $product = $this->getProduct($id, $type);
+        $product = $this->getProduct($id, $storeId, $type);
 
         // only super admin can delete product
         // if (!$user->hasRole('super_admin')) {
