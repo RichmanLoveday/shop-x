@@ -9,7 +9,6 @@ use App\Models\ProductFile;
 use App\Models\User;
 use App\Repositories\Contracts\Admin\ProductRepositoryInterface;
 use App\Services\Contracts\Admin\ProductDigitalFileServiceInterface;
-use App\Services\Contracts\Admin\ProductServiceInterface;
 use App\Services\BaseService;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Log;
@@ -48,7 +47,6 @@ class ProductDigitalFileService extends BaseService implements ProductDigitalFil
 
     public function __construct(
         protected ProductRepositoryInterface $productRepo,
-        protected ProductServiceInterface $productService,
     ) {}
 
     // public function handleChunkUpload(int $productId, ProductType|string $type, array $data): array
@@ -92,7 +90,7 @@ class ProductDigitalFileService extends BaseService implements ProductDigitalFil
 
     public function handleChunkUpload(int $productId, User|Admin $user, ProductType|string $type, array $data): array
     {
-        $product = $this->productService->getProduct($productId, $type);
+        $product = $this->productRepo->getProduct($productId, $type);
 
         $uploadedFile = $data['file'];
         $uploadUuid = $data['dzuuid'];
@@ -223,6 +221,12 @@ class ProductDigitalFileService extends BaseService implements ProductDigitalFil
         }
 
         // delete from storage
+        $this->removeFileFromStorage($file);
+        return $file->delete();
+    }
+
+    public function removeFileFromStorage(ProductFile $file): void
+    {
         if ($file->path) {
             if ($file->status === ProductFilesStatus::COMPLETED) {
                 // delete from Wasabi
@@ -231,13 +235,9 @@ class ProductDigitalFileService extends BaseService implements ProductDigitalFil
                 }
             } else {
                 // delete local file if exists
-                if (file_exists($file->path)) {
-                    unlink($file->path);
-                }
+                $this->safeUnlink($file->path);
             }
         }
-
-        return $file->delete();
     }
 
     private function mergeChunks($uuid, $file, $user, $totalChunks, $productId): array

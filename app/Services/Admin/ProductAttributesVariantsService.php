@@ -277,6 +277,6 @@ class ProductAttributesVariantsService extends BaseService implements ProductAtt
 
         $this->productRepo->createOrUpdateProductVariant($payload, $variantId);
 
-        return $product->fresh('variants');
+        return $product->fresh(['variants', 'primaryVariant']);
     }
 }

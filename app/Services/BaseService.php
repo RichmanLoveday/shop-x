@@ -45,4 +45,5 @@ abstract class BaseService
 
         return $model->{$column};
     }
+
 }

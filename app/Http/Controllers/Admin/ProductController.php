@@ -53,6 +53,7 @@ class ProductController extends Controller
         $brands = $this->brandService->allBrands();
         $categories = $this->categoryService->nestedCategories();
         $statuses = ProductStatus::cases();
+
         // dd($categories);
         $tags = $this->tagService->allTags();
 
@@ -158,6 +159,7 @@ class ProductController extends Controller
         $categories = $this->categoryService->nestedCategories();
         $statuses = ProductStatus::cases();
         $attributeTypes = ProductAttributeType::cases();
+
 
         // dd($attributeTypes);
 
@@ -294,6 +296,7 @@ class ProductController extends Controller
 
             return response()->json([
                 'message' => 'Product variant updated successfully',
+                'product' => $product,
                 'variants' => $variants,
                 'status' => true,
             ], 200);
@@ -383,6 +386,27 @@ class ProductController extends Controller
             return response()->json([
                 'status' => false,
                 'message' => 'An error occurred while deleting file',
+            ]);
+        }
+    }
+
+    public function destroyProduct(string $type, int $id)
+    {
+        // dd($id, $type);
+        try {
+            $user = Auth::guard('admin')->user();
+            $this->productService->deleteProduct($id, $user, $type);
+
+            $this->deleted('Product Deleted successfully');
+            return response()->json([
+                'message' => 'Product deleted successfully',
+                'status' => true,
+            ], 200);
+        } catch (\Exception $e) {
+            logger()->error('Failed to delete product: ' . $e);
+            return response()->json([
+                'status' => false,
+                'message' => 'An error occurred while deleting product',
             ]);
         }
     }

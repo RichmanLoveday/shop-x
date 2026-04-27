@@ -2,36 +2,24 @@
 
 namespace App\Services\Admin;
 
-use App\Enums\ProductAttributeType;
-use App\Enums\ProductFilesStatus;
 use App\Enums\ProductType;
-use App\Jobs\DeleteDigitalFileJob;
-use App\Jobs\ProcessDigitalFileJob;
 use App\Models\Admin;
 use App\Models\Product;
-use App\Models\ProductFile;
-use App\Models\ProductImage;
-use App\Models\ProductVariant;
-use App\Models\User;
 use App\Repositories\Contracts\Admin\ProductRepositoryInterface;
+use App\Services\Contracts\Admin\ProductDigitalFileServiceInterface;
 use App\Services\Contracts\Admin\ProductServiceInterface;
 use App\Services\BaseService;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Pagination\LengthAwarePaginator;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Collection as SupportCollection;
-use Illuminate\Support\Str;
-use Pest\Support\Arr;
 use Exception;
 
 class ProductService extends BaseService implements ProductServiceInterface
 {
     public function __construct(
         protected ProductRepositoryInterface $productRepo,
+        protected ProductDigitalFileServiceInterface $productDigitalFile,
     ) {}
 
     public function addProduct(array $data, string $type): Product
@@ -54,7 +42,7 @@ class ProductService extends BaseService implements ProductServiceInterface
         $payload['special_price_end'] = $data['end_date'];
         $payload['qty'] = $data['quantity'];
         $payload['manage_stock'] = isset($data['manage_stock']) ? 'yes' : 'no';
-        $payload['stock_status'] = isset($data['in_stock']) && $data['in_stock'] == 'in_stock' ? 1 : 0;
+        $payload['stock_status'] = isset($data['stock_status']) && $data['stock_status'] == 'in_stock' ? 1 : 0;
         $payload['status'] = $data['status'];
         $payload['is_featured'] = isset($data['is_featured']) ? 1 : 0;
         $payload['is_hot'] = isset($data['is_hot']) ? 1 : 0;
@@ -148,4 +136,22 @@ class ProductService extends BaseService implements ProductServiceInterface
         });
     }
 
+    public function deleteProduct(int $id, Admin $user, ProductType|string $type): bool
+    {
+        // check if product exist
+        $product = $this->getProduct($id, $type);
+
+        // only super admin can delete product
+        // if (!$user->hasRole('super_admin')) {
+        //     throw new \Exception('Only super admin can delete this product');
+        // }
+
+        // remove storage paths for all files (local or Wasabi)
+        foreach ($product->files as $file) {
+            $this->productDigitalFile->removeFileFromStorage($file);
+        }
+
+        // delete product
+        return $product->delete();
+    }
 }

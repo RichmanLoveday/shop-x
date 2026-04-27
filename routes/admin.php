@@ -147,7 +147,7 @@ Route::middleware('auth:admin')
             Route::get('/products', 'index')->name('products.index');
             Route::get('/product/{type}/create', 'create')->name('products.create');
             Route::post('/product/{type}/store', 'store')->name('products.store');
-            Route::delete('/product/{product}/destroy', 'destroyProduct')->name('product.destroy');
+            Route::delete('/product/{type}/{product}/destroy', 'destroyProduct')->name('product.destroy');
 
             /* Digital Product Routes */
             Route::post('/product/digital/{type}/{product}/file-upload', 'uploadDigitalProduct')->name('product.digital.file-upload');
@@ -162,7 +162,7 @@ Route::middleware('auth:admin')
             Route::post('/product/upload/image/{type}/{productId}', 'uploadImage')->name('products.upload-image');
             Route::delete('/product/images/{id}', 'destroyProductImage')->name('products.images.destroy');
             Route::post('/product/images/{type}/{productId}/reorder', 'reorderProductImages')->name('products.images.reorder');
-            Route::get('/product/physical{id}/edit', 'edit')->name('products.edit');
+            Route::get('/product/physical/{id}/edit', 'edit')->name('products.edit');
             Route::post('/product/{type}/{id}', 'update')->name('products.update');
 
             /* Product Attribute Routes for physical products */
@@ -170,7 +170,7 @@ Route::middleware('auth:admin')
             Route::delete('/product/attributes/{product}/destroy/{attribute}', 'destroyAttribute')->name('products.attributes.destroy');
             Route::delete('/product/attributes/{product}/{attributeId}/value/destroy/{attributeValue}', 'destroyAttributeValue')->name('products.attributes.value.destroy');
             Route::post('/product/{product}/variant/update', 'updateProductVariant')->name('products.variant');
-        });
+        })->can('can:manage-products');
 
         // Stores Controller routes
         Route::controller(StoreController::class)->group(function () {

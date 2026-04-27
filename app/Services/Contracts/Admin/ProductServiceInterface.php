@@ -22,4 +22,6 @@ interface ProductServiceInterface
     public function allProducts(): LengthAwarePaginator;
 
     public function getProduct(int $id, ProductType|string $type = ProductType::PHYSICAL): Product;
+
+    public function deleteProduct(int $id, Admin $user, ProductType|string $type): bool;
 }

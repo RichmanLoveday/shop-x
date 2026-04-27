@@ -33,11 +33,12 @@ class PermissionSeeder extends Seeder
             'Product Categories' => [
                 'manage-category'
             ],
-
             'Product Tags' => [
                 'manage-tags'
             ],
-
+            'Product Management' => [
+                'manage-products',
+            ],
         ];
 
         foreach ($permissions as $group_name => $permission) {

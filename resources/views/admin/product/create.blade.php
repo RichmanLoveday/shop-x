@@ -125,7 +125,7 @@
                                     <div class="col-md-12">
                                         <div class="mb-3 ">
                                             <label for="manage-stock" class="form-check">
-                                                <input id="manage-stock" class="form-check-input" type="checkbox">
+                                                <input id="manage-stock" class="form-check-input" type="checkbox" name="manage_stock">
                                                 <span class="form-check-label">Manage Stock</span>
                                             </label>
                                             <x-input-error :messages="$errors->get('is_featured')" class="mt-2" />

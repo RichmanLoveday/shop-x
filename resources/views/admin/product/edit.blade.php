@@ -184,7 +184,7 @@
                     </div>
 
 
-                    <div class="card disabled-placeholder {{ $product->attributes->isNotEmpty() ? 'disabled' : '' }}">
+                    <div class="card disabled-placeholder {{ $product->primaryVariant ? 'disabled' : '' }}">
                         <div class="card-body">
                             <div class="row mb-5">
 
@@ -566,7 +566,7 @@
                                 <select name="status" id="status" class="form-control select2" required>
                                     <option value="">--- Select Status ---</option>
                                     @foreach ($statuses as $item)
-                                        <option value="{{ $item->value }}" @selected($product->status == $item->value)>
+                                        <option value="{{ $item->value }}" @selected($product->status == 'active')>
                                             {{ $item->label() }}</option>
                                     @endforeach
                                 </select>
@@ -1021,11 +1021,11 @@
                                                 .variants);
 
                                             // add product pricing filled
-                                            if (res.attributes.length === 0) {
-                                                $('.disabled-placeholder')
-                                                    .removeClass(
-                                                        'disabled')
-                                            }
+                                            // if (res.attributes.length === 0) {
+                                            //     $('.disabled-placeholder')
+                                            //         .removeClass(
+                                            //             'disabled')
+                                            // }
 
 
                                             // Optional: Show empty state if no attributes left
@@ -1085,9 +1085,9 @@
                                 $('#accordion-variant-partial').html(res.variants);
 
                                 // add product pricing filled
-                                if (res.attributes.length > 0) {
-                                    $('.disabled-placeholder').addClass('disabled')
-                                }
+                                // if (res.attributes.length > 0) {
+                                //     $('.disabled-placeholder').addClass('disabled')
+                                // }
 
                                 // Re-initialize color pickers if needed
                                 initColorPickersInContainer($('#accordion-default'));
@@ -1604,6 +1604,17 @@
 
                         if (res.status) {
                             $('#accordion-variant-partial').html(res.variants);
+
+                            // disable place holder, and enable place holder for product
+                            if (res.product.primary_variant) {
+                                // console.log('yess forund');
+                                $('.disabled-placeholder')
+                                    .addClass('disabled')
+                            } else {
+                                // console.log('not found');
+                                $('.disabled-placeholder')
+                                    .removeClass('disabled')
+                            }
 
                             notyf.success(res.message);
                             $btn.prop('disabled', false)

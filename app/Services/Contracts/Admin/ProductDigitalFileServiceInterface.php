@@ -14,4 +14,6 @@ interface ProductDigitalFileServiceInterface
 
     public function deleteDigitalFile(int $productId, int $fileId): bool;
 
+    public function removeFileFromStorage(ProductFile $file): void;
+
 }

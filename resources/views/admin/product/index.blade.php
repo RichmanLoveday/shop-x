@@ -209,7 +209,7 @@
                                             </td>
                                             <td>
                                                 @if ($product->primaryVariant)
-                                                    @if ($product->primaryVariant?->manage_stock == 'yes')
+                                                    @if ($product->primaryVariant?->manage_stock)
                                                         {{ $product->primaryVariant->qty }}
                                                     @else
                                                         ∞
@@ -237,7 +237,7 @@
                                                     </a>
 
                                                     <a class="delete-item text-decoration-none text-danger"
-                                                        href="{{ route('admin.role-user.destroy', $product->id) }}">
+                                                        href="{{ $product->product_type === $physicalProductType ? route('admin.product.destroy', [$physicalProductType->value, $product->id]) : route('admin.product.destroy', [$digitalProductType->value, $product->id]) }}">
                                                         <i class="ti ti-trash fs-1"></i>
                                                     </a>
                                                 </div>
