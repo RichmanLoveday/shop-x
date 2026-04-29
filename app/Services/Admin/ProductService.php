@@ -2,6 +2,7 @@
 
 namespace App\Services\Admin;
 
+use App\Enums\ProductApprovedStatus;
 use App\Enums\ProductType;
 use App\Models\Admin;
 use App\Models\Product;
@@ -40,6 +41,7 @@ class ProductService extends BaseService implements ProductServiceInterface
         $payload['special_price'] = $data['special_price'];
         $payload['special_price_start'] = $data['from_date'];
         $payload['special_price_end'] = $data['end_date'];
+        $payload['approved_status'] = ProductApprovedStatus::APPROVED->value;
         $payload['qty'] = $data['quantity'];
         $payload['manage_stock'] = isset($data['manage_stock']) ? 'yes' : 'no';
         $payload['stock_status'] = isset($data['stock_status']) && $data['stock_status'] == 'in_stock' ? 1 : 0;
@@ -108,6 +110,7 @@ class ProductService extends BaseService implements ProductServiceInterface
         $payload['manage_stock'] = isset($data['manage_stock']) ? 'yes' : 'no';
         $payload['stock_status'] = isset($data['stock_status']) && $data['stock_status'] == 'in_stock' ? 1 : 0;
         $payload['status'] = $data['status'];
+        $payload['approved_status'] = $data['approved_status'];
         $payload['is_featured'] = isset($data['is_featured']) ? 1 : 0;
         $payload['is_hot'] = isset($data['is_hot']) ? 1 : 0;
         $payload['is_new'] = isset($data['is_new']) ? 1 : 0;

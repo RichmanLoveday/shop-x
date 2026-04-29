@@ -37,6 +37,7 @@ class ProductDigitalFileService extends BaseService implements ProductDigitalFil
         'video/mp4',
         'video/webm',
         'video/quicktime',
+        'video/x-matroska',
         /** Images */
         'image/jpeg',
         'image/jpg',

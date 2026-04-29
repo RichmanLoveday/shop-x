@@ -1,4 +1,4 @@
-@extends('admin.layout.app')
+@extends('vendor-dashboard.layout.app')
 @section('contents')
     @push('styles')
         <link href="https://unpkg.com/dropzone@5/dist/min/dropzone.min.css" rel="stylesheet" />
@@ -352,7 +352,7 @@
                         <div class="card-body">
                             <div class="col-md-12">
                                 <div class="mb-3 " id="accordion-partial">
-                                    @include('admin.product.partials.attributes', [
+                                    @include('vendor-dashboard.product.partials.attributes', [
                                         'product' => $product,
                                         'attributeTypes' => $attributeTypes,
                                     ])
@@ -369,7 +369,7 @@
                         <div class="card-body">
                             <div class="col-md-12">
                                 <div class="mb-3 " id="accordion-variant-partial">
-                                    @include('admin.product.partials.variants', [
+                                    @include('vendor-dashboard.product.partials.variants', [
                                         'product' => $product,
                                     ])
 
@@ -380,7 +380,7 @@
                 </div>
 
                 <div class="col-md-4 space-y-3">
-                    <div class="card">
+                    {{-- <div class="card">
                         <card class="card-header">
                             <h3 class="card-title">Store</h3>
                         </card>
@@ -394,7 +394,7 @@
                                 <x-input-error :messages="$errors->get('store_id')" class="mt-2" />
                             </div>
                         </div>
-                    </div>
+                    </div> --}}
 
                     <div class="card">
                         <card class="card-header">
@@ -813,7 +813,7 @@
 
                     if (valueId) {
                         $.ajax({
-                            url: route('admin.products.attributes.value.destroy', [productId,
+                            url: route('vendor.products.attributes.value.destroy', [productId,
                                 attributeId, valueId
                             ]),
                             method: 'DELETE',
@@ -997,7 +997,7 @@
                                 .prop('disabled', true);
 
                             $.ajax({
-                                url: route('admin.products.attributes.destroy', [productId,
+                                url: route('vendor.products.attributes.destroy', [productId,
                                     attributeId
                                 ]),
                                 method: "DELETE",
@@ -1075,7 +1075,7 @@
 
                     // console.log(data);
                     $.ajax({
-                        url: route('admin.products.attributes.store', {{ $product->id }}),
+                        url: route('vendor.products.attributes.store', {{ $product->id }}),
                         method: "POST",
                         data: data,
                         success: function(res) {
@@ -1124,31 +1124,31 @@
             }
 
             $(document).ready(function() {
-                $('#select_store').select2({
-                    placeholder: 'Search for stores...',
-                    minimumInputLength: 2,
-                    ajax: {
-                        url: route('admin.stores.search'),
-                        dataType: 'json',
-                        delay: 250,
-                        data: function(params) {
-                            return {
-                                name: params.term
-                            };
-                        },
-                        processResults: function(data) {
-                            return {
-                                results: data.stores.map(function(store) {
-                                    return {
-                                        id: store.id,
-                                        text: store.name
-                                    };
-                                })
-                            };
-                        },
-                        cache: true
-                    }
-                });
+                // $('#select_store').select2({
+                //     placeholder: 'Search for stores...',
+                //     minimumInputLength: 2,
+                //     ajax: {
+                //         url: route('vendor.stores.search'),
+                //         dataType: 'json',
+                //         delay: 250,
+                //         data: function(params) {
+                //             return {
+                //                 name: params.term
+                //             };
+                //         },
+                //         processResults: function(data) {
+                //             return {
+                //                 results: data.stores.map(function(store) {
+                //                     return {
+                //                         id: store.id,
+                //                         text: store.name
+                //                     };
+                //                 })
+                //             };
+                //         },
+                //         cache: true
+                //     }
+                // });
 
 
                 $('#select_store').on('select2:select', function(e) {
@@ -1164,7 +1164,7 @@
                 //     placeholder: 'Search for brands...',
                 //     minimumInputLength: 2, // avoid unnecessary API calls
                 //     ajax: {
-                //         url: route('admin.brands.search'),
+                //         url: route('vendor.brands.search'),
                 //         dataType: 'json',
                 //         delay: 250, // debounce for performance
                 //         data: function(params) {
@@ -1194,7 +1194,7 @@
                     placeholder: 'Search for tags...',
                     minimumInputLength: 2, // avoid unnecessary API calls
                     ajax: {
-                        url: route('admin.tags.search'),
+                        url: route('vendor.tags.search'),
                         dataType: 'json',
                         delay: 250, // debounce for performance
                         data: function(params) {
@@ -1391,7 +1391,7 @@
                     let form = $(this);
                     let formData = new FormData(form[0]);
                     let type = "{{ \App\Enums\ProductType::PHYSICAL }}";
-                    let url = route('admin.products.update', [type, {{ $product->id }}]);
+                    let url = route('vendor.products.update', [type, {{ $product->id }}]);
 
                     $.ajax({
                         url: url,
@@ -1435,7 +1435,7 @@
                 let type = "{{ \App\Enums\ProductType::PHYSICAL }}";
 
                 let myDropzone = new Dropzone("#imageUploader", {
-                    url: route('admin.products.upload-image', [type, {{ $product->id }}]),
+                    url: route('vendor.products.upload-image', [type, {{ $product->id }}]),
                     paramName: "image",
                     maxFilesize: 10,
                     acceptedFiles: "image/*",
@@ -1503,7 +1503,7 @@
             // remove image
             function removeImage(imageId, element) {
                 $.ajax({
-                    url: route('admin.products.images.destroy', imageId),
+                    url: route('vendor.products.images.destroy', imageId),
                     method: 'DELETE',
                     headers: {
                         'X-CSRF-TOKEN': '{{ csrf_token() }}'
@@ -1554,7 +1554,7 @@
                 let type = "{{ \App\Enums\ProductType::PHYSICAL }}";
 
                 $.ajax({
-                    url: route('admin.products.images.reorder', [type, productId]),
+                    url: route('vendor.products.images.reorder', [type, productId]),
                     method: 'POST',
                     data: {
                         images: order,
@@ -1592,7 +1592,7 @@
                 const data = $form.serialize();
 
                 $.ajax({
-                    url: route('admin.products.variant', [{{ $product->id }}]),
+                    url: route('vendor.products.variant', [{{ $product->id }}]),
                     type: 'POST',
                     data: data,
                     beforeSend: function() { // ← Fixed: beforeSend (not beforeSending)

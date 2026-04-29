@@ -4,8 +4,8 @@ namespace App\Services\Vendor;
 
 use App\Enums\ProductType;
 use App\Models\ProductImage;
-use App\Repositories\Contracts\Admin\ProductRepositoryInterface;
-use App\Services\Contracts\Admin\ProductImagesServiceInterface;
+use App\Repositories\Contracts\Vendor\ProductRepositoryInterface;
+use App\Services\Contracts\Vendor\ProductImagesServiceInterface;
 use App\Services\BaseService;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\UploadedFile;
@@ -17,10 +17,10 @@ class ProductImagesService extends BaseService implements ProductImagesServiceIn
         protected ProductRepositoryInterface $productRepo,
     ) {}
 
-    public function uploadImage(int $productId, array $data, ProductType|string $type = ProductType::PHYSICAL): ProductImage
+    public function uploadImage(int $productId, int $storeId, array $data, ProductType|string $type = ProductType::PHYSICAL): ProductImage
     {
         // check if product exist in both product image model and products model
-        if (!$this->productRepo->getProduct($productId, $type))
+        if (!$this->productRepo->getProduct($productId, $type, $storeId))
             throw new \Exception('Product not found');
 
         // check if product image is already more that 5 images
@@ -59,9 +59,9 @@ class ProductImagesService extends BaseService implements ProductImagesServiceIn
         return $productImage->delete();
     }
 
-    public function reorderProductImages(int $productId, array $images, ProductType|string $type = ProductType::PHYSICAL): Collection
+    public function reorderProductImages(int $productId, int $storeId, array $images, ProductType|string $type = ProductType::PHYSICAL): Collection
     {
-        $productImages = $this->productRepo->getProduct($productId, $type)->images;
+        $productImages = $this->productRepo->getProduct($productId, $type, $storeId)->images;
 
         // Create a map of id to position
         $orderMap = [];

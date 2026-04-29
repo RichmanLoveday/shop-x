@@ -15,9 +15,11 @@ class ServicesServiceProvider extends ServiceProvider
         \App\Services\Contracts\Vendor\ProductDigitalFileServiceInterface::class => \App\Services\Vendor\ProductDigitalFileService::class,
         \App\Services\Contracts\Vendor\ProductImagesServiceInterface::class => \App\Services\Vendor\ProductImagesService::class,
         \App\Services\Contracts\Vendor\ProductAttributesVariantsInterface::class => \App\Services\Vendor\ProductAttributesVariantsService::class,
-
-
-        
+        \App\Services\Contracts\Vendor\ProductServiceInterface::class => \App\Services\Vendor\ProductService::class,
+        \App\Services\Contracts\Vendor\CategoryServiceInterface::class => \App\Services\Vendor\CategoryService::class,
+        \App\Services\Contracts\Vendor\TagServiceInterface::class => \App\Services\Vendor\TagService::class,
+        \App\Services\Contracts\Vendor\BrandServiceInterface::class => \App\Services\Vendor\BrandService::class,
+        // Admin Bindings
         \App\Services\Contracts\Admin\ProfileServiceInterface::class => \App\Services\Admin\ProfileService::class,
         \App\Services\Contracts\Admin\KycServiceInterface::class => \App\Services\Admin\KycService::class,
         \App\Services\Contracts\Admin\RoleServiceInterface::class => \App\Services\Admin\RoleService::class,

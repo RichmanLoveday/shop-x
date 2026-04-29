@@ -7,17 +7,17 @@ use App\Enums\ProductFilesStatus;
 use App\Enums\ProductStatus;
 use App\Enums\ProductType;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Admin\ProductStoreRequest;
 use App\Http\Requests\Vendor\ProductAttributeStoreRequest;
+use App\Http\Requests\Vendor\ProductStoreRequest;
 use App\Http\Requests\Vendor\ProductUpdateRequest;
 use App\Http\Requests\Vendor\ProductVariantRequestUpdate;
-use App\Services\Contracts\Admin\BrandServiceInterface;
-use App\Services\Contracts\Admin\CategoryServiceInterface;
-use App\Services\Contracts\Admin\TagServiceInterface;
+use App\Services\Contracts\Vendor\BrandServiceInterface;
+use App\Services\Contracts\Vendor\CategoryServiceInterface;
 use App\Services\Contracts\Vendor\ProductAttributesVariantsInterface;
 use App\Services\Contracts\Vendor\ProductImagesServiceInterface;
 use App\Services\Contracts\Vendor\ProductServiceInterface;
 use App\Services\Contracts\Vendor\StoreServiceInterface;
+use App\Services\Contracts\Vendor\TagServiceInterface;
 use App\Services\Vendor\ProductDigitalFileService;
 use App\Traits\Alert;
 use Illuminate\Http\Request;
@@ -41,16 +41,18 @@ class ProductController extends Controller
 
     public function index(): View
     {
-        $products = $this->productService->allProducts();
+        $storeId = auth()->guard('web')->user()->store->id;
+        // dd($storeId);
+        $products = $this->productService->allProducts($storeId);
 
         // dd($products->toArray());
 
-        return view('admin.product.index', compact('products'));
+        return view('vendor-dashboard.product.index', compact('products'));
     }
 
     public function create()
     {
-        $brands = $this->brandService->allBrands();
+        $brands = $this->brandService->allBrand();
         $categories = $this->categoryService->nestedCategories();
         $statuses = ProductStatus::cases();
 
@@ -64,7 +66,8 @@ class ProductController extends Controller
     {
         // dd($type);
         try {
-            $product = $this->productService->addProduct($request->validated(), $type);
+            $storeId = auth()->guard('web')->user()->store->id;
+            $product = $this->productService->addProduct($request->validated(), $type, $storeId);
 
             return response()->json([
                 'message' => 'Product created successfully',
@@ -89,7 +92,8 @@ class ProductController extends Controller
         ]);
 
         try {
-            $productImage = $this->productImagesService->uploadImage($productId, $request->only('image'), $type);
+            $storeId = auth()->guard('web')->user()->store->id;
+            $productImage = $this->productImagesService->uploadImage($productId, $storeId, $request->only('image'), $type);
 
             return response()->json([
                 'message' => 'Product image added successfully',
@@ -108,6 +112,7 @@ class ProductController extends Controller
     public function destroyProductImage(int $id)
     {
         try {
+            // $storeId = auth()->guard('web')->user()->store->id;
             $this->productImagesService->deleteProductImage($id);
 
             return response()->json([
@@ -134,7 +139,8 @@ class ProductController extends Controller
         ]);
 
         try {
-            $images = $this->productImagesService->reorderProductImages($id, $request->images, $type);
+            $storeId = auth()->guard('web')->user()->store->id;
+            $images = $this->productImagesService->reorderProductImages($id, $storeId, $request->images, $type);
 
             return response()->json([
                 'message' => 'Images reordered successfully',
@@ -155,7 +161,7 @@ class ProductController extends Controller
         $product = $this->productService->getProduct($id);
         // dd($product->toArray());
         // dd($product->toArray());
-        $brands = $this->brandService->allBrands();
+        $brands = $this->brandService->allBrand();
         $categories = $this->categoryService->nestedCategories();
         $statuses = ProductStatus::cases();
         $attributeTypes = ProductAttributeType::cases();
@@ -166,7 +172,7 @@ class ProductController extends Controller
         // dd($categories);
         $tags = $this->tagService->allTags();
 
-        return view('admin.product.edit', compact('product', 'brands', 'categories', 'tags', 'statuses', 'attributeTypes'));
+        return view('vendor-dashboard.product.edit', compact('product', 'brands', 'categories', 'tags', 'statuses', 'attributeTypes'));
     }
 
     public function editDigitalProduct(Request $request, int $id)
@@ -174,7 +180,7 @@ class ProductController extends Controller
         $product = $this->productService->getProduct($id, ProductType::DIGITAL);
         // dd($product->toArray());
         // dd($product->toArray());
-        $brands = $this->brandService->allBrands();
+        $brands = $this->brandService->allBrand();
         $categories = $this->categoryService->nestedCategories();
         $statuses = ProductStatus::cases();
         $attributeTypes = ProductAttributeType::cases();
@@ -185,20 +191,21 @@ class ProductController extends Controller
         // dd($categories);
         $tags = $this->tagService->allTags();
 
-        return view('admin.product.digital-edit', compact('product', 'brands', 'categories', 'tags', 'statuses', 'attributeTypes'));
+        return view('vendor-dashboard.product.digital-edit', compact('product', 'brands', 'categories', 'tags', 'statuses', 'attributeTypes'));
     }
 
     public function update(ProductUpdateRequest $request, string $type, int $id)
     {
         // dd($id, $type);
         try {
-            $product = $this->productService->updateProduct($id, $type, $request->validated());
+            $storeId = auth()->guard('web')->user()->store->id;
+            $product = $this->productService->updateProduct($id, $storeId, $type, $request->validated());
 
             $this->updated('Product updated successfully');
 
             return response()->json([
                 'message' => 'Product updated successfully',
-                'redirectUrl' => route('admin.products.index'),
+                'redirectUrl' => route('vendor.products.index'),
                 'product' => $product,
                 'status' => true,
             ]);
@@ -216,7 +223,8 @@ class ProductController extends Controller
         // dd($request->all());
 
         try {
-            $product = $this->productAttributeVariants->addProductAttributes($id, $request->validated());
+            $storeId = auth()->guard('web')->user()->store->id;
+            $product = $this->productAttributeVariants->addProductAttributes($id, $storeId, $request->validated());
             $attributeTypes = ProductAttributeType::cases();
             $html = view('admin.product.partials.attributes', compact('product', 'attributeTypes'))->render();
             $variants = view('admin.product.partials.variants', compact('product'))->render();
@@ -242,7 +250,12 @@ class ProductController extends Controller
         // dd($productId, $attributeId);
 
         try {
-            $product = $this->productAttributeVariants->deleteAttribute($attributeId, $productId);
+            $storeId = auth()->guard('web')->user()->store->id;
+            $product = $this->productAttributeVariants->deleteAttribute(
+                $attributeId,
+                $productId,
+                $storeId,
+            );
             $attributeTypes = ProductAttributeType::cases();
             $html = view('admin.product.partials.attributes', compact('product', 'attributeTypes'))->render();
             $variants = view('admin.product.partials.variants', compact('product'))->render();
@@ -266,7 +279,8 @@ class ProductController extends Controller
     public function destroyAttributeValue(int $productId, int $attributeId, int $attributeValueId)
     {
         try {
-            $product = $this->productAttributeVariants->deleteAttributeValue($attributeValueId, $attributeId, $productId);
+            $storeId = auth()->guard('web')->user()->store->id;
+            $product = $this->productAttributeVariants->deleteAttributeValue($attributeValueId, $attributeId, $productId, $storeId);
             $attributeTypes = ProductAttributeType::cases();
             $html = view('admin.product.partials.attributes', compact('product', 'attributeTypes'))->render();
             $variants = view('admin.product.partials.variants', compact('product'))->render();
@@ -290,7 +304,8 @@ class ProductController extends Controller
     {
         try {
             // dd($request->all());
-            $product = $this->productAttributeVariants->updateProductVariant($productId, $request->all());
+            $storeId = auth()->guard('web')->user()->store->id;
+            $product = $this->productAttributeVariants->updateProductVariant($productId, $storeId, $request->all());
             $variants = view('admin.product.partials.variants', compact('product'))->render();
 
             return response()->json([
@@ -312,8 +327,9 @@ class ProductController extends Controller
     {
         try {
             // dd($request->all());
-            $admin = Auth::guard('admin')->user();
-            $result = $this->productDigitalFileService->handleChunkUpload($productId, $admin, $type, $request->all());
+            $storeId = auth()->guard('web')->user()->store->id;
+            $user = auth()->guard('web')->user();
+            $result = $this->productDigitalFileService->handleChunkUpload($productId, $storeId, $user, $type, $request->all());
 
             // dd($product);
 
@@ -334,12 +350,13 @@ class ProductController extends Controller
         }
     }
 
-    public function getDigitalFile(int $productId, $fileId)
+    public function getDigitalFile(int $productId, int $fileId)
     {
         // dd($productId, $fileId);
 
         try {
-            $digitalFile = $this->productDigitalFileService->getDigitalFile($productId, $fileId, ProductType::DIGITAL->value);
+            $storeId = auth()->guard('web')->user()->store->id;
+            $digitalFile = $this->productDigitalFileService->getDigitalFile($productId, $storeId, $fileId, ProductType::DIGITAL->value);
             return response()->json([
                 'message' => $digitalFile->status->message(),
                 'status' => $digitalFile->status->value,
@@ -359,7 +376,8 @@ class ProductController extends Controller
     public function checkDigitalFileStatus(int $productId, int $fileId)
     {
         try {
-            $digitalFile = $this->productDigitalFileService->getDigitalFile($productId, $fileId, ProductType::DIGITAL->value);
+            $storeId = auth()->guard('web')->user()->store->id;
+            $digitalFile = $this->productDigitalFileService->getDigitalFile($productId, $storeId, $fileId, ProductType::DIGITAL->value);
             // dd($digitalFile->toArray());
             // var_dump($digitalFile->status);
             return response()->json([
@@ -374,7 +392,8 @@ class ProductController extends Controller
     public function destroyDigitalProductFile(int $productId, int $fileId)
     {
         try {
-            $this->productDigitalFileService->deleteDigitalFile($productId, $fileId);
+            $storeId = auth()->guard('web')->user()->store->id;
+            $this->productDigitalFileService->deleteDigitalFile($productId, $storeId, $fileId);
 
             return response()->json([
                 'message' => 'File deleted successfully',
@@ -393,8 +412,8 @@ class ProductController extends Controller
     {
         // dd($id, $type);
         try {
-            $user = Auth::guard('admin')->user();
-            $this->productService->deleteProduct($id, $user, $type);
+            $storeId = auth()->guard('web')->user()->store->id;
+            $this->productService->deleteProduct($id, $storeId, $type);
 
             $this->deleted('Product Deleted successfully');
             return response()->json([

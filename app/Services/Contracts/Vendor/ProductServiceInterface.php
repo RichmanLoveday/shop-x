@@ -15,13 +15,13 @@ use Illuminate\Pagination\LengthAwarePaginator;
 
 interface ProductServiceInterface
 {
-    public function addProduct(array $data, int $storeId, string $type): Product;
+    public function addProduct(array $data, string $type, ?int $storeId = null): Product;
 
     public function updateProduct(int $id, int $storeId, ProductType|string $type, array $data): Product;
 
     public function allProducts(int $storeId): LengthAwarePaginator;
 
-    public function getProduct(int $id, int $storeId, ProductType|string $type = ProductType::PHYSICAL): Product;
+    public function getProduct(int $id, ProductType|string $type = ProductType::PHYSICAL, ?int $storeId = null): Product;
 
-    public function deleteProduct(int $id, int $storeId, Admin $user, ProductType|string $type): bool;
+    public function deleteProduct(int $id, int $storeId, ProductType|string $type): bool;
 }

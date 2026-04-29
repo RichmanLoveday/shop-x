@@ -1,8 +1,7 @@
 <?php
 
-namespace App\Http\Requests\Admin;
+namespace App\Http\Requests\Vendor;
 
-use App\Enums\ProductApprovedStatus;
 use App\Enums\ProductStatus;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
@@ -37,7 +36,7 @@ class ProductUpdateRequest extends FormRequest
             'quantity' => ['nullable', 'numeric'],
             'brand_id' => ['required', 'exists:brands,id'],
             'stock_status' => ['required', 'in:in_stock,out_of_stock,pre_order'],
-            'store_id' => ['required', 'exists:stores,id'],
+            // 'store_id' => ['required', 'exists:stores,id'],
             'is_featured' => ['nullable'],
             'categories' => ['required', 'array'],
             'categories.*' => ['required', 'exists:categories,id'],
@@ -48,7 +47,6 @@ class ProductUpdateRequest extends FormRequest
             'tags.*' => ['required', 'exists:tags,id'],
             'thumbnail' => ['nullable', 'image', 'mimes:jpeg,png,jpg', 'max:2048'],
             'status' => ['required', Rule::enum(ProductStatus::class)],
-            'approved_status' => ['required', Rule::enum(ProductApprovedStatus::class)],
         ];
     }
 
@@ -64,8 +62,8 @@ class ProductUpdateRequest extends FormRequest
             'brand_id.exists' => 'Selected brand does not exist',
             'stock_status.required' => 'Stock status is required',
             'stock_status.in' => 'Stock status must be one of: in_stock, out_of_stock, pre_order',
-            'store_id.required' => 'Store is required',
-            'store_id.exists' => 'Selected store does not exist',
+            // 'store_id.required' => 'Store is required',
+            // 'store_id.exists' => 'Selected store does not exist',
             'categories.required' => 'At least one category is required',
             'categories.array' => 'Categories must be an array',
             'categories.*.required' => 'Each category selection is required',

@@ -7,7 +7,7 @@ enum ProductStatus: string
     case ACTIVE = 'active';
     case INACTIVE = 'inactive';
     case DRAFT = 'draft';
-    case PENDING = 'pending';
+    // case PENDING = 'pending';
 
     /**
      * Get human-readable label
@@ -18,7 +18,7 @@ enum ProductStatus: string
             self::ACTIVE => 'Active',
             self::INACTIVE => 'In-active',
             self::DRAFT => 'Draft',
-            self::PENDING => 'Pending',
+            // self::PENDING => 'Pending',
         };
     }
 
@@ -27,7 +27,7 @@ enum ProductStatus: string
         return match ($this) {
             self::ACTIVE => 'bg-success-lt',
             self::INACTIVE => 'bg-danger-lt',
-            self::PENDING => 'bg-warning-lt',
+            // self::PENDING => 'bg-warning-lt',
             self::DRAFT => 'bg-warning-lt'
         };
     }

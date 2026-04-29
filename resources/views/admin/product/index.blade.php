@@ -135,6 +135,7 @@
                                         <th>Price</th>
                                         <th>Stock Status</th>
                                         <th>Quantity</th>
+                                        <th>Approved Status</th>
                                         <th>Status</th>
                                         <th>Store</th>
                                         <th>Created At</th>
@@ -221,6 +222,11 @@
                                                         ∞
                                                     @endif
                                                 @endif
+                                            </td>
+                                            <td>
+                                                <span
+                                                    class="badge badge-sm text-white {{ $product->approved_status?->color() }}">{{ $product->approved_status?->label() }}
+                                                </span>
                                             </td>
                                             <td>
                                                 <span

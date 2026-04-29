@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Enums\ProductApprovedStatus;
 use App\Enums\ProductAttributeType;
 use App\Enums\ProductFilesStatus;
 use App\Enums\ProductStatus;
@@ -53,11 +54,12 @@ class ProductController extends Controller
         $brands = $this->brandService->allBrands();
         $categories = $this->categoryService->nestedCategories();
         $statuses = ProductStatus::cases();
+        $approvedStatuses = ProductApprovedStatus::cases();
 
         // dd($categories);
         $tags = $this->tagService->allTags();
 
-        return view('admin.product.create', compact('brands', 'categories', 'tags', 'statuses'));
+        return view('admin.product.create', compact('brands', 'categories', 'approvedStatuses', 'tags', 'statuses'));
     }
 
     public function store(ProductStoreRequest $request, string $type)
@@ -158,8 +160,8 @@ class ProductController extends Controller
         $brands = $this->brandService->allBrands();
         $categories = $this->categoryService->nestedCategories();
         $statuses = ProductStatus::cases();
+        $approvedStatuses = ProductApprovedStatus::cases();
         $attributeTypes = ProductAttributeType::cases();
-
 
         // dd($attributeTypes);
 
@@ -167,7 +169,7 @@ class ProductController extends Controller
         // dd($categories);
         $tags = $this->tagService->allTags();
 
-        return view('admin.product.edit', compact('product', 'brands', 'categories', 'tags', 'statuses', 'attributeTypes'));
+        return view('admin.product.edit', compact('product', 'brands', 'approvedStatuses', 'categories', 'tags', 'statuses', 'attributeTypes'));
     }
 
     public function editDigitalProduct(Request $request, int $id)
@@ -179,6 +181,7 @@ class ProductController extends Controller
         $categories = $this->categoryService->nestedCategories();
         $statuses = ProductStatus::cases();
         $attributeTypes = ProductAttributeType::cases();
+        $approvedStatuses = ProductApprovedStatus::cases();
 
         // dd($attributeTypes);
 
@@ -186,7 +189,7 @@ class ProductController extends Controller
         // dd($categories);
         $tags = $this->tagService->allTags();
 
-        return view('admin.product.digital-edit', compact('product', 'brands', 'categories', 'tags', 'statuses', 'attributeTypes'));
+        return view('admin.product.digital-edit', compact('product', 'approvedStatuses', 'brands', 'categories', 'tags', 'statuses', 'attributeTypes'));
     }
 
     public function update(ProductUpdateRequest $request, string $type, int $id)

@@ -1,14 +1,14 @@
 <?php
 
-namespace App\Http\Requests\Admin;
+namespace App\Http\Requests\Vendor;
 
-use App\Enums\ProductApprovedStatus;
 use App\Enums\ProductStatus;
+use App\Enums\ProductType;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
-class ProductUpdateRequest extends FormRequest
+class ProductStoreRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -26,10 +26,11 @@ class ProductUpdateRequest extends FormRequest
     public function rules(): array
     {
         return [
+            // 'type' => ['required', Rule::enum(ProductType::class)],
             'name' => ['required', 'string', 'max:255'],
             'short_description' => ['nullable', 'string', 'max:2000'],
             'long_description' => ['required', 'string'],
-            // 'sku' => ['required', 'string', 'max:255', 'unique:products,sku,' . $this->route('id')],
+            'sku' => ['required', 'string', 'max:255'],
             'price' => ['required', 'numeric'],
             'special_price' => ['nullable', 'numeric'],
             'from_date' => ['nullable', 'date'],
@@ -46,9 +47,8 @@ class ProductUpdateRequest extends FormRequest
             'is_hot' => ['nullable'],
             'tags' => ['nullable', 'array'],
             'tags.*' => ['required', 'exists:tags,id'],
-            'thumbnail' => ['nullable', 'image', 'mimes:jpeg,png,jpg', 'max:2048'],
+            'thumbnail' => ['required', 'image', 'mimes:jpeg,png,jpg', 'max:2048'],
             'status' => ['required', Rule::enum(ProductStatus::class)],
-            'approved_status' => ['required', Rule::enum(ProductApprovedStatus::class)],
         ];
     }
 
@@ -57,8 +57,7 @@ class ProductUpdateRequest extends FormRequest
         return [
             'name.required' => 'Product name is required',
             'long_description.required' => 'Long description is required',
-            // 'sku.required' => 'SKU is required',
-            // 'sku.unique' => 'SKU must be unique',
+            'sku.required' => 'SKU is required',
             'price.required' => 'Price is required',
             'brand_id.required' => 'Brand is required',
             'brand_id.exists' => 'Selected brand does not exist',
@@ -72,6 +71,7 @@ class ProductUpdateRequest extends FormRequest
             'categories.*.exists' => 'Selected category does not exist',
             'tags.array' => 'Tags must be an array',
             'tags.*.exists' => 'Selected tag does not exist',
+            'thumbnail.required' => 'Product thumbnail image is required',
             'thumbnail.image' => 'Thumbnail must be an image file',
             'thumbnail.mimes' => 'Thumbnail must be a file of type: jpeg, png, jpg',
             'thumbnail.max' => 'Thumbnail image size must not exceed 2MB',

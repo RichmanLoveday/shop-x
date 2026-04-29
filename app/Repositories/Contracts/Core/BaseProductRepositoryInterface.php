@@ -59,7 +59,7 @@ interface BaseProductRepositoryInterface
 
     public function getProductVariant(int $productVariantId): ProductVariant;
 
-    public function getAllProducts(): LengthAwarePaginator;
+    public function getAllProducts(?int $storId = null): LengthAwarePaginator;
 
     public function resetDefaultVariants(int $productId, int $variantId): void;
 

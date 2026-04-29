@@ -189,7 +189,7 @@ class BaseProductRepository implements BaseProductRepositoryInterface
         );
     }
 
-    public function getAllProducts(): LengthAwarePaginator
+    public function getAllProducts(?int $storeId = null): LengthAwarePaginator
     {
         return Product::with([
             'categories',
@@ -200,6 +200,7 @@ class BaseProductRepository implements BaseProductRepositoryInterface
             'primaryVariant',
             // 'productFiles'
         ])
+            ->when($storeId, fn($q) => $q->where('store_id', $storeId))
             ->orderByDesc('id')
             ->paginate(5);
     }

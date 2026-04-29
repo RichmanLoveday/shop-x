@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\ProductApprovedStatus;
 use App\Enums\ProductStatus;
 use App\Enums\ProductType;
 use Dom\Attr;
@@ -37,6 +38,7 @@ class Product extends Model implements HasMedia
         'viewed',
         'thumbnail',
         'status',
+        'approved_status',
         'is_featured',
         'is_hot',
         'is_new',
@@ -54,6 +56,7 @@ class Product extends Model implements HasMedia
         'is_new' => 'boolean',
         'status' => ProductStatus::class,
         'product_type' => ProductType::class,
+        'approved_status' => ProductApprovedStatus::class,
     ];
 
     public function categories(): BelongsToMany

@@ -7,10 +7,10 @@ use App\Enums\ProductType;
 use App\Models\Product;
 use App\Models\ProductImage;
 use App\Models\ProductVariant;
-use App\Repositories\Contracts\Admin\ProductRepositoryInterface;
-use App\Services\Contracts\Admin\ProductAttributesVariantsInterface;
-use App\Services\Contracts\Admin\ProductImagesServiceInterface;
-use App\Services\Contracts\Admin\ProductServiceInterface;
+use App\Repositories\Contracts\Vendor\ProductRepositoryInterface;
+use App\Services\Contracts\Vendor\ProductAttributesVariantsInterface;
+use App\Services\Contracts\Vendor\ProductImagesServiceInterface;
+use App\Services\Contracts\Vendor\ProductServiceInterface;
 use App\Services\BaseService;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\UploadedFile;
@@ -24,12 +24,12 @@ class ProductAttributesVariantsService extends BaseService implements ProductAtt
         protected ProductServiceInterface $productService,
     ) {}
 
-    public function addProductAttributes(int $productId, array $data, ProductType|string $type = ProductType::PHYSICAL): Product
+    public function addProductAttributes(int $productId, int $storeId, array $data, ProductType|string $type = ProductType::PHYSICAL): Product
     {
         // dd($data);
-        return DB::transaction(function () use ($productId, $data, $type) {
+        return DB::transaction(function () use ($productId, $storeId, $data, $type) {
             // check if product exist
-            $product = $this->productService->getProduct($productId, $type);
+            $product = $this->productService->getProduct($productId, $type, $storeId);
 
             // Convert the string from request to an actual Enum instance
             // dd($data['attribute_type'] ?? null);
@@ -87,7 +87,7 @@ class ProductAttributesVariantsService extends BaseService implements ProductAtt
         });
     }
 
-    public function deleteAttribute(int $attributeId, int $productId, ProductType|string $type = ProductType::PHYSICAL): Product
+    public function deleteAttribute(int $attributeId, int $productId, int $storeId, ProductType|string $type = ProductType::PHYSICAL): Product
     {
         $product = $this->productService->getProduct($productId, $type);
         $attribute = $this->productRepo->getAttribute($attributeId);
@@ -106,12 +106,14 @@ class ProductAttributesVariantsService extends BaseService implements ProductAtt
             }]);
     }
 
-    public function deleteAttributeValue(int $attributeValueId, int $attributeId, int $productId, ProductType|string $type = ProductType::PHYSICAL): Product
+    public function deleteAttributeValue(int $attributeValueId, int $attributeId, int $productId, int $storeId, ProductType|string $type = ProductType::PHYSICAL): Product
     {
         // dd($attributeValueId);
-        $product = $this->productService->getProduct($productId, $type);
+        $product = $this->productService->getProduct($productId, $type, $storeId);
         $attribute = $this->productRepo->getAttribute($attributeId);
         $attributeValue = $this->productRepo->getAttributeValue($attributeValueId);
+
+        // dd($product, $attribute, $attributeValue);
 
         if (!$product || !$attribute || !$attributeValue) {
             throw new \Exception('Either product, attribute, attribute value not found');
@@ -241,9 +243,9 @@ class ProductAttributesVariantsService extends BaseService implements ProductAtt
         ]);
     }
 
-    public function updateProductVariant(int $productId, array $data, ProductType|string $type = ProductType::PHYSICAL): Product
+    public function updateProductVariant(int $productId, int $storeId, array $data, ProductType|string $type = ProductType::PHYSICAL): Product
     {
-        $product = $this->productService->getProduct($productId, $type);
+        $product = $this->productService->getProduct($productId, $type, $storeId);
         $variantId = $data['variant_id'] ?? null;
 
         if (!$product || !$variantId) {

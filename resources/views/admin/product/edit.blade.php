@@ -557,6 +557,24 @@
                         </div>
                     </div>
 
+                     <div class="card">
+                        <card class="card-header">
+                            <h3 class="card-title">Approved Status</h3>
+                        </card>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <select name="approved_status" id="status" class="form-control select2" required>
+                                    <option value="">--- Select approve status ---</option>
+                                    @foreach ($approvedStatuses as $item)
+                                        <option value="{{ $item->value }}" @selected($product->status == $item->value)>
+                                            {{ $item->label() }}</option>
+                                    @endforeach
+                                </select>
+                                <x-input-error :messages="$errors->get('status')" class="mt-2" />
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="card">
                         <card class="card-header">
                             <h3 class="card-title">Status</h3>
@@ -574,6 +592,8 @@
                             </div>
                         </div>
                     </div>
+
+
 
                     <div class="card sticky-top">
                         <div class="card-body">

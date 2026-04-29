@@ -1,4 +1,4 @@
-@extends('admin.layout.app')
+@extends('vendor-dashboard.layout.app')
 @section('contents')
     <div class="container-xl">
         <div class="row row-deck row-cards space-y-4">
@@ -135,6 +135,7 @@
                                         <th>Price</th>
                                         <th>Stock Status</th>
                                         <th>Quantity</th>
+                                        <th>Approved Status</th>
                                         <th>Status</th>
                                         <th>Store</th>
                                         <th>Created At</th>
@@ -160,7 +161,6 @@
                                                     $stockStatusText = 'in_stock';
                                                 }
                                             }
-
                                         @endphp
 
                                         <tr>
@@ -170,7 +170,7 @@
                                             <td>
                                                 <div>
                                                     <a
-                                                        href="{{ $product->product_type === $physicalProductType ? route('admin.products.edit', $product->id) : route('admin.product.digital.edit', $product->id) }}">{{ $product->name }}
+                                                        href="{{ $product->product_type === $physicalProductType ? route('vendor.products.edit', $product->id) : route('vendor.product.digital.edit', $product->id) }}">{{ $product->name }}
                                                     </a>
                                                 </div>
                                                 <small
@@ -224,6 +224,11 @@
                                             </td>
                                             <td>
                                                 <span
+                                                    class="badge badge-sm text-white {{ $product->approved_status?->color() }}">{{ $product->approved_status?->label() }}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <span
                                                     class="badge badge-sm text-white {{ $product->status?->color() }}">{{ $product->status?->label() }}
                                                 </span>
                                             </td>
@@ -232,12 +237,12 @@
                                             <td>
                                                 <div class="d-flex w-100 justify-content-between space-x-1">
                                                     <a class=" text-decoration-none"
-                                                        href="{{ $product->product_type === $physicalProductType ? route('admin.products.edit', $product->id) : route('admin.product.digital.edit', $product->id) }}">
+                                                        href="{{ $product->product_type === $physicalProductType ? route('vendor.products.edit', $product->id) : route('vendor.product.digital.edit', $product->id) }}">
                                                         <i class="ti ti-edit fs-1"></i>
                                                     </a>
 
                                                     <a class="delete-item text-decoration-none text-danger"
-                                                        href="{{ $product->product_type === $physicalProductType ? route('admin.product.destroy', [$physicalProductType->value, $product->id]) : route('admin.product.destroy', [$digitalProductType->value, $product->id]) }}">
+                                                        href="{{ $product->product_type === $physicalProductType ? route('vendor.product.destroy', [$physicalProductType->value, $product->id]) : route('vendor.product.destroy', [$digitalProductType->value, $product->id]) }}">
                                                         <i class="ti ti-trash fs-1"></i>
                                                     </a>
                                                 </div>
