@@ -62,7 +62,7 @@
             $(this).find('a').on('click', function (event) {
                 event.preventDefault();
                 $(this).parent().siblings().removeClass('active');
-                $(this).parent().toggleClass('active');
+                $(this).parent().addClass('active');
                 $(this).parents('.attr-detail').find('.current-size').text($(this).text());
                 $(this).parents('.attr-detail').find('.current-color').text($(this).attr('data-color'));
             });

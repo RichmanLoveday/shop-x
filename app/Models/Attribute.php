@@ -22,8 +22,6 @@ class Attribute extends Model
         return $this->hasMany(AttributeValue::class);
     }
 
-    
-
     public function scopeWithValuesForProduct(Builder $query, int $productId): void
     {
         $query->with(['values' => function ($valueQuery) use ($productId) {

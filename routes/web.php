@@ -2,6 +2,7 @@
 
 use App\Enums\UserRole;
 use App\Http\Controllers\Frontend\KycController;
+use App\Http\Controllers\Frontend\ProductPageController;
 use App\Http\Controllers\Frontend\ProfileController as FrontendProfileController;
 use App\Http\Controllers\Frontend\UserDashboardController;
 use App\Http\Controllers\ProfileController;
@@ -23,6 +24,12 @@ Route::group(['middleware' => ['auth:web', 'verified', 'role:' . UserRole::USER-
         Route::put('/profile/update', 'update')->name('profile.update');
         Route::put('profile/change-password', 'changePassword')->name('profile.change-password');
     });
+});
+
+/** Product Page Controller */
+Route::controller(ProductPageController::class)->group(function () {
+    Route::get('/products', 'index');
+    Route::get('/products/{slug}', 'show')->name('products.show');
 });
 
 require __DIR__ . '/auth.php';

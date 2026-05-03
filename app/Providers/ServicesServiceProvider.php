@@ -33,6 +33,8 @@ class ServicesServiceProvider extends ServiceProvider
         \App\Services\Contracts\Admin\ProductDigitalFileServiceInterface::class => \App\Services\Admin\ProductDigitalFileService::class,
         \App\Services\Contracts\Admin\ProductImagesServiceInterface::class => \App\Services\Admin\ProductImagesService::class,
         \App\Services\Contracts\Admin\ProductAttributesVariantsInterface::class => \App\Services\Admin\ProductAttributesVariantsService::class,
+        // User Bindings
+        \App\Services\Contracts\User\ProductServiceInterface::class => \App\Services\User\ProductService::class,
     ];
 
     /**

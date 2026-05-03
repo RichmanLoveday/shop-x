@@ -33,6 +33,8 @@ class RepositoryServiceProvider extends ServiceProvider
             \App\Repositories\Eloquent\Vendor\TagRepository::class,
         \App\Repositories\Contracts\Vendor\StoreRepositoryInterface::class => \App\Repositories\Eloquent\Vendor\StoreRepository::class,
         \App\Repositories\Contracts\Vendor\CategoryRepositoryInterface::class => \App\Repositories\Eloquent\Vendor\CategoryRepository::class,
+        // User Bindings
+        \App\Repositories\Contracts\User\ProductRepositoryInterface::class => \App\Repositories\Eloquent\User\ProductRepository::class,
     ];
 
     /**
