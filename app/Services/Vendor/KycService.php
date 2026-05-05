@@ -46,6 +46,7 @@ class KycService implements KycServiceInterface
             'full_address' => $data['full_address'] ?? null,
             'full_name' => $data['full_name'] ?? null,
             'document_type' => $data['document_type'] ?? null,
+            'dob' => $data['dob'] ?? Null,
             'gender' => $data['gender'] ?? null,
         ];
 

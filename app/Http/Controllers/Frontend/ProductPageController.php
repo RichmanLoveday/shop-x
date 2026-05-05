@@ -22,7 +22,27 @@ class ProductPageController extends Controller
     public function show(string $slug)
     {
         $product = $this->productService->getProduct($slug);
+        $relatedProducts = $this->productService->getRelatedProducts($slug);
         // dd($product->toArray());
-        return view('frontend.pages.product-details', compact('product'));
+        // dd($relatedProducts->toArray());
+        return view('frontend.pages.product-details', compact('product', 'relatedProducts'));
+    }
+
+    public function getProduct(string $type, int $id)
+    {
+        // dd($id, $type);
+        try {
+            $product = $this->productService->getProductById($id, $type);
+            // dd($product->toArray());
+            $modal = view('components.frontend.quick-view-product-modal', compact('product'))->render();
+
+            return response()->json(
+                [
+                    'modal' => $modal,
+                    'status' => true,
+                ]
+            );
+        } catch (\Exception $e) {
+        }
     }
 }

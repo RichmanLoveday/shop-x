@@ -17,6 +17,12 @@ class SettingsService implements SettingsServiceInterface
 
     public function getSettings(): array
     {
+        if (app()->runningInConsole() && !app()->runningUnitTests()) {
+            return Setting::query()
+                ->pluck('value', 'key')
+                ->toArray();
+        }
+
         return Cache::rememberForever($this->cacheKey, function () {
             return Setting::query()
                 ->pluck('value', 'key')

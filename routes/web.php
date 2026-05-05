@@ -1,6 +1,7 @@
 <?php
 
 use App\Enums\UserRole;
+use App\Http\Controllers\Frontend\CartController;
 use App\Http\Controllers\Frontend\KycController;
 use App\Http\Controllers\Frontend\ProductPageController;
 use App\Http\Controllers\Frontend\ProfileController as FrontendProfileController;
@@ -30,6 +31,12 @@ Route::group(['middleware' => ['auth:web', 'verified', 'role:' . UserRole::USER-
 Route::controller(ProductPageController::class)->group(function () {
     Route::get('/products', 'index');
     Route::get('/products/{slug}', 'show')->name('products.show');
+    Route::get('/product/{type}/{id}', 'getProduct')->name('products.getProduct');
 });
 
+/** Cart Controller */
+Route::controller(CartController::class)->group(function () {
+    Route::get('/cart', 'index')->name('cart.index');
+    Route::post('/cart/add', 'addToCart')->name('cart.add');
+});
 require __DIR__ . '/auth.php';

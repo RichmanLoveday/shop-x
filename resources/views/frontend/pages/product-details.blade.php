@@ -6,190 +6,8 @@
             <div class="col-xl-12">
                 <div class="product-detail accordion-detail">
                     <div class="row mb-50 mt-70">
-                        <div class="col-md-6 col-lg-5 col-sm-12 col-xs-12 mb-md-0 mb-sm-5">
-                            <div class="detail-gallery">
-                                <span class="zoom-icon"><i class="fi-rs-search"></i></span>
-                                <!-- MAIN SLIDES -->
-                                <div class="product-image-slider">
-                                    @foreach ($product->images as $image)
-                                        <figure class="border-radius-10">
-                                            <img src="{{ $image->path }}" alt="{{ $product->name }}" />
-                                        </figure>
-                                    @endforeach
-                                </div>
-                                <!-- THUMBNAILS -->
-                                <div class="slider-nav-thumbnails">
-                                    @foreach ($product->images as $image)
-                                        <div><img src="{{ $image->path }}" alt="product image" /></div>
-                                    @endforeach
-                                </div>
-                            </div>
-                            <!-- End Gallery -->
-                        </div>
-                        <div class="col-md-6 col-lg-7 col-sm-12 col-xs-12">
-                            <div class="detail-info pr-30 pl-30">
-                                <span class="stock-status out-stock"> Sale Off </span>
-                                <h2 class="title-detail">{{ $product->name }}</h2>
-                                <div class="product-detail-rating">
-                                    <div class="product-rate-cover text-end">
-                                        <div class="product-rate d-inline-block">
-                                            <div class="product-rating" style="width: 90%"></div>
-                                        </div>
-                                        <span class="font-small ml-5 text-muted"> (32 reviews)</span>
-                                    </div>
-                                </div>
-                                <div class="clearfix product-price-cover">
-                                    <div class="product-price primary-color float-left">
-                                        @if ($product->primaryVariant)
-                                            @if ($product->primaryVariant->special_price > 0)
-                                                <span
-                                                    class="current-price text-brand">${{ $product->primaryVariant->special_price }}</span>
-                                                <span>
-                                                    {{-- <span class="save-price font-md color3 ml-15">25% Off</span> --}}
-                                                    <span
-                                                        class="old-price font-md ml-15">${{ $product->primaryVariant->price }}</span>
-                                                </span>
-                                            @else
-                                                <span
-                                                    class="current-price text-brand">${{ $product->primaryVariant->price }}</span>
-                                            @endif
-                                        @else
-                                            @if ($product->special_price > 0)
-                                                <span class="current-price text-brand">${{ $product->special_price }}</span>
-                                                <span>
-                                                    {{-- <span class="save-price font-md color3 ml-15">25% Off</span> --}}
-                                                    <span class="old-price font-md ml-15">${{ $product->price }}</span>
-                                                </span>
-                                            @else
-                                                <span>
-                                                    {{-- <span class="save-price font-md color3 ml-15">25% Off</span> --}}
-                                                    <span class="old-price font-md ml-15">${{ $product->price }}</span>
-                                                </span>
-                                            @endif
-                                        @endif
-
-                                    </div>
-                                </div>
-                                <div class="short-desc mb-30">
-                                    <p class="font-lg">{!! $product->short_description !!}</p>
-                                </div>
-
-                                @foreach ($product->attributeWithValues as $attribute)
-                                    <div class="attr-detail  attr-size mb-20">
-                                        <strong class="mr-10">{{ $attribute->name }}: </strong>
-
-                                        @if ($attribute->type === \App\Enums\ProductAttributeType::COLOR)
-                                            {{-- COLOR FILTER --}}
-                                            <ul class="attribute-group list-filter color_filter font-small"
-                                                data-attribute="{{ $attribute->id }}">
-                                                @foreach ($attribute->values as $value)
-                                                    <li class="attribute-badge" data-value="{{ $value->id }}">
-                                                        <a href="#" style="background: {{ $value->color }};"
-                                                            title="{{ $value->label }}">
-                                                        </a>
-                                                    </li>
-                                                @endforeach
-                                            </ul>
-                                        @else
-                                            {{-- TEXT FILTER (SIZE, etc) --}}
-                                            <ul class="attribute-group list-filter size-filter font-small"
-                                                data-attribute="{{ $attribute->id }}">
-                                                @foreach ($attribute->values as $value)
-                                                    <li class="attribute-badge" data-value="{{ $value->id }}">
-                                                        <a href="#">{{ $value->label }}</a>
-                                                    </li>
-                                                @endforeach
-                                            </ul>
-                                        @endif
-                                    </div>
-                                @endforeach
-
-                                @php
-                                    $variantsData = $product->variants->map(function ($variant) {
-                                        return [
-                                            'id' => $variant->id,
-                                            'price' => $variant->price,
-                                            'special_price' => $variant->special_price,
-                                            'sku' => $variant->sku,
-                                            'manage_stock' => $variant->manage_stock,
-                                            'qty' => $variant->qty,
-                                            'in_stock' => $variant->stock_status,
-                                            'default' => $variant->is_default,
-                                            'attribute_values' => $variant->attributeValues->pluck('id'),
-                                        ];
-                                    });
-                                @endphp
-
-                                <input type="hidden" id="variants-data" value='@json($variantsData)'>
-
-                                <div class="detail-extralink mb-50">
-                                    <div class="detail-qty border radius">
-                                        <a href="#" class="qty-down"><i class="fi-rs-angle-small-down"></i></a>
-                                        <input type="text" name="quantity" class="qty-val" value="1" min="1">
-                                        <a href="#" class="qty-up"><i class="fi-rs-angle-small-up"></i></a>
-                                    </div>
-                                    <div class="product-extra-link2">
-                                        <button type="submit" class="button button-add-to-cart"><i
-                                                class="fi-rs-shopping-cart"></i>Add to cart</button>
-                                        <a aria-label="Add To Wishlist" class="action-btn hover-up"
-                                            href="shop-wishlist.html"><i class="fi-rs-heart"></i></a>
-                                        <a aria-label="Compare" class="action-btn hover-up" href="shop-compare.html"><i
-                                                class="fi-rs-shuffle"></i></a>
-                                    </div>
-                                </div>
-                                <div class="font-xs">
-                                    <ul class="mr-50 float-start">
-                                        <li class="mb-5">Type: <span class="text-brand">eCommerce</span></li>
-                                        <li class="mb-5">MFG:<span class="text-brand"> Jun 4.2024</span></li>
-                                        <li>LIFE: <span class="text-brand">70 days</span></li>
-                                    </ul>
-                                    <ul class="float-start">
-                                        <li class="mb-5">SKU: <a href="#">FWM15VKT</a></li>
-                                        <li class="mb-5">Tags:
-                                            @php
-                                                $count = count($product->tags);
-                                                // dd($count);
-                                                $inc = 0;
-                                            @endphp
-                                            @foreach ($product->tags as $tag)
-                                                @php
-                                                    $inc++;
-                                                @endphp
-                                                <a href="#"
-                                                    rel="tag">{{ $tag->name }}</a>{{ $inc !== $count ? ',' : '' }}
-                                            @endforeach
-                                        </li>
-                                        <li>Stock:<span class="in-stock text-brand ml-5 stock_status">
-                                                @if ($product->primaryVariant)
-                                                    @if ($product->primaryVariant->manage_stock === 1 && $product->primaryVariant->qty > 0)
-                                                        {{ $product->primaryVariant->qty }}
-                                                        {{ \Str::plural('Item', $product->primaryVariant->qty) }} In
-                                                        Stock
-                                                    @elseif ($product->primaryVariant->manage_stock === 1 && $product->primaryVariant->qty <= 0)
-                                                        Out of Stock
-                                                    @else
-                                                        <!-- Handle non-managed stock or default status -->
-                                                        In Stock
-                                                    @endif
-                                                @else
-                                                    @if ($product->manage_stock === 1 && $product->qty > 0)
-                                                        {{ $product->qty }} {{ \Str::plural('Item', $product->qty) }} In
-                                                        Stock
-                                                    @elseif ($product->manage_stock === 1 && $product->qty <= 0)
-                                                        Out of Stock
-                                                    @else
-                                                        <!-- Handle non-managed stock or default status -->
-                                                        In Stock
-                                                    @endif
-                                                @endif
-
-                                            </span>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </div>
-                            <!-- Detail Info -->
-                        </div>
+                        <x-frontend.product-gallery :product='$product' />
+                        <x-frontend.product-details-info :product='$product' />
                     </div>
                     <div class="product-info">
                         <div class="tab-style3">
@@ -291,7 +109,7 @@
                                             <td>
                                                 <p>24″</p>
                                             </td>
-                                            < <th>Door Pass Through</th>
+                                            <th>Door Pass Through</th>
                                                 <td>
                                                     <p>24</p>
                                                 </td>
@@ -361,10 +179,10 @@
                             </div>
                             <div class="tab-pane fade" id="Vendor-info">
                                 <div class="vendor-logo d-flex mb-30 align-items-center">
-                                    <img src="assets/imgs/vendor/vendor-3.png" alt="" />
+                                    <img src="{{ $product->store->logo }}" alt="" />
                                     <div class="vendor-name ml-15">
                                         <h6>
-                                            <a href="vendor-details-2.html">Noodles Co.</a>
+                                            <a href="vendor-details-2.html">{{ $product->store->name }}</a>
                                         </h6>
                                         <div class="product-rate-cover text-end">
                                             <div class="product-rate d-inline-block">
@@ -375,12 +193,22 @@
                                     </div>
                                 </div>
                                 <ul class="contact-infor mb-50">
-                                    <li><img src="assets/imgs/theme/icons/icon-location.svg"
-                                            alt="" /><strong>Address: </strong> <span>5171 W Campbell Ave
-                                            undefined Kent, Utah 53127 United States</span></li>
-                                    <li><img src="assets/imgs/theme/icons/icon-contact.svg"
-                                            alt="" /><strong>Contact Seller:</strong><span>(+91) -
-                                            540-025-553</span></li>
+                                    @if ($product->store->address)
+                                        <li><img src="{{ asset('assets/frontend/imgs/theme/icons/icon-location.svg') }}"
+                                                alt="" /><strong>Address: </strong>
+                                            <span>{{ $product->store->address }}</span>
+                                        </li>
+                                    @endif
+                                    @if ($product->store->phone)
+                                        <li><img src="{{ asset('assets/frontend/imgs/theme/icons/icon-contact.svg') }}"
+                                                alt="" /><strong>Contact
+                                                Seller: </strong><span>{{ $product->store->phone }}</span></li>
+                                    @endif
+                                    @if ($product->store->email)
+                                        <li><img src="{{ asset('assets/frontend/imgs/theme/icons/icon-contact.svg') }}"
+                                                alt="" /><strong>Contact
+                                                Email: </strong><span>{{ $product->store->email }}</span></li>
+                                    @endif
                                 </ul>
                                 <div class="d-flex mb-55">
                                     <div class="mr-30">
@@ -396,12 +224,7 @@
                                         <h4 class="mb-0">89%</h4>
                                     </div>
                                 </div>
-                                <p>Noodles & Company is an American fast-casual restaurant that offers
-                                    international and American noodle dishes and pasta in addition to soups and
-                                    salads. Noodles & Company was founded in 1995 by Aaron Kennedy and is
-                                    headquartered in Broomfield, Colorado. The company went public in 2013 and
-                                    recorded a $457 million revenue in 2017.In late 2018, there were 460 Noodles
-                                    & Company locations across 29 states and Washington, D.C.</p>
+                                <p>{!! $product->store->short_desc !!}</p>
                             </div>
                             <div class="tab-pane fade" id="Reviews">
                                 <!--Comments-->
@@ -587,323 +410,9 @@
                     </div>
                     <div class="col-12">
                         <div class="row related-products">
-                            <div class="col-6 col-lg-4 col-xl-3 col-xxl-2">
-                                <div class="product-cart-wrap mb-30 wow animate__animated animate__fadeIn"
-                                    data-wow-delay=".1s">
-                                    <div class="product-img-action-wrap">
-                                        <div class="product-img product-img-zoom">
-                                            <a href="#" tabindex="-1">
-                                                <img class="default-img" src="assets/imgs/shop/product-1-1.jpg"
-                                                    alt="">
-                                                <img class="hover-img" src="assets/imgs/shop/product-1-2.jpg"
-                                                    alt="">
-                                            </a>
-                                        </div>
-                                        <div class="product-action-1">
-                                            <a aria-label="Add To Wishlist" class="action-btn"
-                                                href="shop-wishlist.html"><i class="fi-rs-heart"></i></a>
-                                            <a aria-label="Compare" class="action-btn" href="shop-compare.html"><i
-                                                    class="fi-rs-shuffle"></i></a>
-                                            <a aria-label="Quick view" class="action-btn" data-bs-toggle="modal"
-                                                data-bs-target="#quickViewModal"><i class="fi-rs-eye"></i></a>
-                                        </div>
-                                        <div class="product-badges product-badges-position product-badges-mrg">
-                                            <span class="hot">Hot</span>
-                                        </div>
-                                    </div>
-                                    <div class="product-content-wrap">
-                                        <div class="product-category">
-                                            <a href="shop-grid-right.html">Clothing</a>
-                                        </div>
-                                        <h2><a href="#">Seeds of Change eCommerce Quinoa, Brown, &
-                                                Red Rice</a></h2>
-                                        <div class="product-rate-cover">
-                                            <div class="product-rate d-inline-block">
-                                                <div class="product-rating" style="width: 90%"></div>
-                                            </div>
-                                            <span class="font-small ml-5 text-muted"> (4.0)</span>
-                                        </div>
-                                        <div>
-                                            <span class="font-small text-muted">By <a
-                                                    href="vendor-details-1.html">ShopX</a></span>
-                                        </div>
-                                        <div class="product-card-bottom">
-                                            <div class="product-price">
-                                                <span>$28.85</span>
-                                                <span class="old-price">$32.8</span>
-                                            </div>
-                                            <div class="add-cart">
-                                                <a class="add" href="shop-cart.html"><i
-                                                        class="fi-rs-shopping-cart mr-5"></i>Add </a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <!--end product card-->
-                            <div class="col-6 col-lg-4 col-xl-3 col-xxl-2">
-                                <div class="product-cart-wrap mb-30 wow animate__animated animate__fadeIn"
-                                    data-wow-delay=".2s">
-                                    <div class="product-img-action-wrap">
-                                        <div class="product-img product-img-zoom">
-                                            <a href="#" tabindex="-1">
-                                                <img class="default-img" src="assets/imgs/shop/product-2-1.jpg"
-                                                    alt="">
-                                                <img class="hover-img" src="assets/imgs/shop/product-2-2.jpg"
-                                                    alt="">
-                                            </a>
-                                        </div>
-                                        <div class="product-action-1">
-                                            <a aria-label="Add To Wishlist" class="action-btn"
-                                                href="shop-wishlist.html"><i class="fi-rs-heart"></i></a>
-                                            <a aria-label="Compare" class="action-btn" href="shop-compare.html"><i
-                                                    class="fi-rs-shuffle"></i></a>
-                                            <a aria-label="Quick view" class="action-btn" data-bs-toggle="modal"
-                                                data-bs-target="#quickViewModal"><i class="fi-rs-eye"></i></a>
-                                        </div>
-                                        <div class="product-badges product-badges-position product-badges-mrg">
-                                            <span class="sale">Sale</span>
-                                        </div>
-                                    </div>
-                                    <div class="product-content-wrap">
-                                        <div class="product-category">
-                                            <a href="shop-grid-right.html">Gadgets</a>
-                                        </div>
-                                        <h2><a href="#">All Natural Italian-Style Chicken
-                                                Meatballs</a></h2>
-                                        <div class="product-rate-cover">
-                                            <div class="product-rate d-inline-block">
-                                                <div class="product-rating" style="width: 80%"></div>
-                                            </div>
-                                            <span class="font-small ml-5 text-muted"> (3.5)</span>
-                                        </div>
-                                        <div>
-                                            <span class="font-small text-muted">By <a
-                                                    href="vendor-details-1.html">Stouffer</a></span>
-                                        </div>
-                                        <div class="product-card-bottom">
-                                            <div class="product-price">
-                                                <span>$52.85</span>
-                                                <span class="old-price">$55.8</span>
-                                            </div>
-                                            <div class="add-cart">
-                                                <a class="add" href="shop-cart.html"><i
-                                                        class="fi-rs-shopping-cart mr-5"></i>Add </a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <!--end product card-->
-                            <div class="col-6 col-lg-4 col-xl-3 col-xxl-2">
-                                <div class="product-cart-wrap mb-30 wow animate__animated animate__fadeIn"
-                                    data-wow-delay=".3s">
-                                    <div class="product-img-action-wrap">
-                                        <div class="product-img product-img-zoom">
-                                            <a href="#" tabindex="-1">
-                                                <img class="default-img" src="assets/imgs/shop/product-3-1.jpg"
-                                                    alt="">
-                                                <img class="hover-img" src="assets/imgs/shop/product-3-2.jpg"
-                                                    alt="">
-                                            </a>
-                                        </div>
-                                        <div class="product-action-1">
-                                            <a aria-label="Add To Wishlist" class="action-btn"
-                                                href="shop-wishlist.html"><i class="fi-rs-heart"></i></a>
-                                            <a aria-label="Compare" class="action-btn" href="shop-compare.html"><i
-                                                    class="fi-rs-shuffle"></i></a>
-                                            <a aria-label="Quick view" class="action-btn" data-bs-toggle="modal"
-                                                data-bs-target="#quickViewModal"><i class="fi-rs-eye"></i></a>
-                                        </div>
-                                        <div class="product-badges product-badges-position product-badges-mrg">
-                                            <span class="new">New</span>
-                                        </div>
-                                    </div>
-                                    <div class="product-content-wrap">
-                                        <div class="product-category">
-                                            <a href="shop-grid-right.html">Clothing</a>
-                                        </div>
-                                        <h2><a href="#">Angie’s Boomchickapop Sweet & Salty Kettle
-                                                Corn</a></h2>
-                                        <div class="product-rate-cover">
-                                            <div class="product-rate d-inline-block">
-                                                <div class="product-rating" style="width: 85%"></div>
-                                            </div>
-                                            <span class="font-small ml-5 text-muted"> (4.0)</span>
-                                        </div>
-                                        <div>
-                                            <span class="font-small text-muted">By <a
-                                                    href="vendor-details-1.html">StarKist</a></span>
-                                        </div>
-                                        <div class="product-card-bottom">
-                                            <div class="product-price">
-                                                <span>$48.85</span>
-                                                <span class="old-price">$52.8</span>
-                                            </div>
-                                            <div class="add-cart">
-                                                <a class="add" href="shop-cart.html"><i
-                                                        class="fi-rs-shopping-cart mr-5"></i>Add </a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <!--end product card-->
-                            <div class="col-6 col-lg-4 col-xl-3 col-xxl-2">
-                                <div class="product-cart-wrap mb-30 wow animate__animated animate__fadeIn"
-                                    data-wow-delay=".4s">
-                                    <div class="product-img-action-wrap">
-                                        <div class="product-img product-img-zoom">
-                                            <a href="#" tabindex="-1">
-                                                <img class="default-img" src="assets/imgs/shop/product-4-1.jpg"
-                                                    alt="">
-                                                <img class="hover-img" src="assets/imgs/shop/product-4-2.jpg"
-                                                    alt="">
-                                            </a>
-                                        </div>
-                                        <div class="product-action-1">
-                                            <a aria-label="Add To Wishlist" class="action-btn"
-                                                href="shop-wishlist.html"><i class="fi-rs-heart"></i></a>
-                                            <a aria-label="Compare" class="action-btn" href="shop-compare.html"><i
-                                                    class="fi-rs-shuffle"></i></a>
-                                            <a aria-label="Quick view" class="action-btn" data-bs-toggle="modal"
-                                                data-bs-target="#quickViewModal"><i class="fi-rs-eye"></i></a>
-                                        </div>
-                                    </div>
-                                    <div class="product-content-wrap">
-                                        <div class="product-category">
-                                            <a href="shop-grid-right.html">Kid's Fashion</a>
-                                        </div>
-                                        <h2><a href="#">Foster Farms Takeout Crispy Classic
-                                                Buffalo Wings</a></h2>
-                                        <div class="product-rate-cover">
-                                            <div class="product-rate d-inline-block">
-                                                <div class="product-rating" style="width: 90%"></div>
-                                            </div>
-                                            <span class="font-small ml-5 text-muted"> (4.0)</span>
-                                        </div>
-                                        <div>
-                                            <span class="font-small text-muted">By <a
-                                                    href="vendor-details-1.html">ShopX</a></span>
-                                        </div>
-                                        <div class="product-card-bottom">
-                                            <div class="product-price">
-                                                <span>$17.85</span>
-                                                <span class="old-price">$19.8</span>
-                                            </div>
-                                            <div class="add-cart">
-                                                <a class="add" href="shop-cart.html"><i
-                                                        class="fi-rs-shopping-cart mr-5"></i>Add </a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <!--end product card-->
-                            <div class="col-6 col-lg-4 col-xl-3 col-xxl-2">
-                                <div class="product-cart-wrap mb-30 wow animate__animated animate__fadeIn"
-                                    data-wow-delay=".5s">
-                                    <div class="product-img-action-wrap">
-                                        <div class="product-img product-img-zoom">
-                                            <a href="#" tabindex="-1">
-                                                <img class="default-img" src="assets/imgs/shop/product-5-1.jpg"
-                                                    alt="">
-                                                <img class="hover-img" src="assets/imgs/shop/product-5-2.jpg"
-                                                    alt="">
-                                            </a>
-                                        </div>
-                                        <div class="product-action-1">
-                                            <a aria-label="Add To Wishlist" class="action-btn"
-                                                href="shop-wishlist.html"><i class="fi-rs-heart"></i></a>
-                                            <a aria-label="Compare" class="action-btn" href="shop-compare.html"><i
-                                                    class="fi-rs-shuffle"></i></a>
-                                            <a aria-label="Quick view" class="action-btn" data-bs-toggle="modal"
-                                                data-bs-target="#quickViewModal"><i class="fi-rs-eye"></i></a>
-                                        </div>
-                                        <div class="product-badges product-badges-position product-badges-mrg">
-                                            <span class="best">-14%</span>
-                                        </div>
-                                    </div>
-                                    <div class="product-content-wrap">
-                                        <div class="product-category">
-                                            <a href="shop-grid-right.html">Shoes</a>
-                                        </div>
-                                        <h2><a href="#">Blue Diamond Almonds Lightly Salted
-                                                Kid's Fashion</a></h2>
-                                        <div class="product-rate-cover">
-                                            <div class="product-rate d-inline-block">
-                                                <div class="product-rating" style="width: 90%"></div>
-                                            </div>
-                                            <span class="font-small ml-5 text-muted"> (4.0)</span>
-                                        </div>
-                                        <div>
-                                            <span class="font-small text-muted">By <a
-                                                    href="vendor-details-1.html">ShopX</a></span>
-                                        </div>
-                                        <div class="product-card-bottom">
-                                            <div class="product-price">
-                                                <span>$23.85</span>
-                                                <span class="old-price">$25.8</span>
-                                            </div>
-                                            <div class="add-cart">
-                                                <a class="add" href="shop-cart.html"><i
-                                                        class="fi-rs-shopping-cart mr-5"></i>Add </a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <!--end product card-->
-                            <div class="col-6 col-lg-4 col-xl-3 col-xxl-2">
-                                <div class="product-cart-wrap wow animate__animated animate__fadeIn" data-wow-delay=".1s">
-                                    <div class="product-img-action-wrap">
-                                        <div class="product-img product-img-zoom">
-                                            <a href="#" tabindex="-1">
-                                                <img class="default-img" src="assets/imgs/shop/product-6-1.jpg"
-                                                    alt="">
-                                                <img class="hover-img" src="assets/imgs/shop/product-6-2.jpg"
-                                                    alt="">
-                                            </a>
-                                        </div>
-                                        <div class="product-action-1">
-                                            <a aria-label="Add To Wishlist" class="action-btn"
-                                                href="shop-wishlist.html"><i class="fi-rs-heart"></i></a>
-                                            <a aria-label="Compare" class="action-btn" href="shop-compare.html"><i
-                                                    class="fi-rs-shuffle"></i></a>
-                                            <a aria-label="Quick view" class="action-btn" data-bs-toggle="modal"
-                                                data-bs-target="#quickViewModal"><i class="fi-rs-eye"></i></a>
-                                        </div>
-                                    </div>
-                                    <div class="product-content-wrap">
-                                        <div class="product-category">
-                                            <a href="shop-grid-right.html">Gadgets</a>
-                                        </div>
-                                        <h2><a href="#">Chobani Complete Vanilla Greek Yogurt</a>
-                                        </h2>
-                                        <div class="product-rate-cover">
-                                            <div class="product-rate d-inline-block">
-                                                <div class="product-rating" style="width: 90%"></div>
-                                            </div>
-                                            <span class="font-small ml-5 text-muted"> (4.0)</span>
-                                        </div>
-                                        <div>
-                                            <span class="font-small text-muted">By <a
-                                                    href="vendor-details-1.html">ShopX</a></span>
-                                        </div>
-                                        <div class="product-card-bottom">
-                                            <div class="product-price">
-                                                <span>$54.85</span>
-                                                <span class="old-price">$55.8</span>
-                                            </div>
-                                            <div class="add-cart">
-                                                <a class="add" href="shop-cart.html"><i
-                                                        class="fi-rs-shopping-cart mr-5"></i>Add </a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <!--end product card-->
+                            @foreach ($relatedProducts as $product)
+                                <x-frontend.product-card :product="$product" class="col-6 col-lg-4 col-xl-3 col-xxl-2" />
+                            @endforeach
                         </div>
                     </div>
                 </div>
@@ -924,20 +433,29 @@
                 if (variantData.length > 0) {
                     // loop through variants
                     variantData.forEach((val, index) => {
-                        const attributeValues = variantData[index];
+                        const attributeValues = variantData[0];
                         // get default value
                         const is_default = val.default;
+                        const is_active = val.is_active;
                         // check if default value is true
-                        if (is_default) {
-                            // loop throught it attr values
-                            attributeValues.attribute_values.forEach(valueId => {
-                                const $badge = $(`.attribute-badge[data-value="${valueId}"]`);
-                                $badge.addClass('active');
-                                selectedValues.add(valueId);
-                            });
+                        // if (is_default && is_active) {
+                        //     // loop throught it attr values
+                        //     // attributeValues.attribute_values.forEach(valueId => {
+                        //     //     const $badge = $(`.attribute-badge[data-value="${valueId}"]`);
+                        //     //     $badge.addClass('active');
+                        //     //     selectedValues.add(valueId);
+                        //     // });
 
-                            updatePrice(selectedValues);
-                        }
+                        //     // updatePrice(selectedValues);
+                        // }
+
+                        attributeValues.attribute_values.forEach(valueId => {
+                            const $badge = $(`.attribute-badge[data-value="${valueId}"]`);
+                            $badge.addClass('active');
+                            selectedValues.add(valueId);
+                        });
+
+                        updatePrice(selectedValues);
                     })
                 }
             }
@@ -997,6 +515,7 @@
                     }
 
                     $('.product-price').replaceWith(html);
+                    $('.sku').text(matchingVariant.sku)
                 }
 
             }

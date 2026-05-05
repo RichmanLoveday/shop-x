@@ -8,6 +8,7 @@ use App\Models\Product;
 use App\Repositories\Contracts\User\Product as UserProduct;
 use App\Repositories\Contracts\User\ProductRepositoryInterface;
 use App\Repositories\Eloquent\Core\BaseProductRepository;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Override;
 
@@ -34,15 +35,44 @@ class ProductRepository extends BaseProductRepository implements ProductReposito
         $product->load([
             'images:id,path,product_id',
             'categories',
-            'store:id,name',
+            'store',
             'primaryVariant',
             'tags',
-            'variants',
+            'variants' => function ($q) {
+                $q->where('is_active', true);
+            },
             'attributeWithValues' => function ($query) use ($product) {
                 $query->withValuesForProduct($product->id);
             }
         ]);
 
         return $product;
+    }
+
+    
+    public function findRelatedProducts(Product $product): Collection
+    {
+        return Product::query()
+            ->with([
+                'images:id,path,product_id',
+                'categories',
+                'store',
+                'primaryVariant',
+                'tags',
+                'variants' => function ($q) {
+                    $q->where('is_active', true);
+                },
+                'attributeWithValues' => function ($query) use ($product) {
+                    $query->withValuesForProduct($product->id);
+                }
+            ])
+            ->whereHas('categories', function ($query) use ($product) {
+                $query->whereIn('categories.id', $product->categories->pluck('id')->toArray());
+            })
+            ->where('id', '!=', $product->id)
+            ->where(['status' => true, 'approved_status' => ProductApprovedStatus::APPROVED])
+            ->distinct()
+            ->take(6)
+            ->get();
     }
 }

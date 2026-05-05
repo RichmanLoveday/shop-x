@@ -35,6 +35,7 @@ class ServicesServiceProvider extends ServiceProvider
         \App\Services\Contracts\Admin\ProductAttributesVariantsInterface::class => \App\Services\Admin\ProductAttributesVariantsService::class,
         // User Bindings
         \App\Services\Contracts\User\ProductServiceInterface::class => \App\Services\User\ProductService::class,
+        \App\Services\Contracts\User\CartServiceInterface::class => \App\Services\User\CartService::class,
     ];
 
     /**

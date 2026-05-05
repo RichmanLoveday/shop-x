@@ -85,3 +85,218 @@
         </div>
     </div>
 @endsection
+
+@push('scripts')
+    <script>
+        $(function() {
+            $('.add_to_cart').on('click', function(e) {
+                e.preventDefault();
+
+                const button = $(this);
+                const productId = button.data('id');
+                const type = button.data('type');
+                const variants = button.data('variants');
+
+                console.log(variants);
+                if (variants.length != 0) {
+                    quickView(button, type, productId);
+                } else {
+                    addToCart(button);
+                }
+
+                // store original content
+
+            });
+
+            $('.quick_view').on('click', function(e) {
+                e.preventDefault();
+
+                const button = $(this);
+                const productId = button.data('id');
+                const type = button.data('type');
+
+                quickView(button, type, productId);
+
+            });
+
+
+            function addToCart(button) {
+                const originalHtml = button.html();
+
+                console.log(button);
+            }
+
+            function quickView(button, type, productId) {
+                const originalHtml = button.html();
+
+                $.ajax({
+                    url: route('products.getProduct', [type, productId]),
+                    method: "GET",
+
+                    beforeSend: function() {
+                        button.prop('disabled', true);
+                        button.html(`
+                            <i class="fa fa-spinner fa-spin mr-5"></i> Loading...
+                        `);
+                    },
+
+                    success: function(res) {
+                        if (res.status) {
+                            $('#quickViewModal').html(res.modal);
+                            $('#quickViewModal').modal('show');
+                            initVatriantJs();
+                        }
+                    },
+
+                    error: function(error) {
+                        console.log(error);
+                    },
+
+                    complete: function() {
+                        button.prop('disabled', false);
+                        button.html(originalHtml);
+                    }
+                });
+            }
+
+
+
+
+
+
+
+
+            // initialize variants
+            function initVatriantJs() {
+                const variantData = JSON.parse($('#variants-data').val());
+                let selectedValues = new Set();
+
+
+                //Filter color/Size
+                $('.list-filter').each(function() {
+                    $(this).find('a').on('click', function(event) {
+                        event.preventDefault();
+                        $(this).parent().siblings().removeClass('active');
+                        $(this).parent().addClass('active');
+                        $(this).parents('.attr-detail').find('.current-size').text($(this).text());
+                        $(this).parents('.attr-detail').find('.current-color').text($(this).attr(
+                            'data-color'));
+                    });
+                });
+
+                // console.log(variantData);
+
+                function selectedDefaultVariant() {
+                    if (variantData.length > 0) {
+                        // loop through variants
+                        variantData.forEach((val, index) => {
+                            const attributeValues = variantData[0];
+                            // get default value
+                            const is_default = val.default;
+                            const is_active = val.is_active;
+                            // check if default value is true
+                            // if (is_default && is_active) {
+                            //     // loop throught it attr values
+                            //     // attributeValues.attribute_values.forEach(valueId => {
+                            //     //     const $badge = $(`.attribute-badge[data-value="${valueId}"]`);
+                            //     //     $badge.addClass('active');
+                            //     //     selectedValues.add(valueId);
+                            //     // });
+
+                            //     // updatePrice(selectedValues);
+                            // }
+
+                            attributeValues.attribute_values.forEach(valueId => {
+                                const $badge = $(`.attribute-badge[data-value="${valueId}"]`);
+                                $badge.addClass('active');
+                                selectedValues.add(valueId);
+                            });
+
+                            updatePrice(selectedValues);
+                        })
+                    }
+                }
+
+
+                function updatePrice(selectedValues) {
+                    const selectedValuesArray = Array.from(selectedValues);
+
+                    const matchingVariant = variantData.find(variant => {
+                        const variantValues = new Set(variant.attribute_values);
+                        return selectedValuesArray.length === variantValues.size && selectedValuesArray
+                            .every(
+                                value => variantValues.has(value));
+                    });
+
+                    //   console.log(matchingVariant);
+
+                    if (matchingVariant) {
+                        // console.log(matchingVariant);
+                        // print stock status
+                        if (matchingVariant.qty >= 0 && matchingVariant.manage_stock == 1) {
+                            const text =
+                                `${matchingVariant.qty} item${matchingVariant.qty > 1 ? 's' : ''} In Stock`
+                            $('.stock_status').text(text);
+                        } else if (matchingVariant.in_stock === 1) {
+                            $('.stock_status').text('Unlimited items in stock');
+                        } else {
+                            $('.stock_status').text('Out of stock');
+                        }
+
+                        // check if manage stock is true and qty is not less than one
+                        if (matchingVariant.in_stock === 0 || matchingVariant.in_stock === null || (matchingVariant
+                                .qty < 1 &&
+                                matchingVariant.manage_stock === 1)) {
+                            var html = `
+                        <div class="product-price primary-color float-left">
+                            <span class="current-price text-brand">Out of Stock</span>
+                        </div>
+                        `;
+                            $('.product-price').replaceWith(html);
+                            return;
+                        }
+
+                        if (matchingVariant.special_price > 0) {
+                            var html = `
+                        <div class="product-price primary-color float-left">
+                            <span class="current-price text-brand">$${matchingVariant.special_price}</span>
+                            <span>
+                                <span class="old-price font-md ml-15">$${matchingVariant.price}</span>
+                            </span>
+                        </div>
+                        `;
+                        } else {
+                            var html = `
+                        <div class="product-price primary-color float-left">
+                            <span class="current-price text-brand">$${matchingVariant.price}</span>
+                        </div>
+                        `;
+                        }
+
+                        $('.product-price').replaceWith(html);
+                        $('.sku').text(matchingVariant.sku)
+                    }
+
+                }
+
+                $('.attribute-badge').on('click', function() {
+                    const $attributeGroup = $(this).closest('.attribute-group');
+
+                    selectedValues = new Set(
+                        $('.attribute-badge.active').map(function() {
+                            return parseInt($(this).attr('data-value'));
+                        }).get()
+                    );
+
+                    // console.log(selectedValues);
+
+                    updatePrice(selectedValues);
+                });
+
+
+                selectedDefaultVariant();
+                // console.log(selectedValues);
+            }
+        })
+    </script>
+@endpush

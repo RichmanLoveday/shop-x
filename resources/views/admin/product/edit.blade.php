@@ -845,7 +845,8 @@
                                     $row.fadeOut(300, () => $row.remove());
 
                                     // $('#accordion-partial').html(res.html);
-                                    $('#accordion-variant-partial').html(res.variants);
+                                     $('#accordion-variant-partial').html('');
+                                    $('#accordion-variant-partial').append(res.variants);
 
                                     notyf.success(res.message || 'Value deleted');
                                 }
@@ -1037,7 +1038,8 @@
                                             $(this).remove();
 
                                             // $('#accordion-partial').html(res.html);
-                                            $('#accordion-variant-partial').html(res
+                                            $('#accordion-variant-partial').html('');
+                                            $('#accordion-variant-partial').append(res
                                                 .variants);
 
                                             // add product pricing filled
@@ -1101,8 +1103,11 @@
                         success: function(res) {
 
                             if (res.status) {
-                                $('#accordion-partial').html(res.html);
-                                $('#accordion-variant-partial').html(res.variants);
+                                $('#accordion-partial').html('');
+                                $('#accordion-partial').append(res.html);
+
+                                $('#accordion-variant-partial').html('');
+                                $('#accordion-variant-partial').append(res.variants);
 
                                 // add product pricing filled
                                 // if (res.attributes.length > 0) {
@@ -1623,7 +1628,8 @@
                         console.log(res);
 
                         if (res.status) {
-                            $('#accordion-variant-partial').html(res.variants);
+                            $('#accordion-variant-partial').html('');
+                            $('#accordion-variant-partial').append(res.variants);
 
                             // disable place holder, and enable place holder for product
                             if (res.product.primary_variant) {

@@ -21,8 +21,8 @@ class CategoryService extends BaseService implements CategoryServiceInterface
     public function addNewCategory(array $data): Category
     {
         // extract needed data
-        $payload['name'] = $data['name'];
-        $payload['slug'] = $this->generateSlug($data['name'], fn($slug) => $this->categoryRepo->checkIfProductCategorySlugExit($slug));
+        $payload['name'] = Str::lower($data['name']);
+        $payload['slug'] = $this->generateSlug(Str::lower($data['name']), fn($slug) => $this->categoryRepo->checkIfProductCategorySlugExit($slug));
         $payload['parent_id'] = $data['parent_id'];
         $payload['is_active'] = $data['is_active'];
         $payload['position'] = $this->categoryRepo->calculatePosition($data['parent_id'] ?? null);
@@ -100,9 +100,9 @@ class CategoryService extends BaseService implements CategoryServiceInterface
 
         // dd($data);
         // extract needed data
-        $payload['name'] = $data['name'];
+        $payload['name'] = Str::lower($data['name']);
         $payload['parent_id'] = $data['parent_id'];
-        $payload['slug'] = $category->name !== $data['name'] ? $this->generateSlug($data['name'], fn($slug) => $this->categoryRepo->checkIfProductCategorySlugExit($slug)) : $category->slug;
+        $payload['slug'] = $category->name !== Str::lower($data['name']) ? $this->generateSlug(Str::lower($data['name']), fn($slug) => $this->categoryRepo->checkIfProductCategorySlugExit($slug)) : $category->slug;
         $payload['is_active'] = $data['is_active'];
 
         $newParentId = $data['parent_id'] ?? null;
@@ -113,11 +113,11 @@ class CategoryService extends BaseService implements CategoryServiceInterface
             : $this->categoryRepo->calculatePosition($newParentId);
 
         // Check max children (not depth)
-        if (!is_null($data['parent_id']) && $this->categoryRepo->hasThreeOrMoreChildren($data['parent_id'])) {
-            throw ValidationException::withMessages([
-                'parent_id' => 'Maximum depth reached',
-            ]);
-        }
+        // if (!is_null($data['parent_id']) && $this->categoryRepo->hasThreeOrMoreChildren($data['parent_id'])) {
+        //     throw ValidationException::withMessages([
+        //         'parent_id' => 'Maximum depth reached',
+        //     ]);
+        // }
 
         // dd($payload);
         // create new category

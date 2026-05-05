@@ -18,4 +18,8 @@ interface ProductServiceInterface
     public function productListing(): LengthAwarePaginator;
 
     public function getProduct(string $slug): Product;
+
+    public function getRelatedProducts(string $slug): Collection;
+
+    public function getProductById(int $id, string|ProductType $type): Product;
 }

@@ -250,7 +250,7 @@
                                         </tr>
                                     @empty
                                         <tr>
-                                            <td colspan="5" class="text-center">No product found.</td>
+                                            <td colspan="10" class="text-center">No product found.</td>
                                         </tr>
                                     @endforelse
                                 </tbody>
