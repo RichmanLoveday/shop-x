@@ -13,32 +13,23 @@
               </div>
           </div>
           <div class="clearfix product-price-cover">
-              <div class="product-price primary-color float-left {{ $type == 'modal' ? 'fs-6' : '' }}">
-                  @if ($product->primaryVariant)
-                      @if ($product->primaryVariant->special_price > 0)
-                          <span class="current-price text-brand">${{ $product->primaryVariant->special_price }}</span>
-                          <span>
-                              {{-- <span class="save-price font-md color3 ml-15">25% Off</span> --}}
-                              <span class="old-price font-md ml-15">${{ $product->primaryVariant->price }}</span>
-                          </span>
-                      @else
-                          <span class="current-price text-brand">${{ $product->primaryVariant->price }}</span>
-                      @endif
-                  @else
-                      @if ($product->special_price > 0)
-                          <span class="current-price text-brand">${{ $product->special_price }}</span>
-                          <span>
-                              {{-- <span class="save-price font-md color3 ml-15">25% Off</span> --}}
-                              <span class="old-price font-md ml-15">${{ $product->price }}</span>
-                          </span>
-                      @else
-                          <span>
-                              {{-- <span class="save-price font-md color3 ml-15">25% Off</span> --}}
-                              <span class="old-price font-md ml-15">${{ $product->price }}</span>
-                          </span>
-                      @endif
-                  @endif
+              <div class="product-price product_price primary-color float-left {{ $type == 'modal' ? 'fs-6' : '' }}">
+                  @php
+                      $price = $product->effective_price_and_stock;
+                  @endphp
 
+                  @if ($price['old_price'] > 0)
+                      <span>${{ $price['price'] }}</span>
+                      <span class="old-price">${{ $price['old_price'] }}</span>
+
+                      <span class="current-price text-brand">${{ $price['price'] }}</span>
+                      <span>
+                          {{-- <span class="save-price font-md color3 ml-15">25% Off</span> --}}
+                          <span class="old-price font-md ml-15">${{ $price['old_price'] }}</span>
+                      </span>
+                  @else
+                      <span class="old-price font-md ml-15">${{ $price['old_price'] }}</span>
+                  @endif
               </div>
           </div>
 
@@ -97,6 +88,8 @@
           @endphp
 
           <input type="hidden" id="variants-data" value='@json($variantsData)'>
+          <input type="hidden" name="" id="selected_variant" value="">
+
 
           <div class="detail-extralink mb-50">
               <div class="detail-qty border radius">
@@ -105,7 +98,8 @@
                   <a href="#" class="qty-up"><i class="fi-rs-angle-small-up"></i></a>
               </div>
               <div class="product-extra-link2">
-                  <button type="submit" class="button button-add-to-cart"><i class="fi-rs-shopping-cart"></i>Add to
+                  <button type="submit" data-id="{{ $product->id }}" data-type="{{ $product->product_type }}"
+                      class="button button-add-to-cart add_to_cart_btn "><i class="fi-rs-shopping-cart"></i>Add to
                       cart</button>
                   @if ($type == 'detail')
                       <a aria-label="Add To Wishlist" class="action-btn hover-up" href="shop-wishlist.html"><i

@@ -96,17 +96,31 @@
                 const productId = button.data('id');
                 const type = button.data('type');
                 const variants = button.data('variants');
+                const quantity = 1;
 
-                console.log(variants);
                 if (variants.length != 0) {
                     quickView(button, type, productId);
                 } else {
-                    addToCart(button);
+                    addToCart(button, productId, type, quantity);
                 }
 
                 // store original content
 
             });
+
+            // add to cart btn
+            $(document).on('click', '.add_to_cart_btn', function(e) {
+                e.preventDefault();
+
+                const button = $(this);
+                const productId = button.data('id');
+                const type = button.data('type');
+                const variantId = $('#selected_variant').val();
+                const quantity = $('.qty-val').val();
+
+                addToCart(button, productId, type, quantity, variantId);
+            });
+
 
             $('.quick_view').on('click', function(e) {
                 e.preventDefault();
@@ -120,10 +134,51 @@
             });
 
 
-            function addToCart(button) {
+            function addToCart(button, productId, type, quantity, variant = null, options = []) {
                 const originalHtml = button.html();
 
-                console.log(button);
+                // send ajax request to add to card
+                $.ajax({
+                    url: route('cart.add'),
+                    method: "POST",
+                    data: {
+                        _token: "{{ csrf_token() }}",
+                        product_id: productId,
+                        type: type,
+                        variant: variant,
+                        quantity: quantity,
+                        option: options,
+                    },
+                    beforeSend: function() {
+                        button.prop('disabled', true);
+                        button.html(`
+                            <i class="fa fa-spinner fa-spin mr-5"></i> Loading...
+                        `);
+                    },
+
+                    success: function(res) {
+                        if (res.status) {
+                            notyf.success(res.message);
+
+                            button.prop('disabled', false);
+                            button.html(originalHtml);
+                        }
+                    },
+
+                    error: function(error) {
+                        let res = error.responseJSON;
+                        notyf.error(res.message);
+
+                        button.prop('disabled', false);
+                        button.html(originalHtml);
+                    },
+
+                    complete: function() {
+                        button.prop('disabled', false);
+                        button.html(originalHtml);
+                    }
+
+                });
             }
 
             function quickView(button, type, productId) {
@@ -144,7 +199,7 @@
                         if (res.status) {
                             $('#quickViewModal').html(res.modal);
                             $('#quickViewModal').modal('show');
-                            initVatriantJs();
+                            initVariantJs();
                         }
                     },
 
@@ -161,13 +216,8 @@
 
 
 
-
-
-
-
-
             // initialize variants
-            function initVatriantJs() {
+            function initVariantJs() {
                 const variantData = JSON.parse($('#variants-data').val());
                 let selectedValues = new Set();
 
@@ -184,37 +234,119 @@
                     });
                 });
 
+
+                //Qty Up-Down
+                $('.detail-qty').each(function() {
+                    var qtyval = parseInt($(this).find(".qty-val").val(), 10);
+                    var $qtyInput = $(this).find(".qty-val");
+
+                    $(this).find('.qty-up').on('click', function(event) {
+                        event.preventDefault();
+                        qtyval = qtyval + 1;
+                        $qtyInput.val(qtyval);
+                    });
+
+                    $(this).find(".qty-down").on("click", function(event) {
+                        event.preventDefault(); /*  */
+                        qtyval = Math.max(1, qtyval - 1);
+                        $qtyInput.val(qtyval);
+                    });
+                });
+
                 // console.log(variantData);
 
+                // function selectedDefaultVariant() {
+                //     if (variantData.length > 0) {
+                //         // loop through variants
+                //         variantData.forEach((val, index) => {
+                //             const attributeValues = variantData[0];
+                //             // get default value
+                //             const is_default = val.default;
+                //             const is_active = val.is_active;
+                //             const manage_stock = val.manage_stock;
+                //             const qty = val.qty;
+                //             const in_stock = val.in_stock;
+
+                //             if (manage_stock) {
+                //                 if (qty < 1) continue;
+
+                //                 attributeValues.attribute_values.forEach(valueId => {
+                //                     const $badge = $(`.attribute-badge[data-value="${valueId}"]`);
+                //                     $badge.addClass('active');
+                //                     selectedValues.add(valueId);
+                //                 });
+                //             }
+
+
+
+                //             // check if default value is true
+                //             // if (is_default && is_active) {
+                //             //     // loop throught it attr values
+                //             //     // attributeValues.attribute_values.forEach(valueId => {
+                //             //     //     const $badge = $(`.attribute-badge[data-value="${valueId}"]`);
+                //             //     //     $badge.addClass('active');
+                //             //     //     selectedValues.add(valueId);
+                //             //     // });
+
+                //             //     // updatePrice(selectedValues);
+                //             // }
+
+
+
+                //             updatePrice(selectedValues);
+                //         })
+                //     }
+                // }
+
+
                 function selectedDefaultVariant() {
-                    if (variantData.length > 0) {
-                        // loop through variants
-                        variantData.forEach((val, index) => {
-                            const attributeValues = variantData[0];
-                            // get default value
-                            const is_default = val.default;
-                            const is_active = val.is_active;
-                            // check if default value is true
-                            // if (is_default && is_active) {
-                            //     // loop throught it attr values
-                            //     // attributeValues.attribute_values.forEach(valueId => {
-                            //     //     const $badge = $(`.attribute-badge[data-value="${valueId}"]`);
-                            //     //     $badge.addClass('active');
-                            //     //     selectedValues.add(valueId);
-                            //     // });
+                    if (!variantData.length) return;
 
-                            //     // updatePrice(selectedValues);
-                            // }
+                    let selectedVariant = null;
 
-                            attributeValues.attribute_values.forEach(valueId => {
-                                const $badge = $(`.attribute-badge[data-value="${valueId}"]`);
-                                $badge.addClass('active');
-                                selectedValues.add(valueId);
-                            });
+                    // First priority:
+                    // Find default active variant
+                    selectedVariant = variantData.find(variant => {
+                        return variant.default && variant.is_active && ((variant.manage_stock && variant
+                            .qty > 0 && variant.in_stock) || (variant.manage_stock == 0 && variant
+                            .in_stock == 1));
+                    });
 
-                            updatePrice(selectedValues);
-                        })
+                    // First priority:
+                    // Find first variant with managed stock and qty > 0
+                    if (!selectedVariant) {
+                        selectedVariant = variantData.find(variant => {
+                            return variant.manage_stock && variant.qty > 0 && variant.in_stock;
+                        });
                     }
+
+                    // Second priority:
+                    // Find first variant with managed stock == 0 and in stock for unlimited stock
+                    if (!selectedVariant) {
+                        selectedVariant = variantData.find(variant => {
+                            return variant.manage_stock == 0 && variant.in_stock == 1;
+                        });
+                    }
+
+                    // Final fallback:
+                    // Use first variant
+                    if (!selectedVariant) {
+                        selectedVariant = variantData[0];
+                    }
+
+                    // Clear previous selections
+                    $('.attribute-badge').removeClass('active');
+                    selectedValues.clear();
+
+                    // Activate selected variant attributes
+                    selectedVariant.attribute_values.forEach(valueId => {
+                        const $badge = $(`.attribute-badge[data-value="${valueId}"]`);
+                        $badge.addClass('active');
+                        selectedValues.add(valueId);
+                    });
+
+                    // Update price once
+                    updatePrice(selectedValues);
                 }
 
 
@@ -243,22 +375,25 @@
                             $('.stock_status').text('Out of stock');
                         }
 
+                        $('.sku').text(matchingVariant.sku)
+                        $('#selected_variant').val(matchingVariant.id);
+
                         // check if manage stock is true and qty is not less than one
                         if (matchingVariant.in_stock === 0 || matchingVariant.in_stock === null || (matchingVariant
                                 .qty < 1 &&
                                 matchingVariant.manage_stock === 1)) {
                             var html = `
-                        <div class="product-price primary-color float-left">
+                        <div class="product-price product_price primary-color float-left">
                             <span class="current-price text-brand">Out of Stock</span>
                         </div>
                         `;
-                            $('.product-price').replaceWith(html);
+                            $('.product_price').replaceWith(html);
                             return;
                         }
 
                         if (matchingVariant.special_price > 0) {
                             var html = `
-                        <div class="product-price primary-color float-left">
+                        <div class="product-price product_price primary-color float-left">
                             <span class="current-price text-brand">$${matchingVariant.special_price}</span>
                             <span>
                                 <span class="old-price font-md ml-15">$${matchingVariant.price}</span>
@@ -267,14 +402,13 @@
                         `;
                         } else {
                             var html = `
-                        <div class="product-price primary-color float-left">
+                        <div class="product-price product_price primary-color float-left">
                             <span class="current-price text-brand">$${matchingVariant.price}</span>
                         </div>
                         `;
                         }
 
-                        $('.product-price').replaceWith(html);
-                        $('.sku').text(matchingVariant.sku)
+                        $('.product_price').replaceWith(html);
                     }
 
                 }

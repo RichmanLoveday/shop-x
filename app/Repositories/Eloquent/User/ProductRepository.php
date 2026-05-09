@@ -5,6 +5,7 @@ namespace App\Repositories\Eloquent\User;
 use App\Enums\ProductApprovedStatus;
 use App\Enums\ProductStatus;
 use App\Models\Product;
+use App\Models\ProductVariant;
 use App\Repositories\Contracts\User\Product as UserProduct;
 use App\Repositories\Contracts\User\ProductRepositoryInterface;
 use App\Repositories\Eloquent\Core\BaseProductRepository;
@@ -49,7 +50,6 @@ class ProductRepository extends BaseProductRepository implements ProductReposito
         return $product;
     }
 
-    
     public function findRelatedProducts(Product $product): Collection
     {
         return Product::query()
@@ -74,5 +74,18 @@ class ProductRepository extends BaseProductRepository implements ProductReposito
             ->distinct()
             ->take(6)
             ->get();
+    }
+
+    public function findProductVariant(int $productId, ?int $variantId): ProductVariant|Null
+    {
+        if (!$variantId) {
+            return null;
+        }
+
+        return ProductVariant::query()
+            ->where('id', $variantId)
+            ->where('product_id', $productId)
+            ->where('is_active', true)
+            ->first();
     }
 }

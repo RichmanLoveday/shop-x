@@ -59,6 +59,8 @@ class Product extends Model implements HasMedia
         'approved_status' => ProductApprovedStatus::class,
     ];
 
+    protected $appends = ['effective_price_and_stock'];
+
     public function categories(): BelongsToMany
     {
         return $this->belongsToMany(Category::class);
@@ -122,5 +124,63 @@ class Product extends Model implements HasMedia
     public function files(): HasMany
     {
         return $this->hasMany(ProductFile::class);
+    }
+
+    public function getEffectivePriceAndStockAttribute(): array
+    {
+        $getPriceData = function ($id = null, $price, $special_price, $in_stock, $qty) {
+            return [
+                'id' => $id,
+                'price' => $special_price > 0 ? $special_price : $price,
+                'old_price' => $special_price > 0 ? $price : null,
+                'in_stock' => $in_stock,
+                'qty' => $qty,
+            ];
+        };
+
+        // check if product variant exist
+        if ($this->variants()->exists()) {
+            $variants = $this->variants()->where('stock_status', true)->orderBy('is_default', 'asc')->get();
+
+            foreach ($variants as $variant) {
+                // check if manage stock is enabled
+                if ($variant->manage_stock) {
+                    if ($variant->qty < 1)
+                        continue;
+
+                    return $getPriceData(
+                        $variant->id,
+                        $variant->price,
+                        $variant->special_price,
+                        $variant->stock_status,
+                        $variant->qty,
+                    );
+                }
+
+                // stock is not managed, treat as unlimited
+                return $getPriceData(
+                    $variant->id,
+                    $variant->price,
+                    $variant->special_price,
+                    $variant->stock_status,
+                    'Unlimited',
+                );
+            }
+
+            // if variant condition do not match
+            return $getPriceData(null, 0, 0, false, null);
+        }
+
+        // when no variant exist
+        $stockManaged = $this->manage_stock == 'yes';
+        $inStock = $this->in_stock && (!$stockManaged || $this->qty > 0);
+        $qty = $stockManaged ? ($this->qty > 0 ? $this->qty : 'null') : ($this->in_stock ? 'Unlimited' : null);
+
+        return $getPriceData(null, $this->price, $this->special_price, $inStock, $qty);
+    }
+
+    public function carts(): HasMany
+    {
+        return $this->hasMany(Cart::class);
     }
 }

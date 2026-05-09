@@ -506,9 +506,7 @@
                                 </div>
 
 
-                                <div class="row"
-                                    style="display: {{ $product->manage_stock == 'yes' ? 'block' : 'none' }}"
-                                    id="stock-status-field">
+                                <div class="row" style="" id="stock-status-field">
                                     <div class="card">
                                         <div class="card-header">
                                             <h3>Stock Status</h3>
@@ -1050,11 +1048,11 @@
                     if ($(this).is(':checked')) {
                         // show quantity and stock status fields
                         $('#quantity-field').show();
-                        $('#stock-status-field').show();
+                        // $('#stock-status-field').show();
                     } else {
                         // hide quantity and stock status fields
                         $('#quantity-field').hide();
-                        $('#stock-status-field').hide();
+                        // $('#stock-status-field').hide();
                     }
                 });
 

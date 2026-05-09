@@ -72,7 +72,7 @@
                                 </div>
 
                                 <div class="col-md-12 mb-2 variant-stock-status"
-                                    style="display: {{ $variant->manage_stock ? 'block' : 'none' }}">
+                                    style="">
                                     <div class="card">
                                         <div class="card-body space-y-2 ">
                                             <label for="">Stock Status</label>

@@ -46,20 +46,15 @@
                </div>
                <div class="product-card-bottom">
                    <div class="product-price">
-                       @if ($product->primaryVariant)
-                           @if ($product->primaryVariant->special_price > 0)
-                               <span>${{ $product->primaryVariant->special_price }}</span>
-                               <span class="old-price">${{ $product->primaryVariant->price }}</span>
-                           @else
-                               <span>${{ $product->primaryVariant->special_price }}</span>
-                           @endif
+                       @php
+                           $price = $product->effective_price_and_stock;
+                       @endphp
+
+                       @if ($price['old_price'] > 0)
+                           <span>${{ $price['price'] }}</span>
+                           <span class="old-price">${{ $price['old_price'] }}</span>
                        @else
-                           @if ($product->special_price > 0)
-                               <span>${{ $product->special_price }}</span>
-                               <span class="old-price">${{ $product->price }}</span>
-                           @else
-                               <span class="old-price">${{ $product->price }}</span>
-                           @endif
+                           <span>${{ $price['price'] }}</span>
                        @endif
                    </div>
                    <div class="add-cart">

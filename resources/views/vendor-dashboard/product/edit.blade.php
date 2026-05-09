@@ -280,7 +280,7 @@
 
 
                                 <div class="row"
-                                    style="display: {{ $product->manage_stock == 'yes' ? 'block' : 'none' }}"
+                                    style=""
                                     id="stock-status-field">
                                     <div class="card">
                                         <div class="card-header">
@@ -1297,11 +1297,11 @@
                     if ($(this).is(':checked')) {
                         // show quantity and stock status fields
                         $('#quantity-field').show();
-                        $('#stock-status-field').show();
+                        // $('#stock-status-field').show();
                     } else {
                         // hide quantity and stock status fields
                         $('#quantity-field').hide();
-                        $('#stock-status-field').hide();
+                        // $('#stock-status-field').hide();
                     }
                 });
 
@@ -1577,10 +1577,10 @@
 
                 if (isChecked) {
                     variantQty.show();
-                    variantStockStatus.show();
+                    // variantStockStatus.show();
                 } else {
                     variantQty.hide();
-                    variantStockStatus.hide();
+                    // variantStockStatus.hide();
                 }
             }
 

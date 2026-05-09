@@ -30,18 +30,14 @@ class ProductPageController extends Controller
 
     public function getProduct(string $type, int $id)
     {
-        // dd($id, $type);
         try {
             $product = $this->productService->getProductById($id, $type);
-            // dd($product->toArray());
             $modal = view('components.frontend.quick-view-product-modal', compact('product'))->render();
 
-            return response()->json(
-                [
-                    'modal' => $modal,
-                    'status' => true,
-                ]
-            );
+            return response()->json([
+                'modal' => $modal,
+                'status' => true,
+            ]);
         } catch (\Exception $e) {
         }
     }
