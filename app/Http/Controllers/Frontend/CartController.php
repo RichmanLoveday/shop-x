@@ -15,7 +15,9 @@ class CartController extends Controller
 
     public function index()
     {
-        return view('frontend.pages.cart');
+        $cartItems = $this->cartService->getCartItems(Auth::guard('web')->user());
+        // dd($cartItems->toArray());
+        return view('frontend.pages.cart', compact('cartItems'));
     }
 
     public function addToCart(Request $request)

@@ -16,7 +16,6 @@ class CartRepository implements CartRepositoryInterface
             ], $data);
     }
 
-
     public function findCartVariantProduct(int $userId, int $productId, ?int $variantId = null): Cart|Null
     {
         return Cart::query()
@@ -28,5 +27,14 @@ class CartRepository implements CartRepositoryInterface
                 $q->whereNull('product_variant_id');
             })
             ->first();
+    }
+
+    public function getCartItems(int $userId)
+    {
+        return Cart::query()
+            ->with(['product:id,name,slug,price,qty,thumbnail', 'variant:id,name,qty,price,product_id'])
+            ->where('user_id', $userId)
+            ->orderBy('created_at', 'desc')
+            ->get();
     }
 }

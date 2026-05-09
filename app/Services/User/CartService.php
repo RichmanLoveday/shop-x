@@ -75,7 +75,6 @@ class CartService implements CartServiceInterface
         return $cart;
     }
 
-
     private function checkQuantityChange(User $user, int $productID, ?int $variant, int $quantity, int $stock): array
     {
         $cart = $this->cartRepo->findCartVariantProduct($user->id, $productID, $variant);
@@ -96,5 +95,14 @@ class CartService implements CartServiceInterface
             'cartId' => $cart?->id,
             'qty' => $newTotal,
         ];
+    }
+
+    public function getCartItems(?User $user)
+    {
+        if (!$user) {
+            return collect();
+        }
+
+        return $this->cartRepo->getCartItems($user->id);
     }
 }

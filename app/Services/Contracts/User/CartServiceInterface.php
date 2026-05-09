@@ -8,4 +8,6 @@ use App\Models\User;
 interface CartServiceInterface
 {
     public function addToCart(?User $user, int $productID, string $type, int $quantity, array|null $options, ?int $variant = null): Cart;
+
+    public function getCartItems(?User $user);
 }

@@ -126,6 +126,11 @@ class Product extends Model implements HasMedia
         return $this->hasMany(ProductFile::class);
     }
 
+    public function carts(): HasMany
+    {
+        return $this->hasMany(Cart::class);
+    }
+
     public function getEffectivePriceAndStockAttribute(): array
     {
         $getPriceData = function ($id = null, $price, $special_price, $in_stock, $qty) {
@@ -177,10 +182,5 @@ class Product extends Model implements HasMedia
         $qty = $stockManaged ? ($this->qty > 0 ? $this->qty : 'null') : ($this->in_stock ? 'Unlimited' : null);
 
         return $getPriceData(null, $this->price, $this->special_price, $inStock, $qty);
-    }
-
-    public function carts(): HasMany
-    {
-        return $this->hasMany(Cart::class);
     }
 }
