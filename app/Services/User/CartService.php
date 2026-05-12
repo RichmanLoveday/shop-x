@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Repositories\Contracts\User\CartRepositoryInterface;
 use App\Repositories\Contracts\User\ProductRepositoryInterface;
 use App\Services\Contracts\User\CartServiceInterface;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Auth;
 use RuntimeException;
 
@@ -97,12 +98,99 @@ class CartService implements CartServiceInterface
         ];
     }
 
-    public function getCartItems(?User $user)
+    public function getCartItems(?User $user): array
     {
         if (!$user) {
-            return collect();
+            return [];
         }
 
-        return $this->cartRepo->getCartItems($user->id);
+        $cartItems = $this->cartRepo->getCartItems($user->id);
+        $cartSubTotal = $this->calculateCartSubTotal($cartItems);
+
+        return [
+            'cartItems' => $cartItems,
+            'cartSubTotal' => $cartSubTotal,
+        ];
+    }
+
+    public function updateCartItem(?User $user, int $cartId, int $qty, string $productType): array
+    {
+        if (!$user) {
+            throw new RuntimeException('Please login to add product to cart');
+        }
+
+        // check if cart and product exist
+        $cartItem = $this->cartRepo->findCartItemOrFail($cartId, $user->id);
+        $product = $this->productRepo->getProduct($cartItem->product_id, $productType);
+        $productPriceQty = $cartItem->variant_or_product_and_stock;
+
+        // dd($productPriceQty);
+
+        // check if product is active
+        if (!$productPriceQty['is_active']) {
+            throw new RuntimeException('Product is not active');
+        }
+
+        // check if product is out of stock
+        if (!$productPriceQty['in_stock']) {
+            throw new RuntimeException('Product is out of stock');
+        }
+
+        // check if product quantity is sufficient
+        if ($productPriceQty['qty'] !== 'Unlimited' && $qty > $productPriceQty['qty']) {
+            throw new RuntimeException("Only {$productPriceQty['qty']} items available in stock");
+        }
+
+        // update cart item with new quantity
+        $cartItem = $this->cartRepo->createOrUpdateCart([
+            'qty' => $qty,
+        ], $cartItem->id);
+
+        $cartItems = $this->cartRepo->getCartItems($cartItem->user_id);
+        $cartSubTotal = $this->calculateCartSubTotal($cartItems);
+
+        return [
+            'cartItems' => $cartItems,
+            'cartSubTotal' => $cartSubTotal,
+        ];
+    }
+
+
+    public function removeCartItem(?User $user, int $cartId): array
+    {
+        if (!$user) {
+            throw new RuntimeException('Please login to add product to cart');
+        }
+
+        // check if cart and product exist
+        $cartItem = $this->cartRepo->findCartItemOrFail($cartId, $user->id);
+
+        // delete cart item
+        $this->cartRepo->deleteCartItem($cartItem->id, $user->id);
+
+        $cartItems = $this->cartRepo->getCartItems($cartItem->user_id);
+        $cartSubTotal = $this->calculateCartSubTotal($cartItems);
+
+        return [
+            'cartItems' => $cartItems,
+            'cartSubTotal' => $cartSubTotal,
+        ];
+    }
+
+    private function calculateCartSubTotal(Collection $cartItems): float
+    {
+        $cartSubTotal = 0;
+
+        foreach ($cartItems as $item) {
+            $variantOrProductPrice = $item->variant_or_product_and_stock;
+            $isOutOfStock = !$variantOrProductPrice['in_stock'];
+            $isActive = $variantOrProductPrice['is_active'];
+
+            if (!$isOutOfStock && $isActive) {
+                $cartSubTotal += $variantOrProductPrice['price'] * $item->qty;
+            }
+        }
+
+        return $cartSubTotal;
     }
 }

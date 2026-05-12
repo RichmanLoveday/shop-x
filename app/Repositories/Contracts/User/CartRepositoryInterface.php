@@ -11,4 +11,8 @@ interface CartRepositoryInterface
     public function findCartVariantProduct(int $userId, int $productId, ?int $variantId = null): Cart|Null;
 
     public function getCartItems(int $userId);
+
+    public function findCartItemOrFail(int $cartId, int $userId): Cart;
+
+    public function deleteCartItem(int $cartId, int $userId): bool;
 }

@@ -360,7 +360,7 @@
                                 value => variantValues.has(value));
                     });
 
-                    //   console.log(matchingVariant);
+                    // console.log(matchingVariant);
 
                     if (matchingVariant) {
                         // console.log(matchingVariant);
@@ -409,6 +409,8 @@
                         }
 
                         $('.product_price').replaceWith(html);
+                    } else {
+                        notyf.error('Variant is inactive');
                     }
 
                 }

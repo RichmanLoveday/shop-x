@@ -38,5 +38,7 @@ Route::controller(ProductPageController::class)->group(function () {
 Route::controller(CartController::class)->group(function () {
     Route::get('/cart', 'index')->name('cart.index');
     Route::post('/cart/add', 'addToCart')->name('cart.add');
+    Route::put('/cart/update', 'updateCart')->name('cart.update');
+    Route::delete('/cart/{id}/remove', 'removeCartItem')->name('cart.remove');
 });
 require __DIR__ . '/auth.php';

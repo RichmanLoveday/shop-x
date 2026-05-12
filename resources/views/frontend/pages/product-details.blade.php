@@ -486,7 +486,9 @@
                 // First priority:
                 // Find default active variant
                 selectedVariant = variantData.find(variant => {
-                    return variant.default && variant.is_active && ((variant.manage_stock && variant.qty > 0 && variant.in_stock) || (variant.manage_stock == 0 && variant.in_stock == 1));
+                    return variant.default && variant.is_active && ((variant.manage_stock && variant.qty >
+                        0 && variant.in_stock) || (variant.manage_stock == 0 && variant.in_stock ==
+                        1));
                 });
 
                 // First priority:
@@ -536,6 +538,8 @@
                         value => variantValues.has(value));
                 });
 
+                // console.log(matchingVariant);
+
 
                 if (matchingVariant) {
                     // print stock status
@@ -583,7 +587,8 @@
                     }
 
                     $('.product_price').replaceWith(html);
-
+                } else {
+                    notyf.error('Variant is inactive');
                 }
 
             }

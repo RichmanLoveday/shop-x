@@ -15,9 +15,9 @@ class CartController extends Controller
 
     public function index()
     {
-        $cartItems = $this->cartService->getCartItems(Auth::guard('web')->user());
+        ['cartItems' => $cartItems, 'cartSubTotal' => $cartSubTotal] = $this->cartService->getCartItems(Auth::guard('web')->user());
         // dd($cartItems->toArray());
-        return view('frontend.pages.cart', compact('cartItems'));
+        return view('frontend.pages.cart', compact('cartItems', 'cartSubTotal'));
     }
 
     public function addToCart(Request $request)
@@ -39,6 +39,59 @@ class CartController extends Controller
                 'status' => true,
                 'message' => 'Product added to cart',
                 'data' => $cart
+            ]);
+        } catch (\RuntimeException $e) {
+            return response()->json([
+                'status' => false,
+                'message' => $e->getMessage()
+            ], 400);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Something went wrong'
+            ], 500);
+        }
+    }
+
+    public function updateCart(Request $request)
+    {
+        try {
+            $user = Auth::guard('web')->user();
+            ['cartItems' => $cartItems, 'cartSubTotal' => $cartSubTotal] = $this->cartService->updateCartItem($user, $request->id, $request->qty, $request->productType);
+            $cartHtml = view('components.frontend.cart-item-component', compact('cartItems'))->render();
+
+            // dd($cartItems->toArray());
+            return response()->json([
+                'status' => true,
+                'message' => 'Cart updated successfully',
+                'cart_sub_total' => $cartSubTotal,
+                'html' => $cartHtml
+            ]);
+        } catch (\RuntimeException $e) {
+            return response()->json([
+                'status' => false,
+                'message' => $e->getMessage()
+            ], 400);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Something went wrong'
+            ], 500);
+        }
+    }
+
+    public function removeCartItem(int $id)
+    {
+        try {
+            $user = Auth::guard('web')->user();
+            ['cartItems' => $cartItems, 'cartSubTotal' => $cartSubTotal] = $this->cartService->removeCartItem($user, $id);
+            $cartHtml = view('components.frontend.cart-item-component', compact('cartItems'))->render();
+
+             return response()->json([
+                'status' => true,
+                'message' => 'Cart item removed successfully',
+                'cart_sub_total' => $cartSubTotal,
+                'html' => $cartHtml
             ]);
         } catch (\RuntimeException $e) {
             return response()->json([

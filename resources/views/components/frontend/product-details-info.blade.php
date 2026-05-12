@@ -19,8 +19,8 @@
                   @endphp
 
                   @if ($price['old_price'] > 0)
-                      <span>${{ $price['price'] }}</span>
-                      <span class="old-price">${{ $price['old_price'] }}</span>
+                      {{-- <span>${{ $price['price'] }}</span>
+                      <span class="old-price">${{ $price['old_price'] }}</span> --}}
 
                       <span class="current-price text-brand">${{ $price['price'] }}</span>
                       <span>

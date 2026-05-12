@@ -31,71 +31,8 @@
                                 <th scope="col" class="end">Remove</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            @foreach ($cartItems as $item)
-                                {{-- @dump($item->variant_or_product_and_stock) --}}
-                                @php
-                                    $variantOrProductPrice = $item->variant_or_product_and_stock;
-                                    $price = $variantOrProductPrice['price'];
-                                    $oldPrice = $variantOrProductPrice['old_price'];
-                                    $qty = $item->qty;
-                                    $subTotal = $price * $qty;
-                                    $variantName = $item->variant ? $item->variant->name : '';
-                                @endphp
-                                {{-- @dump($subTotal) --}}
-                                <tr class="pt-30">
-                                    <td class="custome-checkbox pl-30">
-                                        <input class="form-check-input" type="checkbox" name="checkbox"
-                                            id="exampleCheckbox1" value="">
-                                        <label class="form-check-label" for="exampleCheckbox1"></label>
-                                    </td>
-                                    <td class="image product-thumbnail pt-40 " style="width: 10px; height:10px;"><img
-                                            class="img-fluid w-12 h-12" src="{{ $item->product->thumbnail }}"
-                                            alt="#"></td>
-                                    <td class="product-des product-name">
-                                        <h6 class="mb-5"><a class="product-name mb-10 text-heading"
-                                                href="shop-product-right.html">{{ $item->product->name }}</a></h6>
-                                        <div class="product-rate-cover">
-                                            <span class="font-small ml-5 text-muted">{{ $variantName }}</span>
-                                        </div>
-                                        <div class="product-rate-cover">
-                                            <div class="product-rate d-inline-block">
-                                                <div class="product-rating" style="width:90%">
-                                                </div>
-                                            </div>
-                                            <span class="font-small ml-5 text-muted"> (4.0)</span>
-                                        </div>
-                                    </td>
-                                    <td class="price" data-title="Price">
-                                        @if ($oldPrice)
-                                            <h4 class="text-body">
-                                                ${{ number_format($price, 2) }}</h4>
-                                            <h4 class="text-decoration-line-through text-danger" style="font-size: 18px;">
-                                                ${{ number_format($oldPrice, 2) }}</h4>
-                                        @else
-                                            <h4 class="text-body">${{ number_format($price, 2) }} </h4>
-                                        @endif
-                                    </td>
-                                    <td class="text-center detail-info" data-title="Stock">
-                                        <div class="detail-extralink mr-15">
-                                            <div class="detail-qty border radius">
-                                                <a href="#" class="qty-down"><i
-                                                        class="fi-rs-angle-small-down"></i></a>
-                                                <input type="text" name="quantity" class="qty-val"
-                                                    value="{{ $qty }}" min="1">
-                                                <a href="#" class="qty-up"><i class="fi-rs-angle-small-up"></i></a>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td class="price" data-title="Price">
-                                        <h4 class="text-brand">${{ number_format($subTotal, 2) }} </h4>
-                                    </td>
-                                    <td class="action text-center" data-title="Remove"><a href="#"
-                                            class="text-body"><i class="fi-rs-trash"></i></a></td>
-                                </tr>
-                            @endforeach
-
-
+                        <tbody id="cart_table_container">
+                            <x-frontend.cart-item-component :cartItems="$cartItems" />
                         </tbody>
                     </table>
                 </div>
@@ -402,7 +339,8 @@
                                         <h6 class="text-muted">Subtotal</h6>
                                     </td>
                                     <td class="cart_total_amount">
-                                        <h4 class="text-brand text-end">$12.31</h4>
+                                        <h4 class="text-brand text-end"><span
+                                                class="cart_sub_total">${{ number_format($cartSubTotal, 2) }}</span></h4>
                                     </td>
                                 </tr>
                                 <tr>
@@ -410,21 +348,23 @@
                                         <h6 class="text-muted">Shipping</h6>
                                     </td>
                                     <td class="cart_total_amount">
-                                        <h5 class="text-heading text-end">Free</h4< /td>
+                                        <h5 class="text-heading text-end">Free</h5>
+                                    </td>
                                 </tr>
                                 <tr>
                                     <td class="cart_total_label">
                                         <h6 class="text-muted">Estimate for</h6>
                                     </td>
                                     <td class="cart_total_amount">
-                                        <h5 class="text-heading text-end">United Kingdom</h4< /td>
+                                        <h5 class="text-heading text-end">United Kingdom</h5>
+                                    </td>
                                 </tr>
                                 <tr>
                                     <td class="cart_total_label">
                                         <h6 class="text-muted">Total</h6>
                                     </td>
                                     <td class="cart_total_amount">
-                                        <h4 class="text-brand text-end">$12.31</h4>
+                                        <h4 class="text-brand text-end">${{ number_format($cartSubTotal, 2) }}</h4>
                                     </td>
                                 </tr>
                             </tbody>
@@ -436,3 +376,109 @@
         </div>
     </div>
 @endsection
+
+@push('scripts')
+    <script>
+        $(function() {
+            $(document).on('click', '.qty-up', function(event) {
+                event.preventDefault();
+                var input = $(this).siblings('.qty-val');
+                var qtyval = parseInt(input.val(), 10);
+
+                qtyval = qtyval + 1;
+                input.val(qtyval);
+                input.change();
+            });
+
+            $(document).on('click', '.qty-down', function(event) {
+                event.preventDefault();
+                var input = $(this).siblings('.qty-val');
+                var qtyval = parseInt(input.val(), 10);
+
+                qtyval = Math.max(1, qtyval - 1);
+                input.val(qtyval);
+                input.change();
+            });
+
+
+            $(document).on('change', '.qty-val', function() {
+                let qty = $(this).val();
+                let id = $(this).data('id');
+                let productType = $(this).data('product-type');
+
+                $.ajax({
+                    url: route('cart.update'),
+                    method: "PUT",
+                    data: {
+                        _token: "{{ csrf_token() }}",
+                        id,
+                        qty,
+                        productType,
+                    },
+                    beforeSend: function() {},
+                    success: function(res) {
+                        if (res.status) {
+                            let cart_sub_total = new Intl.NumberFormat('en-US', {
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits: 2
+                            }).format(res.cart_sub_total);
+
+                            $('#cart_table_container').html('').html(res.html);
+                            $('.cart_sub_total').text(`$${cart_sub_total}`);
+                            notyf.success(res.message);
+                        }
+                    },
+                    error: function(error) {
+                        let res = error.responseJSON;
+                        notyf.error(res.message);
+                    },
+                })
+            });
+
+            // delete item from cart
+            $(document).on('click', '.delete-item', function(event) {
+                event.preventDefault();
+
+                let button = $(this);
+                let id = button.data('id');
+
+                $.ajax({
+                    url: route('cart.remove', id),
+                    method: "DELETE",
+                    data: {
+                        _token: "{{ csrf_token() }}",
+                    },
+
+                    beforeSend: function() {
+                        button
+                            .prop('disabled', true)
+                            .html('<i class="fa-solid fa-spinner fa-spin"></i>');
+                    },
+
+                    success: function(res) {
+                        if (res.status) {
+                            let cart_sub_total = new Intl.NumberFormat('en-US', {
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits: 2
+                            }).format(res.cart_sub_total);
+
+                            $('#cart_table_container').html(res.html);
+                            $('.cart_sub_total').text(`$${cart_sub_total}`);
+
+                            notyf.success(res.message);
+                        }
+                    },
+
+                    error: function(error) {
+                        let res = error.responseJSON;
+                        notyf.error(res.message);
+                    },
+
+                    complete: function() {
+                        button.prop('disabled', false);
+                    }
+                });
+            });
+        });
+    </script>
+@endpush

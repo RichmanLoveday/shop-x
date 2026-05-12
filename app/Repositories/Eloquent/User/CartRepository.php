@@ -11,6 +11,7 @@ class CartRepository implements CartRepositoryInterface
     public function createOrUpdateCart(array $data, ?int $cartID = null): Cart
     {
         return Cart::query()
+            ->with(['product', 'variant'])
             ->updateOrCreate([
                 'id' => $cartID,
             ], $data);
@@ -32,9 +33,33 @@ class CartRepository implements CartRepositoryInterface
     public function getCartItems(int $userId)
     {
         return Cart::query()
-            ->with(['product:id,name,slug,price,qty,thumbnail', 'variant:id,name,qty,price,product_id'])
+            ->with(['product', 'variant'])
             ->where('user_id', $userId)
             ->orderBy('created_at', 'desc')
             ->get();
+    }
+
+    public function findCartItemOrFail(int $cartId, int $userId): Cart
+    {
+        return Cart::with([
+            'product',
+        ])
+            ->whereKey($cartId)
+            ->where('user_id', $userId)
+            ->firstOrFail();
+    }
+
+    public function deleteCartItem(int $cartId, int $userId): bool
+    {
+        $cartItem = Cart::query()
+            ->whereKey($cartId)
+            ->where('user_id', $userId)
+            ->first();
+
+        if (!$cartItem) {
+            return false;
+        }
+
+        return $cartItem->delete();
     }
 }

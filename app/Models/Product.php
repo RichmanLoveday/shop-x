@@ -42,6 +42,7 @@ class Product extends Model implements HasMedia
         'is_featured',
         'is_hot',
         'is_new',
+        'is_active',
     ];
 
     protected $casts = [
@@ -133,54 +134,104 @@ class Product extends Model implements HasMedia
 
     public function getEffectivePriceAndStockAttribute(): array
     {
-        $getPriceData = function ($id = null, $price, $special_price, $in_stock, $qty) {
+        $getPriceData = function ($id = null, $price, $special_price, $in_stock, $qty, $isActive) {
             return [
                 'id' => $id,
                 'price' => $special_price > 0 ? $special_price : $price,
                 'old_price' => $special_price > 0 ? $price : null,
                 'in_stock' => $in_stock,
                 'qty' => $qty,
+                'is_active' => $isActive,
             ];
         };
 
         // check if product variant exist
+        // if ($this->variants()->exists()) {
+        //     $variants = $this->variants()->where('stock_status', true)->orderBy('is_default', 'asc')->get();
+
+        //     foreach ($variants as $variant) {
+        //         // check if manage stock is enabled
+        //         if ($variant->manage_stock) {
+        //             if ($variant->qty < 1)
+        //                 continue;
+
+        //             return $getPriceData(
+        //                 $variant->id,
+        //                 $variant->price,
+        //                 $variant->special_price,
+        //                 $variant->stock_status,
+        //                 $variant->qty,
+        //             );
+        //         }
+
+        //         // dd($variant->toArray());
+
+        //         // stock is not managed, treat as unlimited
+        //         return $getPriceData(
+        //             $variant->id,
+        //             $variant->price,
+        //             $variant->special_price,
+        //             $variant->stock_status,
+        //             'Unlimited',
+        //         );
+        //     }
+
+        //     // if variant condition do not match
+        //     return $getPriceData(null, 0, 0, false, null);
+        // }
+
         if ($this->variants()->exists()) {
-            $variants = $this->variants()->where('stock_status', true)->orderBy('is_default', 'asc')->get();
+            $variants = $this
+                ->variants()
+                ->where('stock_status', true)
+                ->get();
 
-            foreach ($variants as $variant) {
-                // check if manage stock is enabled
-                if ($variant->manage_stock) {
-                    if ($variant->qty < 1)
-                        continue;
+            $selectedVariant = null;
 
-                    return $getPriceData(
-                        $variant->id,
-                        $variant->price,
-                        $variant->special_price,
-                        $variant->stock_status,
-                        $variant->qty,
+            // Priority 1: Default active variant
+            $selectedVariant = $variants->first(function ($variant) {
+                return $variant->is_default &&
+                    (
+                        ($variant->manage_stock && $variant->qty > 0) ||
+                        (!$variant->manage_stock)
                     );
-                }
+            });
 
-                // stock is not managed, treat as unlimited
-                return $getPriceData(
-                    $variant->id,
-                    $variant->price,
-                    $variant->special_price,
-                    $variant->stock_status,
-                    'Unlimited',
-                );
+            // Priority 2: First managed stock variant with qty > 0
+            if (!$selectedVariant) {
+                $selectedVariant = $variants->first(function ($variant) {
+                    return $variant->manage_stock && $variant->qty > 0;
+                });
             }
 
-            // if variant condition do not match
-            return $getPriceData(null, 0, 0, false, null);
+            // Priority 3: First unlimited stock variant
+            if (!$selectedVariant) {
+                $selectedVariant = $variants->first(function ($variant) {
+                    return !$variant->manage_stock;
+                });
+            }
+
+            if (!$selectedVariant) {
+                return $getPriceData(null, 0, 0, false, null, false);
+            }
+
+            return $getPriceData(
+                $selectedVariant->id,
+                $selectedVariant->price,
+                $selectedVariant->special_price,
+                true,
+                $selectedVariant->manage_stock
+                    ? $selectedVariant->qty
+                    : 'Unlimited',
+                $selectedVariant->is_active,
+            );
         }
 
         // when no variant exist
         $stockManaged = $this->manage_stock == 'yes';
-        $inStock = $this->in_stock && (!$stockManaged || $this->qty > 0);
+        $inStock = $this->stock_status && (!$stockManaged || $this->qty > 0);
         $qty = $stockManaged ? ($this->qty > 0 ? $this->qty : 'null') : ($this->in_stock ? 'Unlimited' : null);
 
-        return $getPriceData(null, $this->price, $this->special_price, $inStock, $qty);
+        return $getPriceData(null, $this->price, $this->special_price, $inStock, $qty, $this->is_active);
     }
 }
