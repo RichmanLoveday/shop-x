@@ -88,7 +88,7 @@
     </style>
 @endpush
 
-@foreach ($cartItems as $item)
+@forelse ($cartItems as $item)
     @php
         $variantOrProductPrice = $item->variant_or_product_and_stock;
         $price = $variantOrProductPrice['price'];
@@ -103,8 +103,9 @@
 
     <tr class="pt-30">
         <td class="custome-checkbox pl-30">
-            <input class="form-check-input" type="checkbox" name="checkbox" id="exampleCheckbox1" value="">
-            <label class="form-check-label" for="exampleCheckbox1"></label>
+            <input class="form-check-input cart-checkbox" type="checkbox" name="cart_ids[]"
+                id="cartCheckbox{{ $item->id }}" value="{{ $item->id }}">
+            <label class="form-check-label" for="cartCheckbox{{ $item->id }}"></label>
         </td>
         <td class="image product-thumbnail pt-40">
             <div class="cart-thumb-wrapper {{ $isOutOfStock ? 'out-of-stock' : '' }}">
@@ -173,7 +174,15 @@
             </td>
         @endif
 
-        <td class="action text-center" data-title="Remove"><a href="#"  data-id="{{ $item->id }}" class="text-body delete-item"><i
-                    class="fi-rs-trash"></i></a></td>
+        <td class="action text-center" data-title="Remove"><a href="#" data-id="{{ $item->id }}"
+                class="text-body delete-item"><i class="fi-rs-trash"></i></a></td>
     </tr>
-@endforeach
+@empty
+    <tr>
+        <td colspan="9" class="text-center py-5">
+            <div class="stock-badge-danger">
+                Your cart is empty!
+            </div>
+        </td>
+    </tr>
+@endforelse

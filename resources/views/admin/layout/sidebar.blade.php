@@ -889,7 +889,16 @@
                                 @can('manage-tags')
                                     <div class="dropdown-menu-column">
                                         <a class="dropdown-item" href="{{ route('admin.tags.index') }}">
-                                            Tags
+                                            Product Tags
+                                        </a>
+                                    </div>
+                                @endcan
+
+
+                                @can('manage-tags')
+                                    <div class="dropdown-menu-column">
+                                        <a class="dropdown-item" href="{{ route('admin.coupons.index') }}">
+                                            Coupons
                                         </a>
                                     </div>
                                 @endcan

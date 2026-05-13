@@ -11,6 +11,7 @@ use App\Http\Controllers\Admin\Auth\RegisteredUserController;
 use App\Http\Controllers\Admin\Auth\VerifyEmailController;
 use App\Http\Controllers\Admin\BrandController;
 use App\Http\Controllers\Admin\CategoryController;
+use App\Http\Controllers\Admin\CouponController;
 use App\Http\Controllers\Admin\kycRequestController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\ProfileController;
@@ -175,6 +176,12 @@ Route::middleware('auth:admin')
         // Stores Controller routes
         Route::controller(StoreController::class)->group(function () {
             Route::get('/stores/search', 'search')->name('stores.search');
+        });
+
+        // Coupon Controller routes
+        Route::controller(CouponController::class)->group(function () {
+            Route::get('/coupons/search', 'search')->name('coupons.search');
+            Route::resource('/coupons', CouponController::class);
         });
     });
 

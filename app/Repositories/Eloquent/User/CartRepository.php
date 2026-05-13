@@ -62,4 +62,12 @@ class CartRepository implements CartRepositoryInterface
 
         return $cartItem->delete();
     }
+
+    public function deleteMultipleCartItems(array $cartIds, int $userId): bool
+    {
+        return Cart::query()
+            ->whereIn('id', $cartIds)
+            ->where('user_id', $userId)
+            ->delete();
+    }
 }

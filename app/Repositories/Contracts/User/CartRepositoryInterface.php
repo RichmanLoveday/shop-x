@@ -15,4 +15,6 @@ interface CartRepositoryInterface
     public function findCartItemOrFail(int $cartId, int $userId): Cart;
 
     public function deleteCartItem(int $cartId, int $userId): bool;
+
+    public function deleteMultipleCartItems(array $cartIds, int $userId): bool;
 }

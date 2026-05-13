@@ -3,12 +3,17 @@
 namespace App\Services\User;
 
 use App\Models\Cart;
+use App\Models\Coupon;
 use App\Models\User;
 use App\Repositories\Contracts\User\CartRepositoryInterface;
 use App\Repositories\Contracts\User\ProductRepositoryInterface;
+use App\Repositories\Contracts\CouponRepositoryInterface;
 use App\Services\Contracts\User\CartServiceInterface;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Session;
+use Override;
 use RuntimeException;
 
 class CartService implements CartServiceInterface
@@ -16,6 +21,7 @@ class CartService implements CartServiceInterface
     public function __construct(
         protected ProductRepositoryInterface $productRepo,
         protected CartRepositoryInterface $cartRepo,
+        protected CouponRepositoryInterface $couponRepo,
     ) {}
 
     public function addToCart(?User $user, int $productID, string $type, int $quantity, array|null $options, ?int $variant = null): Cart
@@ -101,16 +107,41 @@ class CartService implements CartServiceInterface
     public function getCartItems(?User $user): array
     {
         if (!$user) {
-            return [];
+            throw new RuntimeException('Please login to view cart items');
         }
 
         $cartItems = $this->cartRepo->getCartItems($user->id);
         $cartSubTotal = $this->calculateCartSubTotal($cartItems);
 
-        return [
+        $data = [
             'cartItems' => $cartItems,
             'cartSubTotal' => $cartSubTotal,
+            'appliedCoupon' => null,
         ];
+
+        // check if coupon exist in session
+        if (Session::has('coupon')) {
+            try {
+                $couponId = Session::get('coupon.id');
+                $coupon = $this->couponRepo->findCouponOrFail($couponId);
+
+                $discount = $this->validateAndCalculateCouponDiscount($coupon, $cartSubTotal);
+
+                $data['appliedCoupon'] = [
+                    'discount' => $discount,
+                    'coupon_type' => $coupon->is_percent ? '%' : 'Fixed',
+                    'coupon_value' => $coupon->value,
+                    'cart_sub_total' => $cartSubTotal,
+                    'total' => $cartSubTotal - $discount,
+                ];
+            } catch (\Exception $e) {
+                // Delete coupon session if issue occur
+                Session::forget('coupon');
+                $data['appliedCoupon'] = null;
+            }
+        }
+
+        return $data;
     }
 
     public function updateCartItem(?User $user, int $cartId, int $qty, string $productType): array
@@ -155,7 +186,6 @@ class CartService implements CartServiceInterface
         ];
     }
 
-
     public function removeCartItem(?User $user, int $cartId): array
     {
         if (!$user) {
@@ -169,6 +199,24 @@ class CartService implements CartServiceInterface
         $this->cartRepo->deleteCartItem($cartItem->id, $user->id);
 
         $cartItems = $this->cartRepo->getCartItems($cartItem->user_id);
+        $cartSubTotal = $this->calculateCartSubTotal($cartItems);
+
+        return [
+            'cartItems' => $cartItems,
+            'cartSubTotal' => $cartSubTotal,
+        ];
+    }
+
+    public function bulkDeleteCartItems(?User $user, array $cartIds): array
+    {
+        if (!$user) {
+            throw new RuntimeException('Please login to add product to cart');
+        }
+
+        // delete cart items
+        $this->cartRepo->deleteMultipleCartItems($cartIds, $user->id);
+
+        $cartItems = $this->cartRepo->getCartItems($user->id);
         $cartSubTotal = $this->calculateCartSubTotal($cartItems);
 
         return [
@@ -192,5 +240,76 @@ class CartService implements CartServiceInterface
         }
 
         return $cartSubTotal;
+    }
+
+    public function applyCoupon(?User $user, string $code): array
+    {
+        if (!$user) {
+            throw new RuntimeException('Please login to add product to cart');
+        }
+
+        // check if coup exist and is valid
+        $coupon = $this->couponRepo->findCouponByCode($code);
+        $cartItems = $this->cartRepo->getCartItems($user->id);
+        $cartSubTotal = $this->calculateCartSubTotal($cartItems);
+
+        // dd($coupon);
+
+        // validate coupon
+        $discount = $this->validateAndCalculateCouponDiscount($coupon, $cartSubTotal);
+        $total = $cartSubTotal - $discount;  // get cart total
+
+        // store data in session
+        Session::put('coupon', [
+            'id' => $coupon->id,
+        ]);
+
+        return [
+            'discount' => $discount,
+            'coupon_type' => $coupon->is_percent ? '%' : 'Fixed',
+            'coupon_value' => $coupon->value,
+            'cart_sub_total' => $cartSubTotal,
+            'total' => $total,
+        ];
+    }
+
+    private function validateAndCalculateCouponDiscount(?Coupon $coupon, int|float $cartSubTotal): int|float
+    {
+        if (!$coupon) {
+            throw new RuntimeException('Invalid coupon code');
+        }
+
+        // check if coupon is active
+        if (!$coupon->is_active) {
+            throw new RuntimeException('Coupon code is not active');
+        }
+
+        $startDate = Carbon::parse($coupon->start_date)->startOfDay();
+        $expiryDate = Carbon::parse($coupon->end_date)->endOfDay();
+
+        // Now compare object to object accurately
+        if (now()->gt($expiryDate) || now()->lt($startDate)) {
+            throw new RuntimeException('Coupon code has expired');
+        }
+
+        // check if cart total is greater than min spend of coupon
+        if ($cartSubTotal < $coupon->minimum_spend) {
+            throw new RuntimeException("Cart total must be at least {$coupon->minimum_spend} to apply this coupon");
+        }
+
+        // check if cart total is greater than max spend
+        if ($cartSubTotal > $coupon->maximum_spend) {
+            throw new RuntimeException("Cart total must not be greater than {$coupon->maximum_spend} to apply this coupon");
+        }
+
+        // check if user can use coupon
+
+        // calculate discount amount
+        $discount = $coupon->is_percent ? $cartSubTotal * ($coupon->value / 100) : $coupon->value;
+
+        // check if discount doest not exceed to negative value
+        $discount = min($discount, $cartSubTotal);
+
+        return $discount;
     }
 }

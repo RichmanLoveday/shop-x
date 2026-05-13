@@ -8,7 +8,8 @@
                 <h1 class="heading-2 mb-10">Your Cart</h1>
                 <div class="d-flex flex-wrap justify-content-between">
                     <h6 class="text-body">There are <span class="text-brand">3</span> products in your cart</h6>
-                    <h6 class="text-body"><a href="#" class="text-muted"><i class="fi-rs-trash mr-5"></i>Clear
+                    <h6 class="text-body"><a href="javascript:void(0)" id="delete-selected" class="text-muted"><i
+                                class="fi-rs-trash mr-5"></i>Clear
                             Cart</a></h6>
                 </div>
             </div>
@@ -20,8 +21,8 @@
                         <thead>
                             <tr class="main-heading">
                                 <th class="custome-checkbox start pl-30">
-                                    <input class="form-check-input" type="checkbox" name="checkbox" id="exampleCheckbox11"
-                                        value="">
+                                    <input class="form-check-input all_cart_checkbox" type="checkbox" name="checkbox"
+                                        id="exampleCheckbox11" value="">
                                     <label class="form-check-label" for="exampleCheckbox11"></label>
                                 </th>
                                 <th scope="col" colspan="2">Product</th>
@@ -314,22 +315,22 @@
                             </form>
                         </div>
                     </div>
-                    <div class="col-lg-5">
-                        <div class="p-40">
-                            <h4 class="mb-10">Apply Coupon</h4>
-                            <p class="mb-30"><span class="font-lg text-muted">Using A Promo Code?</p>
-                            <form action="#">
-                                <div class="d-flex justify-content-between">
-                                    <input class="font-medium mr-15 coupon" name="Coupon"
-                                        placeholder="Enter Your Coupon">
-                                    <button class="btn"><i class="fi-rs-label mr-10"></i>Apply</button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
                 </div>
             </div>
             <div class="col-lg-4">
+
+                <div class="p-40">
+                    <h4 class="mb-10">Apply Coupon</h4>
+                    <p class="mb-30"><span class="font-lg text-muted">Using A Promo Code?</p>
+                    <form action="#" class="coupon-form">
+                        @csrf
+                        <div class="d-flex justify-content-between">
+                            <input class="font-medium mr-15 coupon" name="coupon" placeholder="Enter Your Coupon">
+                            <button class="btn"><i class="fi-rs-label mr-10"></i>Apply</button>
+                        </div>
+                    </form>
+                </div>
+
                 <div class="border p-md-4 cart-totals ml-30">
                     <div class="table-responsive">
                         <table class="table no-border">
@@ -345,10 +346,10 @@
                                 </tr>
                                 <tr>
                                     <td class="cart_total_label">
-                                        <h6 class="text-muted">Shipping</h6>
+                                        <h6 class="text-muted">Discount <span class="coupon-info"></span></h6>
                                     </td>
                                     <td class="cart_total_amount">
-                                        <h5 class="text-heading text-end">Free</h5>
+                                        <h5 class="text-heading text-end discount-info">$0</h5>
                                     </td>
                                 </tr>
                                 <tr>
@@ -361,10 +362,10 @@
                                 </tr>
                                 <tr>
                                     <td class="cart_total_label">
-                                        <h6 class="text-muted">Total</h6>
+                                        <h6 class="text-muted">Total </h6>
                                     </td>
                                     <td class="cart_total_amount">
-                                        <h4 class="text-brand text-end">${{ number_format($cartSubTotal, 2) }}</h4>
+                                        <h4 class="text-brand text-end"><span class="cart_total">0</span></h4>
                                     </td>
                                 </tr>
                             </tbody>
@@ -476,6 +477,142 @@
 
                     complete: function() {
                         button.prop('disabled', false);
+                    }
+                });
+            });
+
+            // bulk delete items from cart
+            $(document).on('click', '#delete-selected', function(event) {
+                let button = $(this);
+                let html = button.html();
+                console.log(button)
+                let selected = [];
+
+                $('.cart-checkbox:checked').each(function() {
+                    selected.push($(this).val());
+                });
+
+                if (selected.length === 0) {
+                    notyf.error('Please select cart items');
+                    return;
+                }
+
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: "You won't be able to revert this!",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Yes, delete it!'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            url: route('cart.bulk-delete'),
+                            method: 'DELETE',
+                            data: {
+                                _token: "{{ csrf_token() }}",
+                                cart_ids: selected
+                            },
+
+                            beforeSend: function() {
+                                button
+                                    .prop('disabled', true)
+                                    .html(
+                                        '<i class="fa-solid fa-spinner fa-spin"></i> Deleting...'
+                                    );
+                            },
+
+                            success: function(res) {
+                                if (res.status) {
+                                    let cart_sub_total = new Intl.NumberFormat(
+                                        'en-US', {
+                                            minimumFractionDigits: 2,
+                                            maximumFractionDigits: 2
+                                        }).format(res.cart_sub_total);
+
+                                    // fire sweet alert
+                                    Swal.fire(
+                                        'Deleted!',
+                                        res.message,
+                                        'success'
+                                    ).then(() => {
+                                        $('#cart_table_container').html(res
+                                            .html);
+                                        $('.cart_sub_total').text(
+                                            `$${cart_sub_total}`);
+                                    });
+                                }
+                            },
+
+                            error: function(xhr) {
+                                notyf.error(xhr.responseJSON.message);
+                            },
+
+                            complete: function() {
+                                button
+                                    .prop('disabled', false)
+                                    .html(html)
+                            }
+                        });
+                    }
+                });
+
+            });
+
+            // select all checkboxes
+            $(document).on('change', '.all_cart_checkbox', function() {
+                $('.cart-checkbox').prop('checked', $(this).prop('checked'));
+            });
+
+
+            $('.coupon-form').on('submit', function(event) {
+                event.preventDefault();
+
+                const form = $(this);
+                const data = form.serialize();
+                const btnHtml = form.find('.btn').html();
+
+                $.ajax({
+                    url: route('cart.apply-coupon'),
+                    method: "POST",
+                    data: data,
+                    beforeSend: function() {
+                        form.find('.btn')
+                            .addClass('disabled')
+                            .html('Applying...');
+                    },
+                    success: function(res) {
+                        if (res.status) {
+                            const data = res.data;
+
+                            let cart_sub_total = new Intl.NumberFormat('en-US', {
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits: 2
+                            }).format(data.cart_sub_total);
+
+                            let total = new Intl.NumberFormat('en-US', {
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits: 2
+                            }).format(data.total);
+
+                            let couponInfo = data.coupon_type == 'Fixed' ?
+                                `(${ data.coupon_type})` :
+                                `(${data.coupon_value} ${data.coupon_type})`;
+
+                            $('.cart_sub_total').text(`$${cart_sub_total}`);
+                            $('.coupon-info').text(couponInfo);
+                            $('.discount-info').text(`$${data.discount}`);
+                            $('.cart_total').text(`$${total}`);
+
+                            notyf.success(res.message);
+                        }
+                    },
+                    error: function(xhr) {
+                        notyf.error(xhr.responseJSON.message);
+                    },
+                    complete: function() {
+                        form.find('.btn').removeClass('disabled').html(btnHtml);
                     }
                 });
             });

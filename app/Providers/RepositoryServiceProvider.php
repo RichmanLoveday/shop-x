@@ -36,6 +36,7 @@ class RepositoryServiceProvider extends ServiceProvider
         // User Bindings
         \App\Repositories\Contracts\User\ProductRepositoryInterface::class => \App\Repositories\Eloquent\User\ProductRepository::class,
         \App\Repositories\Contracts\User\CartRepositoryInterface::class => \App\Repositories\Eloquent\User\CartRepository::class,
+        \App\Repositories\Contracts\CouponRepositoryInterface::class => \App\Repositories\Eloquent\CouponRepository::class,
     ];
 
     /**

@@ -92,6 +92,7 @@
     <script src="{{ asset('assets/frontend/js/main.js') }}"></script>
     <script src="{{ asset('assets/frontend/js/shop.js') }}"></script>
     <script src="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="{{ asset('assets/frontend/js/frontend.js') }}"></script>
     @include('frontend.layout.scripts')
     @stack('scripts')
