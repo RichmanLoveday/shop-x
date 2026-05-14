@@ -12,6 +12,7 @@ use App\Services\Contracts\User\CartServiceInterface;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
 use Override;
 use RuntimeException;
@@ -116,32 +117,12 @@ class CartService implements CartServiceInterface
         $data = [
             'cartItems' => $cartItems,
             'cartSubTotal' => $cartSubTotal,
+            'total' => $cartSubTotal,
             'appliedCoupon' => null,
         ];
 
-        // check if coupon exist in session
-        if (Session::has('coupon')) {
-            try {
-                $couponId = Session::get('coupon.id');
-                $coupon = $this->couponRepo->findCouponOrFail($couponId);
-
-                $discount = $this->validateAndCalculateCouponDiscount($coupon, $cartSubTotal);
-
-                $data['appliedCoupon'] = [
-                    'discount' => $discount,
-                    'coupon_type' => $coupon->is_percent ? '%' : 'Fixed',
-                    'coupon_value' => $coupon->value,
-                    'cart_sub_total' => $cartSubTotal,
-                    'total' => $cartSubTotal - $discount,
-                ];
-            } catch (\Exception $e) {
-                // Delete coupon session if issue occur
-                Session::forget('coupon');
-                $data['appliedCoupon'] = null;
-            }
-        }
-
-        return $data;
+        // check if coupon exist in session and return data
+        return $this->checkIfCouponExist($cartSubTotal, $data);
     }
 
     public function updateCartItem(?User $user, int $cartId, int $qty, string $productType): array
@@ -180,10 +161,14 @@ class CartService implements CartServiceInterface
         $cartItems = $this->cartRepo->getCartItems($cartItem->user_id);
         $cartSubTotal = $this->calculateCartSubTotal($cartItems);
 
-        return [
+        $data = [
             'cartItems' => $cartItems,
             'cartSubTotal' => $cartSubTotal,
+            'total' => $cartSubTotal,
+            'appliedCoupon' => null,
         ];
+
+        return $this->checkIfCouponExist($cartSubTotal, $data);
     }
 
     public function removeCartItem(?User $user, int $cartId): array
@@ -201,10 +186,14 @@ class CartService implements CartServiceInterface
         $cartItems = $this->cartRepo->getCartItems($cartItem->user_id);
         $cartSubTotal = $this->calculateCartSubTotal($cartItems);
 
-        return [
+        $data = [
             'cartItems' => $cartItems,
             'cartSubTotal' => $cartSubTotal,
+            'total' => $cartSubTotal,
+            'appliedCoupon' => null,
         ];
+
+        return $this->checkIfCouponExist($cartSubTotal, $data);
     }
 
     public function bulkDeleteCartItems(?User $user, array $cartIds): array
@@ -219,10 +208,14 @@ class CartService implements CartServiceInterface
         $cartItems = $this->cartRepo->getCartItems($user->id);
         $cartSubTotal = $this->calculateCartSubTotal($cartItems);
 
-        return [
+        $data = [
             'cartItems' => $cartItems,
             'cartSubTotal' => $cartSubTotal,
+            'total' => $cartSubTotal,
+            'appliedCoupon' => null,
         ];
+
+        return $this->checkIfCouponExist($cartSubTotal, $data);
     }
 
     private function calculateCartSubTotal(Collection $cartItems): float
@@ -265,6 +258,7 @@ class CartService implements CartServiceInterface
         ]);
 
         return [
+            'id' => $coupon->id,
             'discount' => $discount,
             'coupon_type' => $coupon->is_percent ? '%' : 'Fixed',
             'coupon_value' => $coupon->value,
@@ -311,5 +305,40 @@ class CartService implements CartServiceInterface
         $discount = min($discount, $cartSubTotal);
 
         return $discount;
+    }
+
+    private function checkIfCouponExist(int|float $cartSubTotal, array $data): array
+    {
+        if (!Session::has('coupon')) {
+            return $data;
+        }
+
+        try {
+            $couponId = Session::get('coupon.id');
+            $coupon = $this->couponRepo->findCouponOrFail($couponId);
+
+            $discount = $this->validateAndCalculateCouponDiscount($coupon, $cartSubTotal);
+
+            $data['appliedCoupon'] = [
+                'id' => $coupon->id,
+                'code' => $coupon->code,
+                'discount' => $discount,
+                'coupon_type' => $coupon->is_percent ? '%' : 'Fixed',
+                'coupon_value' => $coupon->value,
+                'cart_sub_total' => $cartSubTotal,
+            ];
+
+            // update main total
+            $data['total'] = $cartSubTotal - $discount;
+        } catch (\Exception $e) {
+            // Delete coupon session if issue occur
+            Session::forget('coupon');
+            $data['appliedCoupon'] = null;
+            $data['total'] = $cartSubTotal;
+
+            Log::error('Coupon processing failed: ' . $e->getMessage());
+        }
+
+        return $data;
     }
 }

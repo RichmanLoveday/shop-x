@@ -325,8 +325,15 @@
                     <form action="#" class="coupon-form">
                         @csrf
                         <div class="d-flex justify-content-between">
-                            <input class="font-medium mr-15 coupon" name="coupon" placeholder="Enter Your Coupon">
-                            <button class="btn"><i class="fi-rs-label mr-10"></i>Apply</button>
+                            <input class="font-medium mr-15 coupon coupon-input" {{ $appliedCoupon ? 'disabled' : '' }}
+                                value="{{ $appliedCoupon['code'] ?? '' }}" name="coupon"
+                                placeholder="Enter Your Coupon">
+                            @if (!is_null($appliedCoupon))
+                                <button data-id="{{ $appliedCoupon['id'] }}" type="button"
+                                    class="btn btn-danger remove-coupon"><i class="fi-rs-cross mr-10"></i>Remove</button>
+                            @else
+                                <button class="btn"><i class="fi-rs-label mr-10"></i>Apply</button>
+                            @endif
                         </div>
                     </form>
                 </div>
@@ -334,6 +341,14 @@
                 <div class="border p-md-4 cart-totals ml-30">
                     <div class="table-responsive">
                         <table class="table no-border">
+                            @php
+                                if (!is_null($appliedCoupon)) {
+                                    $couponValue = $appliedCoupon['coupon_value'];
+                                    $couponType = $appliedCoupon['coupon_type'];
+                                    $couponInfo =
+                                        $couponType == 'Fixed' ? "({$couponType})" : "({$couponValue} {$couponType})";
+                                }
+                            @endphp
                             <tbody>
                                 <tr>
                                     <td class="cart_total_label">
@@ -341,15 +356,19 @@
                                     </td>
                                     <td class="cart_total_amount">
                                         <h4 class="text-brand text-end"><span
-                                                class="cart_sub_total">${{ number_format($cartSubTotal, 2) }}</span></h4>
+                                                class="cart_sub_total">${{ number_format($appliedCoupon['cart_sub_total'] ?? $cartSubTotal, 2) }}</span>
+                                        </h4>
                                     </td>
                                 </tr>
                                 <tr>
                                     <td class="cart_total_label">
-                                        <h6 class="text-muted">Discount <span class="coupon-info"></span></h6>
+                                        <h6 class="text-muted">Discount <span
+                                                class="coupon-info">{{ $couponInfo ?? '' }}</span></h6>
                                     </td>
                                     <td class="cart_total_amount">
-                                        <h5 class="text-heading text-end discount-info">$0</h5>
+                                        <h5 class="text-heading text-end discount-info">
+                                            ${{ $appliedCoupon['discount'] ?? 0.0 }}
+                                        </h5>
                                     </td>
                                 </tr>
                                 <tr>
@@ -365,7 +384,9 @@
                                         <h6 class="text-muted">Total </h6>
                                     </td>
                                     <td class="cart_total_amount">
-                                        <h4 class="text-brand text-end"><span class="cart_total">0</span></h4>
+                                        <h4 class="text-brand text-end"><span
+                                                class="cart_total">{{ "$" . number_format($total, 2) }}</span>
+                                        </h4>
                                     </td>
                                 </tr>
                             </tbody>
@@ -419,13 +440,31 @@
                     beforeSend: function() {},
                     success: function(res) {
                         if (res.status) {
+                            // check if coupon is applied
+                            if (res.appliedCoupon) {
+                                var couponInfo = res.appliedCoupon.coupon_type == 'Fixed' ?
+                                    `(${ res.appliedCoupon.coupon_type})` :
+                                    `(${res.appliedCoupon.coupon_value} ${res.appliedCoupon.coupon_type})`;
+                            }
+
                             let cart_sub_total = new Intl.NumberFormat('en-US', {
                                 minimumFractionDigits: 2,
                                 maximumFractionDigits: 2
                             }).format(res.cart_sub_total);
 
+                            let total = new Intl.NumberFormat('en-US', {
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits: 2
+                            }).format(res.total);
+
+
+
                             $('#cart_table_container').html('').html(res.html);
+                            $('.coupon-info').text(couponInfo ?? '');
+                            $('.discount-info').text(`$${res.appliedCoupon?.discount ?? 0.00}`);
                             $('.cart_sub_total').text(`$${cart_sub_total}`);
+                            $('.cart_total').text(`$${total}`);
+
                             notyf.success(res.message);
                         }
                     },
@@ -458,13 +497,29 @@
 
                     success: function(res) {
                         if (res.status) {
+                            if (res.appliedCoupon) {
+                                var couponInfo = res.appliedCoupon.coupon_type == 'Fixed' ?
+                                    `(${ res.appliedCoupon.coupon_type})` :
+                                    `(${res.appliedCoupon.coupon_value} ${res.appliedCoupon.coupon_type})`;
+                            }
+
                             let cart_sub_total = new Intl.NumberFormat('en-US', {
                                 minimumFractionDigits: 2,
                                 maximumFractionDigits: 2
                             }).format(res.cart_sub_total);
 
-                            $('#cart_table_container').html(res.html);
+                            let total = new Intl.NumberFormat('en-US', {
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits: 2
+                            }).format(res.total);
+
+
+
+                            $('#cart_table_container').html('').html(res.html);
+                            $('.coupon-info').text(couponInfo ?? '');
+                            $('.discount-info').text(`$${res.appliedCoupon?.discount ?? 0.00}`);
                             $('.cart_sub_total').text(`$${cart_sub_total}`);
+                            $('.cart_total').text(`$${total}`);
 
                             notyf.success(res.message);
                         }
@@ -525,11 +580,32 @@
 
                             success: function(res) {
                                 if (res.status) {
+                                    if (res.appliedCoupon) {
+                                        var couponInfo = res.appliedCoupon
+                                            .coupon_type == 'Fixed' ?
+                                            `(${ res.appliedCoupon.coupon_type})` :
+                                            `(${res.appliedCoupon.coupon_value} ${res.appliedCoupon.coupon_type})`;
+                                    }
+
                                     let cart_sub_total = new Intl.NumberFormat(
-                                        'en-US', {
-                                            minimumFractionDigits: 2,
-                                            maximumFractionDigits: 2
-                                        }).format(res.cart_sub_total);
+                                    'en-US', {
+                                        minimumFractionDigits: 2,
+                                        maximumFractionDigits: 2
+                                    }).format(res.cart_sub_total);
+
+                                    let total = new Intl.NumberFormat('en-US', {
+                                        minimumFractionDigits: 2,
+                                        maximumFractionDigits: 2
+                                    }).format(res.total);
+
+
+
+                                    $('#cart_table_container').html('').html(res.html);
+                                    $('.coupon-info').text(couponInfo ?? '');
+                                    $('.discount-info').text(
+                                        `$${res.appliedCoupon?.discount ?? 0.00}`);
+                                    $('.cart_sub_total').text(`$${cart_sub_total}`);
+                                    $('.cart_total').text(`$${total}`);
 
                                     // fire sweet alert
                                     Swal.fire(
@@ -585,6 +661,9 @@
                     success: function(res) {
                         if (res.status) {
                             const data = res.data;
+                            const removeCouponBtn =
+                                `<button data-id="${data.id}" type="button"
+                                    class="btn btn-danger remove-coupon"><i class="fi-rs-cross mr-10"></i>Remove</button>`;
 
                             let cart_sub_total = new Intl.NumberFormat('en-US', {
                                 minimumFractionDigits: 2,
@@ -600,6 +679,8 @@
                                 `(${ data.coupon_type})` :
                                 `(${data.coupon_value} ${data.coupon_type})`;
 
+                            form.find('.btn').replaceWith(removeCouponBtn);
+                            $('.coupon-input').prop('disabled', true);
                             $('.cart_sub_total').text(`$${cart_sub_total}`);
                             $('.coupon-info').text(couponInfo);
                             $('.discount-info').text(`$${data.discount}`);
@@ -609,13 +690,71 @@
                         }
                     },
                     error: function(xhr) {
+                        form.find('.btn').removeClass('disabled').html(btnHtml);
                         notyf.error(xhr.responseJSON.message);
                     },
-                    complete: function() {
-                        form.find('.btn').removeClass('disabled').html(btnHtml);
+                });
+            });
+
+            // Remove coupon
+            $(document).on('click', '.remove-coupon', function(event) {
+                event.preventDefault();
+                const btn = $(this);
+                const btnHtml = btn.html();
+
+                // Define the Apply button markup exactly matching your Blade layout
+                const applyCouponBtn =
+                    `<button class="btn"><i class="fi-rs-label mr-10"></i>Apply</button>`;
+
+                $.ajax({
+                    url: route('cart.remove-coupon'),
+                    method: 'DELETE',
+                    data: {
+                        _token: "{{ csrf_token() }}",
+                    },
+                    beforeSend: function() {
+                        // Note: For state flags like disabled, .prop() is preferred over .attr()
+                        btn.prop('disabled', true).html('Removing...');
+                    },
+                    success: function(res) {
+                        if (res.status) {
+                            let cart_sub_total = new Intl.NumberFormat('en-US', {
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits: 2
+                            }).format(res.cart_sub_total);
+
+                            let total = new Intl.NumberFormat('en-US', {
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits: 2
+                            }).format(res.total);
+
+                            $('#cart_table_container').html(res.html);
+                            $('.cart_sub_total').text(`$${cart_sub_total}`);
+
+                            // 1. Enable the input field and clear its value
+                            $('.coupon-input').prop('disabled', false).val('');
+
+                            $('.coupon-info').text('');
+                            $('.discount-info').text('$0.00');
+                            $('.cart_total').text(`$${total}`);
+
+                            // 2. Replace the active Remove button with the Apply button
+                            btn.replaceWith(applyCouponBtn);
+
+                            notyf.success(res.message);
+                        } else {
+                            // Revert button state if server validation fails despite successful HTTP request
+                            btn.prop('disabled', false).html(btnHtml);
+                        }
+                    },
+                    error: function(xhr) {
+                        notyf.error(xhr.responseJSON.message);
+                        // Revert button state on error
+                        btn.prop('disabled', false).html(btnHtml);
                     }
                 });
             });
+
         });
     </script>
 @endpush

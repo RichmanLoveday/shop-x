@@ -7,6 +7,7 @@ use App\Services\Contracts\User\CartServiceInterface;
 use App\Traits\Alert;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Session;
 
 class CartController extends Controller
 {
@@ -20,13 +21,18 @@ class CartController extends Controller
     {
         try {
             $user = Auth::guard('web')->user();
-            ['cartItems' => $cartItems, 'cartSubTotal' => $cartSubTotal, 'appliedCoupon' => $appliedCoupon] = $this->cartService->getCartItems(Auth::guard('web')->user());
+            [
+                'cartItems' => $cartItems,
+                'cartSubTotal' => $cartSubTotal,
+                'appliedCoupon' => $appliedCoupon,
+                'total' => $total
+            ] = $this->cartService->getCartItems(Auth::guard('web')->user());
+
             // dd($appliedCoupon);
-            return view('frontend.pages.cart', compact('cartItems', 'cartSubTotal', 'appliedCoupon'));
+            return view('frontend.pages.cart', compact('cartItems', 'cartSubTotal', 'appliedCoupon', 'total'));
         } catch (\RuntimeException $e) {
             $this->failed($e->getMessage());
-            // return redirect()->route('login');
-            return redirect()->back();
+            return redirect()->route('login');
         } catch (\Exception $e) {
             logger()->error('Failed to load cart items: ' . $e->getMessage());
             $this->failed('Failed to load cart items');
@@ -71,7 +77,12 @@ class CartController extends Controller
     {
         try {
             $user = Auth::guard('web')->user();
-            ['cartItems' => $cartItems, 'cartSubTotal' => $cartSubTotal] = $this->cartService->updateCartItem($user, $request->id, $request->qty, $request->productType);
+            [
+                'cartItems' => $cartItems,
+                'cartSubTotal' => $cartSubTotal,
+                'appliedCoupon' => $appliedCoupon,
+                'total' => $total
+            ] = $this->cartService->updateCartItem($user, $request->id, $request->qty, $request->productType);
             $cartHtml = view('components.frontend.cart-item-component', compact('cartItems'))->render();
 
             // dd($cartItems->toArray());
@@ -79,6 +90,8 @@ class CartController extends Controller
                 'status' => true,
                 'message' => 'Cart updated successfully',
                 'cart_sub_total' => $cartSubTotal,
+                'total' => $total,
+                'appliedCoupon' => $appliedCoupon,
                 'html' => $cartHtml
             ]);
         } catch (\RuntimeException $e) {
@@ -98,13 +111,20 @@ class CartController extends Controller
     {
         try {
             $user = Auth::guard('web')->user();
-            ['cartItems' => $cartItems, 'cartSubTotal' => $cartSubTotal] = $this->cartService->removeCartItem($user, $id);
+            [
+                'cartItems' => $cartItems,
+                'cartSubTotal' => $cartSubTotal,
+                'appliedCoupon' => $appliedCoupon,
+                'total' => $total
+            ] = $this->cartService->removeCartItem($user, $id);
             $cartHtml = view('components.frontend.cart-item-component', compact('cartItems'))->render();
 
             return response()->json([
                 'status' => true,
                 'message' => 'Cart item removed successfully',
                 'cart_sub_total' => $cartSubTotal,
+                'total' => $total,
+                'appliedCoupon' => $appliedCoupon,
                 'html' => $cartHtml
             ]);
         } catch (\RuntimeException $e) {
@@ -130,13 +150,20 @@ class CartController extends Controller
 
         try {
             $user = Auth::guard('web')->user();
-            ['cartItems' => $cartItems, 'cartSubTotal' => $cartSubTotal] = $this->cartService->bulkDeleteCartItems($user, $validated['cart_ids']);
+            [
+                'cartItems' => $cartItems,
+                'cartSubTotal' => $cartSubTotal,
+                'appliedCoupon' => $appliedCoupon,
+                'total' => $total
+            ] = $this->cartService->bulkDeleteCartItems($user, $validated['cart_ids']);
             $cartHtml = view('components.frontend.cart-item-component', compact('cartItems'))->render();
 
             return response()->json([
                 'status' => true,
-                'message' => 'Cart items removed successfully',
+                'message' => 'Cart item removed successfully',
                 'cart_sub_total' => $cartSubTotal,
+                'total' => $total,
+                'appliedCoupon' => $appliedCoupon,
                 'html' => $cartHtml
             ]);
         } catch (\RuntimeException $e) {
@@ -166,6 +193,35 @@ class CartController extends Controller
                 'status' => true,
                 'message' => 'Coupon applied successfully',
                 'data' => $result
+            ]);
+        } catch (\RuntimeException $e) {
+            return response()->json([
+                'status' => false,
+                'message' => $e->getMessage()
+            ], 400);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Something went wrong'
+            ], 500);
+        }
+    }
+
+    public function removeCoupon()
+    {
+        try {
+            Session::forget('coupon');
+
+            ['cartItems' => $cartItems, 'cartSubTotal' => $cartSubTotal, 'appliedCoupon' => $appliedCoupon, 'total' => $total] = $this->cartService->getCartItems(Auth::guard('web')->user());
+            $cartHtml = view('components.frontend.cart-item-component', compact('cartItems'))->render();
+
+            // dd($cartItems->toArray());
+            return response()->json([
+                'status' => true,
+                'message' => 'Coupon Removed successfully',
+                'cart_sub_total' => $cartSubTotal,
+                'total' => $total,
+                'html' => $cartHtml
             ]);
         } catch (\RuntimeException $e) {
             return response()->json([

@@ -42,6 +42,7 @@ Route::controller(CartController::class)->group(function () {
     Route::delete('/cart/{id}/remove', 'removeCartItem')->name('cart.remove');
     Route::delete('/cart/bulk-delete', 'bulkDeleteCartItems')->name('cart.bulk-delete');
     Route::post('/cart/apply-coupon', 'applyCoupon')->name('cart.apply-coupon');
+    Route::delete('/cart/remove-coupon', 'removeCoupon')->name('cart.remove-coupon');
 });
 
 require __DIR__ . '/auth.php';
