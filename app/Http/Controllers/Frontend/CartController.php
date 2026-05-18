@@ -26,7 +26,7 @@ class CartController extends Controller
                 'cartSubTotal' => $cartSubTotal,
                 'appliedCoupon' => $appliedCoupon,
                 'total' => $total
-            ] = $this->cartService->getCartItems(Auth::guard('web')->user());
+            ] = $this->cartService->getCartItems($user);
 
             // dd($appliedCoupon);
             return view('frontend.pages.cart', compact('cartItems', 'cartSubTotal', 'appliedCoupon', 'total'));

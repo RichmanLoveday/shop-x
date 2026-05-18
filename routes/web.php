@@ -2,6 +2,7 @@
 
 use App\Enums\UserRole;
 use App\Http\Controllers\Frontend\CartController;
+use App\Http\Controllers\Frontend\CheckOutController;
 use App\Http\Controllers\Frontend\KycController;
 use App\Http\Controllers\Frontend\ProductPageController;
 use App\Http\Controllers\Frontend\ProfileController as FrontendProfileController;
@@ -24,6 +25,11 @@ Route::group(['middleware' => ['auth:web', 'verified', 'role:' . UserRole::USER-
         Route::get('/profile', 'index')->name('profile.index');
         Route::put('/profile/update', 'update')->name('profile.update');
         Route::put('/profile/change-password', 'changePassword')->name('profile.change-password');
+    });
+
+    /** Checkout Controller */
+    Route::controller(CheckOutController::class)->group(function () {
+        Route::get('/checkout', 'index')->name('checkout.index');
     });
 });
 

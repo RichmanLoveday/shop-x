@@ -17,6 +17,7 @@ use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\ProfileController;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\SettingController;
+use App\Http\Controllers\Admin\ShippingRuleController;
 use App\Http\Controllers\Admin\StoreController;
 use App\Http\Controllers\Admin\TagsController;
 use App\Http\Controllers\Admin\UserRoleController;
@@ -183,6 +184,9 @@ Route::middleware('auth:admin')
             Route::get('/coupons/search', 'search')->name('coupons.search');
             Route::resource('/coupons', CouponController::class);
         });
+
+        /** Shipping Rule */
+        Route::resource('/shipping-rules', ShippingRuleController::class);
     });
 
 Route::get('/admin/dashboard', function () {

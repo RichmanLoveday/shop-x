@@ -902,6 +902,14 @@
                                         </a>
                                     </div>
                                 @endcan
+
+                                @can('manage-brands')
+                                    <div class="dropdown-menu-column">
+                                        <a class="dropdown-item" href="{{ route('admin.shipping-rules.index') }}">
+                                            Shipping Rules
+                                        </a>
+                                    </div>
+                                @endcan
                             </div>
                         </div>
                     </li>
