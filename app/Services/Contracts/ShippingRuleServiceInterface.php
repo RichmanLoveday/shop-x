@@ -3,6 +3,7 @@
 namespace App\Services\Contracts;
 
 use App\Models\ShippingRule;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
 
@@ -17,4 +18,6 @@ interface ShippingRuleServiceInterface
     public function getShippingRule(int $id): ShippingRule;
 
     public function deleteShippingRule(int $id): bool;
+
+    public function saveShippingMethod(User $user, int $shippingId): array;
 }

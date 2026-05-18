@@ -118,6 +118,7 @@ class CartService implements CartServiceInterface
             'cartItems' => $cartItems,
             'cartSubTotal' => $cartSubTotal,
             'total' => $cartSubTotal,
+            'discount' => 0,
             'appliedCoupon' => null,
         ];
 
@@ -259,7 +260,6 @@ class CartService implements CartServiceInterface
 
         return [
             'id' => $coupon->id,
-            'discount' => $discount,
             'coupon_type' => $coupon->is_percent ? '%' : 'Fixed',
             'coupon_value' => $coupon->value,
             'cart_sub_total' => $cartSubTotal,

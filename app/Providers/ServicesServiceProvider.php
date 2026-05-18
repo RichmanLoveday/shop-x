@@ -38,6 +38,7 @@ class ServicesServiceProvider extends ServiceProvider
         \App\Services\Contracts\User\CartServiceInterface::class => \App\Services\User\CartService::class,
         \App\Services\Contracts\CouponServiceInterface::class => \App\Services\CouponService::class,
         \App\Services\Contracts\ShippingRuleServiceInterface::class => \App\Services\ShippingRuleService::class,
+        \App\Services\Contracts\CheckOutServiceInterface::class => \App\Services\CheckOutService::class,
     ];
 
     /**

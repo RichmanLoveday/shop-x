@@ -30,6 +30,7 @@ Route::group(['middleware' => ['auth:web', 'verified', 'role:' . UserRole::USER-
     /** Checkout Controller */
     Route::controller(CheckOutController::class)->group(function () {
         Route::get('/checkout', 'index')->name('checkout.index');
+        Route::get('/checkout/{id}/shipping', 'getShipping')->name('checkout.shipping');
     });
 });
 
