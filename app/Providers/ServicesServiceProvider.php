@@ -39,6 +39,10 @@ class ServicesServiceProvider extends ServiceProvider
         \App\Services\Contracts\CouponServiceInterface::class => \App\Services\CouponService::class,
         \App\Services\Contracts\ShippingRuleServiceInterface::class => \App\Services\ShippingRuleService::class,
         \App\Services\Contracts\CheckOutServiceInterface::class => \App\Services\CheckOutService::class,
+        \App\Services\Contracts\AddressServiceInterface::class => \App\Services\AddressService::class,
+        \App\Services\Contracts\StatesServiceInterface::class => \App\Services\StatesService::class,
+        \App\Services\Contracts\CitiesServiceInterface::class => \App\Services\CitiesService::class,
+        \App\Services\Contracts\ShippingZoneServiceInterface::class => \App\Services\ShippingZoneService::class,
     ];
 
     /**

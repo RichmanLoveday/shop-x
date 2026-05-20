@@ -31,7 +31,7 @@ class CheckOutController extends Controller
                 'total' => $total,
                 'shipping' => $shipping,
             ] = $this->checkOutService->getItems($user);
-            
+
             $shippingMethods = $this->shippingService->allShippingRules();
 
             // dd($appliedCoupon);

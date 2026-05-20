@@ -38,6 +38,10 @@ class RepositoryServiceProvider extends ServiceProvider
         \App\Repositories\Contracts\User\CartRepositoryInterface::class => \App\Repositories\Eloquent\User\CartRepository::class,
         \App\Repositories\Contracts\CouponRepositoryInterface::class => \App\Repositories\Eloquent\CouponRepository::class,
         \App\Repositories\Contracts\ShippingRuleRepositoryInterface::class => \App\Repositories\Eloquent\ShippingRuleRepository::class,
+        \App\Repositories\Contracts\AddressRepositoryInterface::class => \App\Repositories\Eloquent\AddressRepository::class,
+        \App\Repositories\Contracts\CitiesRepositoryInterface::class => \App\Repositories\Eloquent\CitiesRepository::class,
+        \App\Repositories\Contracts\StatesRepositoryInterface::class => \App\Repositories\Eloquent\StatesRepository::class,
+        \App\Repositories\Contracts\ShippingZoneRepositoryInterface::class => \App\Repositories\Eloquent\ShippingZoneRepository::class,
     ];
 
     /**

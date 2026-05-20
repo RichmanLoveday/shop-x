@@ -55,19 +55,6 @@
 
         <div class="row">
             <div class="col-xl-8">
-
-                <div class="row mb-30">
-                    <div class="col-12">
-                        <div class="toggle_info">
-                            <span>
-                                <i class="fi-rs-user mr-10"></i>
-                                <span class="text-muted font-lg">Already have an account?</span>
-                                <a href="login.html">Click here to login</a>
-                            </span>
-                        </div>
-                    </div>
-                </div>
-
                 <div class="wsus__shipping_address mb_40">
                     <h4>Billing Address
                         <a href="#loginform" data-bs-toggle="collapse" class="collapsed font-lg" aria-expanded="false">add
@@ -221,7 +208,7 @@
                     </form>
                 </div>
 
-                <div class="row">
+                {{-- <div class="row">
                     <div class="col-xl-12">
                         <ul class="wsus__checkout_form_btn">
                             <li>
@@ -232,7 +219,7 @@
                             </li>
                         </ul>
                     </div>
-                </div>
+                </div> --}}
 
             </div>
             <div class="col-xl-4">
@@ -310,7 +297,7 @@
                                     <div class="card-body d-flex justify-content-between align-items-center">
 
                                         <div class="form-check d-flex align-items-center gap-2">
-                                            <input class="form-check-input shipping-rule" type="radio"
+                                            <input class="form-check-input shipping-method" type="radio"
                                                 {{ !is_null($shipping) && $shipping['id'] == $rule->id ? 'checked' : '' }}
                                                 name="shipping_rule_id" value="{{ $rule->id }}"
                                                 data-charge="{{ $rule->charge }}" id="shipping_{{ $rule->id }}">
@@ -374,6 +361,12 @@
                         <p>Tax <span>00.00</span></p>
                     </div>
                     <h5>Total <span class="cart_total">$ {{ number_format($total, 2) }}</span></h5>
+
+
+                    <div class="my-4">
+                        <button href="payment.html" class="btn w-100 hover-up make-payment-btn">Payment</button>
+                    </div>
+
                 </div>
             </div>
         </div>
@@ -383,7 +376,7 @@
         <script>
             $(function() {
 
-                $('.shipping-rule').on('change', function() {
+                $('.shipping-method').on('change', function() {
 
                     $('.shipping-option').removeClass('active');
                     $(this).closest('.shipping-option').addClass('active');
@@ -495,6 +488,14 @@
                             .html(btnHtml);
                     }
                 });
+
+
+                // submit button
+                $('.make-payment-btn').on('click', function() {
+                    if (!$('.shipping-method:checked').length > 0) {
+                        notyf.error("Please select a shipping method");
+                    }
+                })
 
             });
         </script>

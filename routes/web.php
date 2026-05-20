@@ -1,6 +1,7 @@
 <?php
 
 use App\Enums\UserRole;
+use App\Http\Controllers\Frontend\AddressController;
 use App\Http\Controllers\Frontend\CartController;
 use App\Http\Controllers\Frontend\CheckOutController;
 use App\Http\Controllers\Frontend\KycController;
@@ -32,6 +33,9 @@ Route::group(['middleware' => ['auth:web', 'verified', 'role:' . UserRole::USER-
         Route::get('/checkout', 'index')->name('checkout.index');
         Route::get('/checkout/{id}/shipping', 'getShipping')->name('checkout.shipping');
     });
+
+    /** Address controller */
+    Route::resource('/address', AddressController::class);
 });
 
 /** Product Page Controller */

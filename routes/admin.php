@@ -11,6 +11,7 @@ use App\Http\Controllers\Admin\Auth\RegisteredUserController;
 use App\Http\Controllers\Admin\Auth\VerifyEmailController;
 use App\Http\Controllers\Admin\BrandController;
 use App\Http\Controllers\Admin\CategoryController;
+use App\Http\Controllers\Admin\CitiesController;
 use App\Http\Controllers\Admin\CouponController;
 use App\Http\Controllers\Admin\kycRequestController;
 use App\Http\Controllers\Admin\ProductController;
@@ -18,6 +19,8 @@ use App\Http\Controllers\Admin\ProfileController;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\ShippingRuleController;
+use App\Http\Controllers\Admin\ShippingZones;
+use App\Http\Controllers\Admin\StatesController;
 use App\Http\Controllers\Admin\StoreController;
 use App\Http\Controllers\Admin\TagsController;
 use App\Http\Controllers\Admin\UserRoleController;
@@ -187,6 +190,18 @@ Route::middleware('auth:admin')
 
         /** Shipping Rule */
         Route::resource('/shipping-rules', ShippingRuleController::class);
+
+        /* States Controller */
+        Route::resource('/cities', CitiesController::class);
+
+        /** State Controller */
+        Route::get('/states/{id}/cities', [StatesController::class, 'getCities'])->name('states.cities');
+        Route::resource('/states', StatesController::class);
+
+        /* Shipping Zones */
+        Route::get('/shipping-zones/{id}/rules', [ShippingZones::class, 'shippingZonesRules'])->name('shipping-zones.rules');
+        Route::put('/shipping-zones/{id}/rules', [ShippingZones::class, 'shippingZonesRulesUpdate'])->name('shipping-zones.rules.update');
+        Route::resource('/shipping-zones', ShippingZones::class);
     });
 
 Route::get('/admin/dashboard', function () {

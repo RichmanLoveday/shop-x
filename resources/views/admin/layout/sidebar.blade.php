@@ -913,6 +913,42 @@
                             </div>
                         </div>
                     </li>
+
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#navbar-locations" data-bs-toggle="dropdown"
+                            data-bs-auto-close="false" role="button" aria-expanded="false">
+
+                            <span class="nav-link-icon d-md-none d-lg-inline-block">
+                                <i class="ti ti-map-pin fs-2"></i>
+                            </span>
+
+                            <span class="nav-link-title"> Location Management </span>
+                        </a>
+
+                        <div class="dropdown-menu">
+                            <div class="dropdown-menu-columns">
+
+                                <div class="dropdown-menu-column">
+                                    <a class="dropdown-item" href="{{ route('admin.states.index') }}">
+                                        States
+                                    </a>
+                                </div>
+
+                                <div class="dropdown-menu-column">
+                                    <a class="dropdown-item" href="{{ route('admin.cities.index') }}">
+                                        Cities
+                                    </a>
+                                </div>
+
+                                <div class="dropdown-menu-column">
+                                    <a class="dropdown-item" href="{{ route('admin.shipping-zones.index') }}">
+                                        Shipping Zones
+                                    </a>
+                                </div>
+
+                            </div>
+                        </div>
+                    </li>
                 @endcanany
 
                 @canany(['view-role', 'view-admin-user'])
