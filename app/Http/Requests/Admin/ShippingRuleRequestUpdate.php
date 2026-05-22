@@ -48,6 +48,7 @@ class ShippingRuleRequestUpdate extends FormRequest
                 'nullable',
                 'boolean',
             ],
+            'is_fallback' => ['nullable', 'boolean'],
         ];
     }
 

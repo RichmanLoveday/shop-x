@@ -46,14 +46,15 @@ class AddressRequestUpdate extends FormRequest
                 'email',
                 'max:255',
             ],
-            'city' => [
+            'state_id' => [
                 'required',
-                'string',
-                'max:255',
+                'integer',
+                'exists:states,id',
             ],
-            'state' => [
+            'city_id' => [
                 'required',
-                Rule::in(config('nigeria.states')),
+                'integer',
+                'exists:cities,id',
             ],
             'country' => [
                 'required',
@@ -83,8 +84,8 @@ class AddressRequestUpdate extends FormRequest
             'phone.required' => 'Phone number is required.',
             'email.required' => 'Email is required.',
             'email.email' => 'Enter a valid email address.',
-            'city.required' => 'City is required.',
-            'state.required' => 'Please select a state.',
+            'city_id.required' => 'City is required.',
+            'state_id.required' => 'Please select a state.',
             'state.in' => 'Selected state is invalid.',
             'country.required' => 'Country is required.',
             'country.in' => 'Only Nigeria is allowed.',

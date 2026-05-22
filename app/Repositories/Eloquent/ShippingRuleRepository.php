@@ -29,4 +29,21 @@ class ShippingRuleRepository implements ShippingRuleRepositoryInterface
             ->where('id', $id)
             ->firstOrFail();
     }
+
+    public function resetFallbackShippingRule(): void
+    {
+        ShippingRule::query()
+            ->where('is_fallback', true)
+            ->update(['is_fallback' => false]);
+    }
+
+    public function fetchFallbackRule(): ?ShippingRule
+    {
+        return ShippingRule::query()
+            ->where([
+                'is_fallback' => true,
+                'is_active' => true,
+            ])
+            ->first();
+    }
 }

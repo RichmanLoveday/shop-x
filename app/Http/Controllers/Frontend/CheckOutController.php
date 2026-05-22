@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Frontend;
 
 use App\Http\Controllers\Controller;
 use App\Services\Contracts\User\CartServiceInterface;
+use App\Services\Contracts\AddressServiceInterface;
 use App\Services\Contracts\CheckOutServiceInterface;
 use App\Services\Contracts\ShippingRuleServiceInterface;
 use App\Traits\Alert;
@@ -17,6 +18,7 @@ class CheckOutController extends Controller
     public function __construct(
         public CartServiceInterface $cartService,
         public ShippingRuleServiceInterface $shippingService,
+        public AddressServiceInterface $addressService,
         public CheckOutServiceInterface $checkOutService,
     ) {}
 
@@ -33,12 +35,13 @@ class CheckOutController extends Controller
             ] = $this->checkOutService->getItems($user);
 
             $shippingMethods = $this->shippingService->allShippingRules();
+            $addresses = $this->addressService->allAddress($user);
 
             // dd($appliedCoupon);
             return view('frontend.pages.checkout', compact('cartItems',
                 'cartSubTotal',
                 'appliedCoupon', 'total',
-                'shippingMethods', 'shipping'));
+                'shippingMethods', 'shipping', 'addresses'));
         } catch (\RuntimeException $e) {
             $this->failed($e->getMessage());
             return redirect()->route('login');

@@ -46,14 +46,15 @@ class AddressRequestCreate extends FormRequest
                 'email',
                 'max:255',
             ],
-            'city' => [
+            'state_id' => [
                 'required',
-                'string',
-                'max:255',
+                'integer',
+                'exists:states,id',
             ],
-            'state' => [
+            'city_id' => [
                 'required',
-                Rule::in(config('nigeria.states')),
+                'integer',
+                'exists:cities,id',
             ],
             'country' => [
                 'required',

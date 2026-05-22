@@ -10,6 +10,7 @@ use App\Services\Contracts\User\CartServiceInterface;
 use App\Services\Contracts\ShippingRuleServiceInterface;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Session;
 use Override;
 use RuntimeException;
@@ -24,8 +25,16 @@ class ShippingRuleService implements ShippingRuleServiceInterface
 
     public function createShippingRule(array $data): ShippingRule
     {
-        // dd($data);
-        return $this->shippingRuleRepo->createOrUpdateShippingRule($data);
+        return DB::transaction(function () use ($data) {
+            // check if fallback column exist
+            if (isset($data['is_fallback']) && $data['is_fallback']) {
+                // reset shipping fallback
+                $this->shippingRuleRepo->resetFallbackShippingRule();
+            }
+
+            // add new shipping rule
+            return $this->shippingRuleRepo->createOrUpdateShippingRule($data);
+        });
     }
 
     public function allShippingRules(): LengthAwarePaginator
@@ -40,7 +49,16 @@ class ShippingRuleService implements ShippingRuleServiceInterface
 
     public function updateShippingRule(int $id, array $data): ShippingRule
     {
-        return $this->shippingRuleRepo->createOrUpdateShippingRule($data, $id);
+        return DB::transaction(function () use ($data, $id) {
+            // check if fallback column exist
+            if (isset($data['is_fallback']) && $data['is_fallback']) {
+                // reset shipping fallback
+                $this->shippingRuleRepo->resetFallbackShippingRule();
+            }
+
+            // update shipping rule
+            return $this->shippingRuleRepo->createOrUpdateShippingRule($data, $id);
+        });
     }
 
     public function deleteShippingRule(int $id): bool

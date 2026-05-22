@@ -105,6 +105,27 @@
                                     </div>
                                 </div>
 
+
+                                {{-- Fallback Rule --}}
+                                <div class="col-md-12">
+                                    <div class="mb-3 mt-3">
+                                        <label class="form-check form-switch">
+                                            <input type="checkbox" class="form-check-input" name="is_fallback"
+                                                value="1"
+                                                {{ old('is_fallback', $shippingRule->is_fallback) ? 'checked' : '' }}>
+
+                                            <span class="form-check-label">
+                                                Set as Fallback Shipping Rule
+                                            </span>
+                                        </label>
+
+                                        <small class="text-muted">
+                                            Used when no shipping zone matches a customer location.
+                                        </small>
+
+                                        <x-input-error :messages="$errors->get('is_fallback')" />
+                                    </div>
+                                </div>
                             </div>
 
                             <div class="text-end">

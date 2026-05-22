@@ -125,6 +125,7 @@
                                         <th>Minimum Order Amount</th>
                                         <th>Charge</th>
                                         <th>Status</th>
+                                        <th>Fallback Rule</th>
                                         <th>Created</th>
                                         <th class="w-1"></th>
                                     </tr>
@@ -135,6 +136,9 @@
                                         @php
                                             $statusColor = $rule->is_active ? 'bg-success-lt' : 'bg-danger-lt';
                                             $statusLabel = $rule->is_active ? 'Active' : 'Inactive';
+
+                                            $fallbackColor = $rule->is_fallback ? 'bg-warning-lt' : 'bg-secondary-lt';
+                                            $fallbackLabel = $rule->is_fallback ? 'Fallback' : 'Standard';
                                         @endphp
 
                                         <tr>
@@ -165,6 +169,11 @@
                                             <td class="sort-status">
                                                 <span class="badge badge-sm text-white {{ $statusColor }}">
                                                     {{ $statusLabel }}</span>
+                                            </td>
+
+                                            <td class="sort-status">
+                                                <span class="badge badge-sm text-white {{ $fallbackColor }}">
+                                                    {{ $fallbackLabel }}</span>
                                             </td>
 
                                             <td class="text-secondary">

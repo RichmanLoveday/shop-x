@@ -57,85 +57,13 @@
             <div class="col-xl-8">
                 <div class="wsus__shipping_address mb_40">
                     <h4>Billing Address
-                        <a href="#loginform" data-bs-toggle="collapse" class="collapsed font-lg" aria-expanded="false">add
-                            new address</a>
+
                     </h4>
 
-                    <div class="panel-collapse collapse login_form" id="loginform">
-                        <div class="panel-body">
-                            <form>
-                                <div class="row">
-                                    <div class="col-md-12">
-                                        <div class="form-group">
-                                            <input type="text" placeholder="Name ">
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="form-group">
-                                            <input type="email" placeholder="Email ">
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="form-group">
-                                            <input type="text" placeholder="Phone ">
-                                        </div>
-                                    </div>
-                                    <div class="col-md-12">
-                                        <div class="form-group">
-                                            <textarea placeholder="Address" rows="3"></textarea>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="form-group mb-0">
-                                    <button class="btn btn-md" name="login">Save</button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-
                     <div class="row">
-                        <div class="col-md-6 col-lg-4 col-xl-4">
-                            <div class="wsus__shipping_address_item">
-                                <div class="form-check form-check-inline">
-                                    <input class="form-check-input" type="radio" name="inlineRadioOptions"
-                                        id="inlineRadio1" value="option1">
-                                    <label class="form-check-label" for="inlineRadio1">98 Winn St, Woburn, MA
-                                        01801,USA</label>
-                                </div>
-                                <div class="wsus__shipping_mail_address">
-                                    <a href="mailto:example@gmail.com">example@gmail.com</a>
-                                    <a href="callto:+(402)76328246">+(402) 763 282 46</a>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6 col-lg-4 col-xl-4">
-                            <div class="wsus__shipping_address_item">
-                                <div class="form-check form-check-inline">
-                                    <input class="form-check-input" type="radio" name="inlineRadioOptions"
-                                        id="inlineRadio2" value="option2">
-                                    <label class="form-check-label" for="inlineRadio2">98 Winn St, Woburn, MA 01801,
-                                        USA</label>
-                                </div>
-                                <div class="wsus__shipping_mail_address">
-                                    <a href="mailto:example@gmail.com">example@gmail.com</a>
-                                    <a href="callto:+(402)76328246">+(402) 763 282 46</a>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6 col-lg-4 col-xl-4">
-                            <div class="wsus__shipping_address_item">
-                                <div class="form-check form-check-inline">
-                                    <input class="form-check-input" type="radio" name="inlineRadioOptions"
-                                        id="inlineRadio3" value="option3">
-                                    <label class="form-check-label" for="inlineRadio3">98 Winn St, Woburn, MA 01801,
-                                        USA</label>
-                                </div>
-                                <div class="wsus__shipping_mail_address">
-                                    <a href="mailto:example@gmail.com">example@gmail.com</a>
-                                    <a href="callto:+(402)76328246">+(402) 763 282 46</a>
-                                </div>
-                            </div>
-                        </div>
+                        @foreach ($addresses as $address)
+                            <x-frontend.billing-address :address="$address" class='col-md-6 col-lg-4 col-xl-4' />
+                        @endforeach
                     </div>
                 </div>
 
@@ -157,51 +85,11 @@
                             <div id="collapseAddress" class="different_address collapse in">
                                 <h4>Shipping Details</h4>
                                 <div class="row mb-50">
-                                    <div class="col-md-6 col-lg-4 col-xl-4">
-                                        <div class="wsus__shipping_address_item">
-                                            <div class="form-check form-check-inline">
-                                                <input class="form-check-input" type="radio" name="inlineRadioOptions"
-                                                    id="inlineRadio1b" value="option1">
-                                                <label class="form-check-label" for="inlineRadio1b">98 Winn St,
-                                                    Woburn, MA
-                                                    01801,USA</label>
-                                            </div>
-                                            <div class="wsus__shipping_mail_address">
-                                                <a href="mailto:example@gmail.com">example@gmail.com</a>
-                                                <a href="callto:+(402)76328246">+(402) 763 282 46</a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6 col-lg-4 col-xl-4">
-                                        <div class="wsus__shipping_address_item">
-                                            <div class="form-check form-check-inline">
-                                                <input class="form-check-input" type="radio" name="inlineRadioOptions"
-                                                    id="inlineRadio2b" value="option2">
-                                                <label class="form-check-label" for="inlineRadio2b">98 Winn St,
-                                                    Woburn, MA 01801,
-                                                    USA</label>
-                                            </div>
-                                            <div class="wsus__shipping_mail_address">
-                                                <a href="mailto:example@gmail.com">example@gmail.com</a>
-                                                <a href="callto:+(402)76328246">+(402) 763 282 46</a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6 col-lg-4 col-xl-4">
-                                        <div class="wsus__shipping_address_item">
-                                            <div class="form-check form-check-inline">
-                                                <input class="form-check-input" type="radio" name="inlineRadioOptions"
-                                                    id="inlineRadio3b" value="option3">
-                                                <label class="form-check-label" for="inlineRadio3b">98 Winn St,
-                                                    Woburn, MA 01801,
-                                                    USA</label>
-                                            </div>
-                                            <div class="wsus__shipping_mail_address">
-                                                <a href="mailto:example@gmail.com">example@gmail.com</a>
-                                                <a href="callto:+(402)76328246">+(402) 763 282 46</a>
-                                            </div>
-                                        </div>
-                                    </div>
+
+                                    @foreach ($addresses as $address)
+                                        <x-frontend.billing-address :address="$address" class='col-md-6 col-lg-4 col-xl-4' />
+                                    @endforeach
+
                                 </div>
                             </div>
                         </div>
@@ -497,6 +385,47 @@
                     }
                 })
 
+
+
+
+                $('.address-card').on('click', function(e) {
+                    // ignore edit/delete clicks
+                    if ($(e.target).closest('a').length) return;
+
+                    let id = $(this).data('id');
+
+                    let radio = $(this).find('.default-address');
+
+                    radio.prop('checked', true).trigger('change');
+
+                });
+
+                // update default address
+                $('.default-address').on('change', function() {
+
+                    let id = $(this).data('id');
+
+                    $.ajax({
+                        url: route('address.set-default', [id]),
+                        method: "PUT",
+                        data: {
+                            _token: "{{ csrf_token() }}"
+                        },
+
+                        success: function(res) {
+                            if (res.status) {
+                                notyf.success(res.message || 'Default address updated');
+                            } else {
+                                notyf.error(res.message || 'Something went wrong');
+                            }
+                        },
+
+                        error: function() {
+                            notyf.error('Failed to update address');
+                        }
+                    });
+
+                });
             });
         </script>
     @endpush

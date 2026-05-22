@@ -6,6 +6,7 @@ use App\Models\ShippingZone;
 use App\Repositories\Contracts\ShippingZoneRepositoryInterface;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
+use Override;
 
 class ShippingZoneRepository implements ShippingZoneRepositoryInterface
 {
@@ -50,6 +51,12 @@ class ShippingZoneRepository implements ShippingZoneRepositoryInterface
         // remove duplicates + reindex
         $cityIds = array_values(array_unique($cityIds));
 
+        // remove cities from other zones
+        DB::table('shipping_zone_cities')
+            ->whereIn('city_id', $cityIds)
+            ->where('shipping_zone_id', '!=', $zoneId)
+            ->delete();
+
         $zone->cities()->sync($cityIds);
     }
 
@@ -88,5 +95,15 @@ class ShippingZoneRepository implements ShippingZoneRepositoryInterface
 
             return $zone->fresh('shippingRules');
         });
+    }
+
+    public function fetchZoneByCityId(int $cityId): ?ShippingZone
+    {
+        return ShippingZone::query()
+            ->with('shippingRules')
+            ->whereHas('cities', function ($q) use ($cityId) {
+                $q->where('cities.id', $cityId);
+            })
+            ->first();
     }
 }

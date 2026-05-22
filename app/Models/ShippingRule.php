@@ -12,5 +12,6 @@ class ShippingRule extends Model
     protected $casts = [
         'type' => ShippingRulesType::class,
         'is_active' => 'boolean',
+        'is_fallback' => 'boolean',
     ];
 }

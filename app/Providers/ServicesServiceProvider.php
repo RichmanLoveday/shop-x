@@ -43,6 +43,7 @@ class ServicesServiceProvider extends ServiceProvider
         \App\Services\Contracts\StatesServiceInterface::class => \App\Services\StatesService::class,
         \App\Services\Contracts\CitiesServiceInterface::class => \App\Services\CitiesService::class,
         \App\Services\Contracts\ShippingZoneServiceInterface::class => \App\Services\ShippingZoneService::class,
+        \App\Services\Contracts\ShippingZoneResolverServiceInterface::class => \App\Services\ShippingZoneResolverService::class,
     ];
 
     /**

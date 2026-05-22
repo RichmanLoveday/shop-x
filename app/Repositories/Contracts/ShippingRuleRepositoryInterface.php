@@ -13,4 +13,8 @@ interface ShippingRuleRepositoryInterface
     public function fetchAllShippingRules(): LengthAwarePaginator;
 
     public function findShippingRuleOrFail(int $id): ShippingRule;
+
+    public function resetFallbackShippingRule(): void;
+
+    public function fetchFallbackRule(): ?ShippingRule;
 }

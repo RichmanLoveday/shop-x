@@ -12,18 +12,19 @@
 
         <div class="login_form" id="loginform">
             <div class="panel-body">
-                <h4>Add New Address</h4>
+                <h4>Edit Address</h4>
 
-                <form action="{{ route('address.store') }}" method="POST">
+                <form action="{{ route('address.update', $address->id) }}" method="POST">
                     @csrf
+                    @method('PUT')
 
                     <div class="row mt-20">
 
                         {{-- FIRST NAME --}}
                         <div class="col-md-6">
                             <div class="form-group">
-                                <input type="text" name="first_name" value="{{ old('first_name') }}"
-                                    placeholder="First Name *">
+                                <input type="text" name="first_name"
+                                    value="{{ old('first_name', $address->first_name) }}" placeholder="First Name *">
                                 <x-input-error :messages="$errors->get('first_name')" />
                             </div>
                         </div>
@@ -31,7 +32,7 @@
                         {{-- LAST NAME --}}
                         <div class="col-md-6">
                             <div class="form-group">
-                                <input type="text" name="last_name" value="{{ old('last_name') }}"
+                                <input type="text" name="last_name" value="{{ old('last_name', $address->last_name) }}"
                                     placeholder="Last Name *">
                                 <x-input-error :messages="$errors->get('last_name')" />
                             </div>
@@ -40,7 +41,8 @@
                         {{-- EMAIL --}}
                         <div class="col-md-6">
                             <div class="form-group">
-                                <input type="email" name="email" value="{{ old('email') }}" placeholder="Email *">
+                                <input type="email" name="email" value="{{ old('email', $address->email) }}"
+                                    placeholder="Email *">
                                 <x-input-error :messages="$errors->get('email')" />
                             </div>
                         </div>
@@ -48,7 +50,8 @@
                         {{-- PHONE --}}
                         <div class="col-md-6">
                             <div class="form-group">
-                                <input type="text" name="phone" value="{{ old('phone') }}" placeholder="Phone *">
+                                <input type="text" name="phone" value="{{ old('phone', $address->phone) }}"
+                                    placeholder="Phone *">
                                 <x-input-error :messages="$errors->get('phone')" />
                             </div>
                         </div>
@@ -56,7 +59,7 @@
                         {{-- ADDRESS --}}
                         <div class="col-md-12">
                             <div class="form-group">
-                                <textarea name="address" rows="3" placeholder="Full Address *">{{ old('address') }}</textarea>
+                                <textarea name="address" rows="3" placeholder="Full Address *">{{ old('address', $address->address) }}</textarea>
                                 <x-input-error :messages="$errors->get('address')" />
                             </div>
                         </div>
@@ -68,14 +71,12 @@
                                     <option value="">Select State *</option>
 
                                     @foreach ($states as $state)
-                                        <option value="{{ $state->id }}"
-                                            {{ old('state') == $state->id ? 'selected' : '' }}>
+                                        <option value="{{ $state->id }}" @selected(old('state_id', $address->state_id) == $state->id)>
                                             {{ $state->name }}
                                         </option>
                                     @endforeach
                                 </select>
-
-                                <x-input-error :messages="$errors->get('state')" />
+                                <x-input-error :messages="$errors->get('state_id')" />
                             </div>
                         </div>
 
@@ -84,26 +85,36 @@
                             <div class="form-group">
                                 <select name="city_id" id="city" class="form-control select-active">
                                     <option value="">Select City *</option>
-                                </select>
 
-                                <x-input-error :messages="$errors->get('city')" />
+                                    @if ($address->city)
+                                        <option value="{{ $address->city_id }}" selected>
+                                            {{ $address->city->name }}
+                                        </option>
+                                    @endif
+                                </select>
+                                <x-input-error :messages="$errors->get('city_id')" />
                             </div>
                         </div>
 
                         {{-- ZIP --}}
                         <div class="col-md-6">
                             <div class="form-group">
-                                <input type="number" name="zip" value="{{ old('zip') }}" placeholder="Zip Code *">
+                                <input type="number" name="zip" value="{{ old('zip', $address->zip) }}"
+                                    placeholder="Zip Code *">
                                 <x-input-error :messages="$errors->get('zip')" />
                             </div>
                         </div>
 
-                        {{-- COUNTRY --}}
+                        {{-- COUNTRY (optional but good consistency) --}}
                         <div class="col-md-6">
                             <div class="form-group">
                                 <select name="country" class="form-control select-active">
-                                    <option value="Nigeria" selected>Nigeria</option>
+                                    <option value="Nigeria" @selected($address->country == 'Nigeria')>
+                                        Nigeria
+                                    </option>
                                 </select>
+
+                                <x-input-error :messages="$errors->get('country')" />
                             </div>
                         </div>
 
@@ -111,14 +122,14 @@
                         <div class="col-md-12">
                             <div class="form-check mb-3">
                                 <input type="checkbox" class="form-check-input" id="is_default" name="is_default"
-                                    value="1">
+                                    value="1" @checked($address->is_default)>
                                 <label class="form-check-label" for="is_default">
                                     Set as default address
                                 </label>
                             </div>
                         </div>
 
-                        {{-- ================= SHIPPING WIDGET ================= --}}
+                        {{-- SHIPPING WIDGET --}}
                         <div class="col-md-12">
                             <div id="shipping_widget" class="alert alert-info" style="display: none">
                                 <strong>Estimated Delivery Cost:</strong>
@@ -134,7 +145,7 @@
 
                     <div class="form-group mb-0">
                         <button class="btn btn-md" type="submit">
-                            Save Address
+                            Update Address
                         </button>
                     </div>
 
@@ -147,6 +158,8 @@
     @push('scripts')
         <script>
             $(document).ready(function() {
+
+                let initialCityId = "{{ $address->city_id }}";
 
                 // =========================
                 // LOAD CITIES
@@ -174,16 +187,25 @@
                             if (res.status) {
                                 res.state_cities.cities.forEach(city => {
                                     citySelect.append(`
-                            <option value="${city.id}">
-                                ${city.name}
-                            </option>
-                        `);
+                                        <option value="${city.id}">
+                                            ${city.name}
+                                        </option>
+                                    `);
                                 });
+
+                                // restore selected city in edit mode
+                                if (initialCityId) {
+                                    citySelect.val(initialCityId);
+                                }
                             }
                         }
                     });
-
                 });
+
+                // trigger on load for edit
+                if ($('#state').val()) {
+                    $('#state').trigger('change');
+                }
 
                 // =========================
                 // SHIPPING ESTIMATE
@@ -202,8 +224,6 @@
                         method: "GET",
                         success: function(res) {
 
-                            console.log(res);
-
                             if (!res.status) {
                                 $('#shipping_widget').hide();
                                 return;
@@ -213,9 +233,6 @@
                             $('#shipping_cost').text("₦" + res.cost.toLocaleString());
                             $('#shipping_zone').text("Zone: " + res.zone_name);
                             $('#shipping_rule').text("Shipping Rule: " + res.rule_name);
-                        },
-                        error: function() {
-                            $('#shipping_widget').hide();
                         }
                     });
 

@@ -38,4 +38,9 @@ interface ShippingZoneRepositoryInterface
     public function syncShippingRules(int $zoneId, array $rules): void;
 
     public function updateZoneRuleCharges(int $zoneId, array $rules): ShippingZone;
+
+    /**
+     * Get zone attached to a specific city
+     */
+    public function fetchZoneByCityId(int $cityId): ?ShippingZone;
 }

@@ -11,5 +11,10 @@ interface AddressRepositoryInterface
 
     public function fetchAddressById(int $id, int $userId): Address;
 
-   public function fetchAllAddress(int $userId): Collection;
+    public function fetchAllAddress(int $userId): Collection;
+
+    public function resetDefaultAddress(int $userId): void;
+
+      public function markAsDefault(int $id): void;
+
 }

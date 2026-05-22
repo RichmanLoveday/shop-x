@@ -45,4 +45,11 @@ class CitiesService implements CitiesServiceInterface
     {
         return $this->cityRepo->delete($id);
     }
+
+
+    public function resolveShippingZoneCost(int $cityId) {
+        // check if city if found in shipping zone cities
+
+        // if found loop through
+    }
 }

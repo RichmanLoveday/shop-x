@@ -35,6 +35,9 @@ Route::group(['middleware' => ['auth:web', 'verified', 'role:' . UserRole::USER-
     });
 
     /** Address controller */
+    Route::get('/address/state/{id}/cities', [AddressController::class, 'getCities'])->name('states.cities');
+    Route::get('/address/{id}/delivery-cost', [AddressController::class, 'estimatedDeliveryFee'])->name('address.delivery-cost');
+    Route::put('/address/{id}/set-default', [AddressController::class, 'setDefault'])->name('address.set-default');
     Route::resource('/address', AddressController::class);
 });
 

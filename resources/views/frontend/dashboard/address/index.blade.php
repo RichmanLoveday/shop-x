@@ -7,87 +7,9 @@
             </h4>
 
             <div class="row">
-                <div class="col-md-6 col-lg-4 col-xl-4">
-                    <div class="wsus__shipping_address_item">
-                        <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio1"
-                                value="option1">
-                            <label class="form-check-label" for="inlineRadio1">98 Winn
-                                St, Woburn, MA
-                                01801,USA</label>
-                        </div>
-                        <div class="wsus__shipping_mail_address">
-                            <a href="mailto:example@gmail.com">example@gmail.com</a>
-                            <a href="callto:+(402)76328246">+(402) 763 282 46</a>
-                        </div>
-                        <ul class="btn_list">
-                            <li>
-                                <a href="dashboard_address_edit.html">
-                                    <i class="fa-solid fa-pen-to-square"></i>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="#">
-                                    <i class="fa-solid fa-trash-can"></i>
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-                <div class="col-md-6 col-lg-4 col-xl-4">
-                    <div class="wsus__shipping_address_item">
-                        <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio2"
-                                value="option2">
-                            <label class="form-check-label" for="inlineRadio2">98 Winn
-                                St, Woburn, MA 01801,
-                                USA</label>
-                        </div>
-                        <div class="wsus__shipping_mail_address">
-                            <a href="mailto:example@gmail.com">example@gmail.com</a>
-                            <a href="callto:+(402)76328246">+(402) 763 282 46</a>
-                        </div>
-                        <ul class="btn_list">
-                            <li>
-                                <a href="dashboard_address_edit.html">
-                                    <i class="fa-solid fa-pen-to-square"></i>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="#">
-                                    <i class="fa-solid fa-trash-can"></i>
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-                <div class="col-md-6 col-lg-4 col-xl-4">
-                    <div class="wsus__shipping_address_item">
-                        <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio3"
-                                value="option3">
-                            <label class="form-check-label" for="inlineRadio3">98 Winn
-                                St, Woburn, MA 01801,
-                                USA</label>
-                        </div>
-                        <div class="wsus__shipping_mail_address">
-                            <a href="mailto:example@gmail.com">example@gmail.com</a>
-                            <a href="callto:+(402)76328246">+(402) 763 282 46</a>
-                        </div>
-                        <ul class="btn_list">
-                            <li>
-                                <a href="#">
-                                    <i class="fa-solid fa-pen-to-square"></i>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="#">
-                                    <i class="fa-solid fa-trash-can"></i>
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
+                @foreach ($addresses as $address)
+                    <x-frontend.billing-address :address="$address" :showEditDelete="true" />
+                @endforeach
             </div>
 
             <div class="panel-collapse collapse login_form" id="loginform">
@@ -125,4 +47,51 @@
 
         </div>
     </div>
+
+    @push('scripts')
+        <script>
+            $(document).ready(function() {
+                $('.address-card').on('click', function(e) {
+                    // ignore edit/delete clicks
+                    if ($(e.target).closest('a').length) return;
+
+                    let id = $(this).data('id');
+
+                    let radio = $(this).find('.default-address');
+
+                    radio.prop('checked', true).trigger('change');
+
+                });
+
+                // update default address
+                $('.default-address').on('change', function() {
+
+                    let id = $(this).data('id');
+
+                    $.ajax({
+                        url: route('address.set-default', [id]),
+                        method: "PUT",
+                        data: {
+                            _token: "{{ csrf_token() }}"
+                        },
+
+                        success: function(res) {
+                            if (res.status) {
+                                notyf.success(res.message || 'Default address updated');
+                            } else {
+                                notyf.error(res.message || 'Something went wrong');
+                            }
+                        },
+
+                        error: function() {
+                            notyf.error('Failed to update address');
+                        }
+                    });
+
+                });
+
+
+            });
+        </script>
+    @endpush
 @endsection
