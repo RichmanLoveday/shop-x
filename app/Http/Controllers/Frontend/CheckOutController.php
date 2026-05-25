@@ -7,6 +7,7 @@ use App\Services\Contracts\User\CartServiceInterface;
 use App\Services\Contracts\AddressServiceInterface;
 use App\Services\Contracts\CheckOutServiceInterface;
 use App\Services\Contracts\ShippingRuleServiceInterface;
+use App\Services\Contracts\ShippingZoneServiceInterface;
 use App\Traits\Alert;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -17,7 +18,8 @@ class CheckOutController extends Controller
 
     public function __construct(
         public CartServiceInterface $cartService,
-        public ShippingRuleServiceInterface $shippingService,
+        public ShippingRuleServiceInterface $shippingRule,
+        public ShippingZoneServiceInterface $shippingZoneService,
         public AddressServiceInterface $addressService,
         public CheckOutServiceInterface $checkOutService,
     ) {}
@@ -34,8 +36,10 @@ class CheckOutController extends Controller
                 'shipping' => $shipping,
             ] = $this->checkOutService->getItems($user);
 
-            $shippingMethods = $this->shippingService->allShippingRules();
+            $shippingMethods = $this->shippingZoneService->getShippingMethodsByCity($user);
             $addresses = $this->addressService->allAddress($user);
+
+            // dd($shippingMethods);
 
             // dd($appliedCoupon);
             return view('frontend.pages.checkout', compact('cartItems',
@@ -52,11 +56,11 @@ class CheckOutController extends Controller
         }
     }
 
-    public function getShipping(int $id)
+    public function getShipping(int $ruleId, int $zoneId)
     {
         try {
             $user = Auth::guard('web')->user();
-            $shippingDetail = $this->shippingService->saveShippingMethod($user, $id);
+            $shippingDetail = $this->shippingRule->saveShippingMethod($user, $ruleId, $zoneId);
 
             return response()->json([
                 'data' => $shippingDetail,

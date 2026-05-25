@@ -17,4 +17,6 @@ interface ShippingRuleRepositoryInterface
     public function resetFallbackShippingRule(): void;
 
     public function fetchFallbackRule(): ?ShippingRule;
+
+    public function fetchShippingRuleForZone(int $shippingRuleId, int $zoneId): ?ShippingRule;
 }

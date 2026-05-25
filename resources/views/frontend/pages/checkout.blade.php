@@ -179,40 +179,52 @@
 
                         <div class="shipping-methods">
 
-                            @foreach ($shippingMethods as $rule)
-                                <label
-                                    class="shipping-option card mb-2 cursor-pointer {{ !is_null($shipping) && $shipping['id'] == $rule->id ? 'active' : '' }}">
-                                    <div class="card-body d-flex justify-content-between align-items-center">
+                            @if (!empty($shippingMethods['shipping']['shipping_rules']))
+                                @foreach ($shippingMethods['shipping']['shipping_rules'] as $rule)
+                                    <label
+                                        class="shipping-option card mb-2 cursor-pointer {{ !is_null($shipping) && $shipping['id'] == $rule['id'] ? 'active' : '' }}">
 
-                                        <div class="form-check d-flex align-items-center gap-2">
-                                            <input class="form-check-input shipping-method" type="radio"
-                                                {{ !is_null($shipping) && $shipping['id'] == $rule->id ? 'checked' : '' }}
-                                                name="shipping_rule_id" value="{{ $rule->id }}"
-                                                data-charge="{{ $rule->charge }}" id="shipping_{{ $rule->id }}">
+                                        <div class="card-body d-flex justify-content-between align-items-center">
+
+                                            <div class="form-check d-flex align-items-center gap-2">
+
+                                                <input class="form-check-input shipping-method" type="radio"
+                                                    name="shipping_rule_id" data-rule-id="{{ $rule['id'] }}"
+                                                    data-zone-id="{{ 3 }}"
+                                                    data-charge="{{ $rule['final_charge'] }}"
+                                                    id="shipping_{{ $rule['id'] }}"
+                                                    {{ !is_null($shipping) && $shipping['id'] == $rule['id'] ? 'checked' : '' }}>
+
+                                                <div>
+                                                    <h6 class="mb-0">
+                                                        {{ $rule['name'] }}
+                                                    </h6>
+
+                                                    <small class="text-muted">
+                                                        {{ $rule['type'] }}
+
+                                                        @if (!empty($rule['minimum_amount']))
+                                                            • Min order:
+                                                            ${{ number_format($rule['minimum_amount'], 2) }}
+                                                        @endif
+                                                    </small>
+                                                </div>
+                                            </div>
 
                                             <div>
-                                                <h6 class="mb-0">
-                                                    {{ $rule->name }}
-                                                </h6>
-
-                                                <small class="text-muted">
-                                                    {{ $rule->type->label() }}
-                                                    @if ($rule->minimum_amount)
-                                                        • Min order: ${{ number_format($rule->minimum_amount, 2) }}
-                                                    @endif
-                                                </small>
+                                                <strong class="text-brand">
+                                                    ${{ number_format($rule['final_charge'], 2) }}
+                                                </strong>
                                             </div>
-                                        </div>
 
-                                        <div>
-                                            <strong class="text-brand">
-                                                ${{ number_format($rule->charge, 2) }}
-                                            </strong>
                                         </div>
-
-                                    </div>
-                                </label>
-                            @endforeach
+                                    </label>
+                                @endforeach
+                            @else
+                                <div class="alert alert-warning">
+                                    {{ $shippingMethods['shipping_error'] ?? 'Items cannot be shipped to your current address.' }}
+                                </div>
+                            @endif
                         </div>
                         @php
                             if (!is_null($appliedCoupon)) {
@@ -281,13 +293,16 @@
 
 
                     // send request to ajax to save shipping method and get calculated items for this cart
-                    let id = $(this).val();
-                    console.log(id);
+                    let rule_id = $(this).data('ruleId');
+                    let zone_id = $(this).data('zoneId');
+
+                    // console.log(id);
                     $.ajax({
-                        url: route('checkout.shipping', [id]),
+                        url: route('checkout.shipping', [rule_id, zone_id]),
                         method: "GET",
                         success: function(res) {
                             let data = res.data;
+                            
                             if (res.status) {
                                 let shipping_charge = new Intl.NumberFormat('en-US', {
                                     minimumFractionDigits: 2,

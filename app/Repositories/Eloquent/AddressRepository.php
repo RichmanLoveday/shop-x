@@ -47,4 +47,12 @@ class AddressRepository implements AddressRepositoryInterface
                 'is_default' => true
             ]);
     }
+
+    public function fetchDefaultAddress(int $userId): ?Address
+    {
+        return Address::query()
+            ->with(['city', 'state'])
+            ->where(['user_id' => $userId, 'is_default' => true])
+            ->first();
+    }
 }

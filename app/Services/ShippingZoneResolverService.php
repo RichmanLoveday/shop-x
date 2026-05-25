@@ -40,6 +40,8 @@ class ShippingZoneResolverService implements ShippingZoneResolverServiceInterfac
                     [
                         'id' => $fallbackZone?->id,
                         'name' => $fallbackZone?->name,
+                        'type' => $fallbackZone->type->label(),
+                        'minimum_amount' => $fallbackZone->minimum_amount,
                         'base_charge' => $fallbackZone?->charge,
                         'override_charge' => null,
                         'final_charge' => $fallbackZone?->charge,
@@ -59,6 +61,8 @@ class ShippingZoneResolverService implements ShippingZoneResolverServiceInterfac
                 return [
                     'id' => $rule->id,
                     'name' => $rule->name,
+                    'type' => $rule->type->label(),
+                    'minimum_amount' => $rule->minimum_amount,
                     'base_charge' => $rule->charge,
                     'override_charge' => $rule->pivot?->override_charge,
                     'final_charge' => $rule->pivot?->override_charge ?? $rule->charge,

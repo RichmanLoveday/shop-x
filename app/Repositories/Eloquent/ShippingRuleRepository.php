@@ -3,6 +3,7 @@
 namespace App\Repositories\Eloquent;
 
 use App\Models\ShippingRule;
+use App\Models\ShippingZone;
 use App\Repositories\Contracts\ShippingRuleRepositoryInterface;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -44,6 +45,15 @@ class ShippingRuleRepository implements ShippingRuleRepositoryInterface
                 'is_fallback' => true,
                 'is_active' => true,
             ])
+            ->first();
+    }
+
+    public function fetchShippingRuleForZone(int $shippingRuleId, int $zoneId): ?ShippingRule
+    {
+        return ShippingZone::query()
+            ->find($zoneId)
+            ?->shippingRules()
+            ->where('shipping_rule_id', $shippingRuleId)
             ->first();
     }
 }

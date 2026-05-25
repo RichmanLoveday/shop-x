@@ -65,4 +65,9 @@ class AddressService implements AddressServiceInterface
         $address = $this->addressRepo->fetchAddressById($id, $user->id);
         return $address->delete();
     }
+
+    public function getDefaultAddress(User $user): ?Address
+    {
+        return $this->addressRepo->fetchDefaultAddress($user->id);
+    }
 }

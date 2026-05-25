@@ -3,6 +3,7 @@
 namespace App\Services\Contracts;
 
 use App\Models\ShippingZone;
+use App\Models\User;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 interface ShippingZoneServiceInterface
@@ -20,4 +21,6 @@ interface ShippingZoneServiceInterface
     public function getZoneRules(int $zoneId): array;
 
     public function updateZoneRuleCharges(int $id, array $data): array;
+
+    public function getShippingMethodsByCity(User $user): array;
 }

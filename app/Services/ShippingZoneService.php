@@ -3,15 +3,21 @@
 namespace App\Services;
 
 use App\Models\ShippingZone;
+use App\Models\User;
 use App\Repositories\Contracts\ShippingZoneRepositoryInterface;
+use App\Services\Contracts\AddressServiceInterface;
+use App\Services\Contracts\ShippingZoneResolverServiceInterface;
 use App\Services\Contracts\ShippingZoneServiceInterface;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
+use RuntimeException;
 
 class ShippingZoneService implements ShippingZoneServiceInterface
 {
     public function __construct(
-        protected ShippingZoneRepositoryInterface $shippingZoneRepo
+        protected ShippingZoneRepositoryInterface $shippingZoneRepo,
+        public AddressServiceInterface $addressService,
+        public ShippingZoneResolverServiceInterface $shippingZoneResolverService,
     ) {}
 
     public function createZone(array $data): ShippingZone
@@ -121,4 +127,26 @@ class ShippingZoneService implements ShippingZoneServiceInterface
         ];
     }
 
+    public function getShippingMethodsByCity(User $user): array
+    {
+        if (!$user) {
+            throw new RuntimeException('Please login to add product to cart');
+        }
+
+        $address = $this->addressService->getDefaultAddress($user);
+        $shippingMethods = [];
+
+        // throw exemption when address not set
+        if (!$address) {
+            $shippingMethods['shipping'] = null;
+            $shippingMethods['shipping_error'] = 'Please set a delivery address';
+            return $shippingMethods;
+        }
+
+        $resolved = $this->shippingZoneResolverService->resolveByCity($address->city_id);
+        $shippingMethods['shipping'] = $resolved;
+        $shippingMethods['shipping_error'] = null;
+
+        return $shippingMethods;
+    }
 }

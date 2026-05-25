@@ -19,5 +19,5 @@ interface ShippingRuleServiceInterface
 
     public function deleteShippingRule(int $id): bool;
 
-    public function saveShippingMethod(User $user, int $shippingId): array;
+    public function saveShippingMethod(User $user, int $shippingRuleId, int $zoneId): array;
 }

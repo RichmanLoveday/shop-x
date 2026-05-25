@@ -18,4 +18,6 @@ interface AddressServiceInterface
     public function setDefault(User $user, int $id): void;
 
     public function deleteAddress(User $user, int $id): bool;
+
+    public function getDefaultAddress(User $user): ?Address;
 }

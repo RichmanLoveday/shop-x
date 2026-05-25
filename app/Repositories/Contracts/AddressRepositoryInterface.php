@@ -15,6 +15,7 @@ interface AddressRepositoryInterface
 
     public function resetDefaultAddress(int $userId): void;
 
-      public function markAsDefault(int $id): void;
+    public function markAsDefault(int $id): void;
 
+    public function fetchDefaultAddress(int $userId): ?Address;
 }

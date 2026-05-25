@@ -6,7 +6,9 @@ use App\Models\ShippingRule;
 use App\Models\User;
 use App\Repositories\Contracts\User\CartRepositoryInterface;
 use App\Repositories\Contracts\ShippingRuleRepositoryInterface;
+use App\Repositories\Contracts\ShippingZoneRepositoryInterface;
 use App\Services\Contracts\User\CartServiceInterface;
+use App\Services\Contracts\AddressServiceInterface;
 use App\Services\Contracts\ShippingRuleServiceInterface;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -19,6 +21,8 @@ class ShippingRuleService implements ShippingRuleServiceInterface
 {
     public function __construct(
         public ShippingRuleRepositoryInterface $shippingRuleRepo,
+        public ShippingZoneRepositoryInterface $shippingZoneRepo,
+        public AddressServiceInterface $addressService,
         public CartServiceInterface $cartService,
         public CartRepositoryInterface $cartRepo,
     ) {}
@@ -67,26 +71,56 @@ class ShippingRuleService implements ShippingRuleServiceInterface
         return $shippingRule->delete();
     }
 
-    public function saveShippingMethod(User $user, int $shippingId): array
+    public function saveShippingMethod(User $user, int $shippingRuleId, int $zoneId): array
     {
         if (!$user) {
             throw new RuntimeException('Please login to add product to cart');
         }
 
-        $shippingMethod = $this->shippingRuleRepo->findShippingRuleOrFail($shippingId);
+        // get address of user
+        $address = $this->addressService->getDefaultAddress($user);
 
-        // save shipping rule id in session
+        if (!$address) {
+            return [
+                'shipping' => null,
+                'shipping_error' => 'Please set a delivery address',
+            ];
+        }
+
+        // dd($shippingRuleId, $zoneId);
+        $shippingMethod = $this->shippingRuleRepo->fetchShippingRuleForZone($shippingRuleId, $zoneId);
+
+        // dd($shippingMethod->toArray());
+        // handle missing rule
+        if (!$shippingMethod) {
+            return [
+                'shipping' => null,
+                'shipping_error' => 'Invalid shipping method selected',
+            ];
+        }
+
+        $charge = $shippingMethod->pivot->override_charge ?? $shippingMethod->charge;
+
+        // dd($charge);
+
+        // save in session
         Session::put('shipping_method', [
-            'id' => $shippingMethod->id,
+            'rule_id' => $shippingMethod->id,
+            'zone_id' => $zoneId,
+            // 'charge' => $charge,
         ]);
 
         $cartItems = $this->cartService->getCartItems($user);
 
-        $total = $cartItems['total'] + $shippingMethod->charge;
+        $total = $cartItems['total'] + $charge;
 
         return [
             'total' => $total,
-            'shipping_charge' => $shippingMethod->charge,
+            'shipping_charge' => $charge,
+            'shipping_rule' => [
+                'id' => $shippingMethod->id,
+                'name' => $shippingMethod->name,
+            ],
         ];
     }
 }
