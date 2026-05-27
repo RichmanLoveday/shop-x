@@ -147,11 +147,16 @@ class Cart extends Model
 
         /** No variant → fallback to product */
         $product = $this->product;
-
+        // dd($product->toArray());
         if (!$product) {
             return $getPriceData();
         }
 
+        // dd($product->toArray());
+        // dd($formatStockData(
+        //     $product,
+        //     $product->manage_stock === 'yes'
+        // ));
         return $formatStockData(
             $product,
             $product->manage_stock === 'yes'

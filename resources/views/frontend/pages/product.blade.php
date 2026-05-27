@@ -157,11 +157,13 @@
                     },
 
                     success: function(res) {
+                        console.log(res);
                         if (res.status) {
                             notyf.success(res.message);
 
                             button.prop('disabled', false);
                             button.html(originalHtml);
+                            $('.cart_icon').text(res.data.cart_count);
                         }
                     },
 

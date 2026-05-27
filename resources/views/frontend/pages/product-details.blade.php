@@ -650,7 +650,7 @@
                     success: function(res) {
                         if (res.status) {
                             notyf.success(res.message);
-
+                            $('.cart_icon').text(res.data.cart_count);
                             button.prop('disabled', false);
                             button.html(originalHtml);
                         }

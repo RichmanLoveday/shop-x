@@ -5,6 +5,7 @@ use App\Http\Controllers\Frontend\AddressController;
 use App\Http\Controllers\Frontend\CartController;
 use App\Http\Controllers\Frontend\CheckOutController;
 use App\Http\Controllers\Frontend\KycController;
+use App\Http\Controllers\Frontend\PaymentController;
 use App\Http\Controllers\Frontend\ProductPageController;
 use App\Http\Controllers\Frontend\ProfileController as FrontendProfileController;
 use App\Http\Controllers\Frontend\UserDashboardController;
@@ -32,6 +33,7 @@ Route::group(['middleware' => ['auth:web', 'verified', 'role:' . UserRole::USER-
     Route::controller(CheckOutController::class)->group(function () {
         Route::get('/checkout', 'index')->name('checkout.index');
         Route::get('/checkout/{rule_id}/shipping/{zone_id}/zone', 'getShipping')->name('checkout.shipping');
+        Route::post('/billing-info', 'billingInfo')->name('checkout.billing-info.store');
     });
 
     /** Address controller */
@@ -39,6 +41,11 @@ Route::group(['middleware' => ['auth:web', 'verified', 'role:' . UserRole::USER-
     Route::get('/address/{id}/delivery-cost', [AddressController::class, 'estimatedDeliveryFee'])->name('address.delivery-cost');
     Route::put('/address/{id}/set-default', [AddressController::class, 'setDefault'])->name('address.set-default');
     Route::resource('/address', AddressController::class);
+
+    /* Payment Controller */
+    Route::controller(PaymentController::class)->group(function () {
+        Route::get('/payment', 'index');
+    });
 });
 
 /** Product Page Controller */

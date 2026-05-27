@@ -38,6 +38,120 @@
                 box-shadow: 0 0 0 0.2rem rgba(var(--colorSecondary-rgb, 59, 183, 126), 0.25);
                 border-color: var(--colorSecondary);
             }
+
+
+            .checkout-store-card {
+                border: 1px solid #eee;
+                border-radius: 12px;
+                padding: 15px;
+                background: #fff;
+            }
+
+            .store-header {
+                background: #fff5e9;
+                /* solid color instead of gradient */
+                color: var(--colorSecondary);
+                padding: 10px 14px;
+                font-weight: 600;
+                border-radius: 8px;
+                margin-bottom: 15px;
+                font-size: 16px;
+            }
+
+            .custom-billing-list {
+                max-height: 320px;
+                overflow-y: auto;
+                padding-right: 5px;
+            }
+
+            .billing-product-item {
+                display: flex;
+                gap: 14px;
+                margin-bottom: 18px;
+                align-items: flex-start;
+            }
+
+            .product-thumb {
+                width: 80px;
+                height: 80px;
+                min-width: 80px;
+                border-radius: 10px;
+                overflow: hidden;
+                position: relative;
+                border: 1px solid #eee;
+            }
+
+            .product-thumb img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
+
+            /* grayscale image */
+            .product-thumb.out-stock img {
+                filter: grayscale(100%);
+                opacity: .7;
+            }
+
+            /* out-of-stock overlay */
+            .stock-overlay {
+                position: absolute;
+                inset: 0;
+                background: linear-gradient(rgba(0, 0, 0, .2),
+                        rgba(0, 0, 0, .65));
+                color: white;
+                font-size: 11px;
+                font-weight: 700;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                z-index: 10;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+            }
+
+            .product-info {
+                flex: 1;
+            }
+
+            .product-name {
+                display: block;
+                font-weight: 600;
+                color: #222;
+                line-height: 1.4;
+                margin-bottom: 6px;
+            }
+
+            .product-name:hover {
+                color: var(--colorSecondary);
+            }
+
+            .variant-badge {
+                display: inline-block;
+                background: #f3f4f6;
+                color: #666;
+                padding: 3px 8px;
+                border-radius: 20px;
+                font-size: 11px;
+                margin-bottom: 6px;
+            }
+
+            .product-price {
+                font-weight: 600;
+                color: var(--colorSecondary);
+            }
+
+            .qty {
+                color: #666;
+                font-weight: 400;
+            }
+
+            .store-subtotal {
+                border-top: 1px solid #eee;
+                padding-top: 12px;
+                text-align: right;
+                font-size: 15px;
+            }
         </style>
     @endpush
 
@@ -62,7 +176,8 @@
 
                     <div class="row">
                         @foreach ($addresses as $address)
-                            <x-frontend.billing-address :address="$address" class='col-md-6 col-lg-4 col-xl-4' />
+                            <x-frontend.billing-address :address="$address" :defaultAddress="true"
+                                class='col-md-6 col-lg-4 col-xl-4' />
                         @endforeach
                     </div>
                 </div>
@@ -73,8 +188,8 @@
                             <div class="form-group">
                                 <div class="chek-form">
                                     <div class="custome-checkbox">
-                                        <input class="form-check-input" type="checkbox" name="checkbox"
-                                            id="differentaddress">
+                                        <input class="form-check-input ship_to_different_address" type="checkbox"
+                                            name="checkbox" id="differentaddress">
                                         <label class="form-check-label label_info" data-bs-toggle="collapse"
                                             data-target="#collapseAddress" href="#collapseAddress"
                                             aria-controls="collapseAddress" for="differentaddress"><span>Ship to a
@@ -112,67 +227,70 @@
             </div>
             <div class="col-xl-4">
                 <div class="wsus__billing_summary">
-                    <h4>Billing Summery</h4>
-                    <h5 class="vendor_name">Vendor Name</h5>
-                    <ul class="wsus__billing_product">
-                        <li>
-                            <a href="#" class="img">
-                                <img src="assets/imgs/shop/product-2-1.jpg" alt="product" class="img-fluid w-100">
-                            </a>
-                            <div class="text">
-                                <a href="#">Black Sneakers</a>
-                                <h6>$120.00</h6>
+                    <h4 class="mb-3">Billing Summary</h4>
+
+                    @foreach ($cartItems as $store)
+                        <div class="checkout-store-card mb-4">
+
+                            {{-- Store Name --}}
+                            <div class="store-header">
+                                {{ $store['store']['name'] }}
                             </div>
-                        </li>
-                        <li>
-                            <a href="#" class="img">
-                                <img src="assets/imgs/shop/product-3-1.jpg" alt="product" class="img-fluid w-100">
-                            </a>
-                            <div class="text">
-                                <a href="#">Black Sneakers</a>
-                                <h6>$120.00</h6>
+
+                            <ul class="wsus__billing_product custom-billing-list">
+                                @foreach ($store['items'] as $item)
+                                    @php
+                                        $variantData = $item['variant_or_product_and_stock'];
+                                        $price = $variantData['price'];
+                                        $qty = $item['qty'];
+                                        $variantName = $item['variant']?->name;
+                                        $isOutOfStock = !$variantData['in_stock'];
+                                        $isInactive = !$variantData['is_active'];
+                                    @endphp
+
+                                    <li class="billing-product-item j">
+
+                                        {{-- PRODUCT IMAGE --}}
+                                        <a href="{{ route('products.show', $item['slug']) }}"
+                                            class="product-thumb {{ $isOutOfStock ? 'out-stock' : '' }}">
+
+                                            <img src="{{ $item['image'] }}" alt="{{ $item['name'] }}" class="img-fluid">
+
+                                            @if ($isOutOfStock || $isInactive)
+                                                <div class="stock-overlay">
+                                                    Out of Stock
+                                                </div>
+                                            @endif
+                                        </a>
+
+                                        {{-- PRODUCT INFO --}}
+                                        <div class="product-info p-2">
+                                            <a href="{{ route('products.show', $item['slug']) }}" class="product-name">
+                                                {{ Str::limit($item['name'], 50, '....') }}
+                                            </a>
+
+                                            @if ($variantName)
+                                                <small class="variant-badge">
+                                                    {{ $variantName }}
+                                                </small>
+                                            @endif
+
+                                            <div class="product-price">
+                                                ${{ number_format($price, 2) }}
+                                                <span class="qty">× {{ $qty }}</span>
+                                            </div>
+                                        </div>
+                                    </li>
+                                @endforeach
+                            </ul>
+
+                            {{-- STORE SUBTOTAL --}}
+                            <div class="store-subtotal">
+                                Subtotal:
+                                <strong>${{ number_format($store['subtotal'], 2) }}</strong>
                             </div>
-                        </li>
-                    </ul>
-                    <h5 class="vendor_name">Vendor Name</h5>
-                    <ul class="wsus__billing_product">
-                        <li>
-                            <a href="#" class="img">
-                                <img src="assets/imgs/shop/product-1-1.jpg" alt="product" class="img-fluid w-100">
-                            </a>
-                            <div class="text">
-                                <a href="#">Black Sneakers</a>
-                                <h6>$120.00</h6>
-                            </div>
-                        </li>
-                        <li>
-                            <a href="#" class="img">
-                                <img src="assets/imgs/shop/product-2-1.jpg" alt="product" class="img-fluid w-100">
-                            </a>
-                            <div class="text">
-                                <a href="#">Black Sneakers</a>
-                                <h6>$120.00</h6>
-                            </div>
-                        </li>
-                        <li>
-                            <a href="#" class="img">
-                                <img src="assets/imgs/shop/product-3-1.jpg" alt="product" class="img-fluid w-100">
-                            </a>
-                            <div class="text">
-                                <a href="#">Black Sneakers</a>
-                                <h6>$120.00</h6>
-                            </div>
-                        </li>
-                        <li>
-                            <a href="#" class="img">
-                                <img src="assets/imgs/shop/product-1-1.jpg" alt="product" class="img-fluid w-100">
-                            </a>
-                            <div class="text">
-                                <a href="#">Black Sneakers</a>
-                                <h6>$120.00</h6>
-                            </div>
-                        </li>
-                    </ul>
+                        </div>
+                    @endforeach
                     <div class="wsus__total_price">
 
                         <h4 class="mb-3">Shipping Method</h4>
@@ -264,7 +382,7 @@
 
 
                     <div class="my-4">
-                        <button href="payment.html" class="btn w-100 hover-up make-payment-btn">Payment</button>
+                        <button id="make-payment-button" href="payment.html" class="btn w-100 hover-up">Payment</button>
                     </div>
 
                 </div>
@@ -302,7 +420,7 @@
                         method: "GET",
                         success: function(res) {
                             let data = res.data;
-                            
+
                             if (res.status) {
                                 let shipping_charge = new Intl.NumberFormat('en-US', {
                                     minimumFractionDigits: 2,
@@ -393,15 +511,6 @@
                 });
 
 
-                // submit button
-                $('.make-payment-btn').on('click', function() {
-                    if (!$('.shipping-method:checked').length > 0) {
-                        notyf.error("Please select a shipping method");
-                    }
-                })
-
-
-
 
                 $('.address-card').on('click', function(e) {
                     // ignore edit/delete clicks
@@ -409,16 +518,17 @@
 
                     let id = $(this).data('id');
 
-                    let radio = $(this).find('.default-address');
+                    let radio = $(this).find('.billing_address');
 
                     radio.prop('checked', true).trigger('change');
 
                 });
 
                 // update default address
-                $('.default-address').on('change', function() {
+                $('.billing_address').on('change', function() {
 
                     let id = $(this).data('id');
+                    console.log(id);
 
                     $.ajax({
                         url: route('address.set-default', [id]),
@@ -440,6 +550,54 @@
                         }
                     });
 
+                });
+
+                // make payment button
+                $('#make-payment-button').on('click', function() {
+                    let error = false;
+                    // check if shipping method is selected
+                    if (!$('.shipping-method:checked').length > 0) {
+                        notyf.error("Please select a shipping method");
+                        error = true;
+                    }
+
+                    // check if billing address method is selected
+                    if (!$('.billing_address').length > 0) {
+                        notyf.error('Please select a shipping address');
+                        error = true;
+                    }
+
+
+                    // check if shipping method is selected
+                    if (!$('.ship_to_different_address').is(':checked') && (!$('.shipping_address:checked')
+                            .length > 0)) {
+                        notyf.error("Please select a shipping address");
+                        error = true;
+                    }
+
+
+                    // send data to backend
+                    let shippingMethod = $('.shipping-method:checked').data('rule-id');
+                    let zoneId = $('.shipping-method:checked:checked').data('zone-id')
+                    let billingAddress = $('.billing_address:checked').val();
+                    let shippingAddress = $('.ship_to_different_address').is(':checked') ? $(
+                        '.shipping_address:checked').val() : null;
+
+                    if (!error) {
+                        $.ajax({
+                            url: route("checkout.billing-info.store"),
+                            method: "POST",
+                            data: {
+                                _token: "{{ csrf_token() }}",
+                                shipping_method_id: shippingMethod,
+                                zone_id: zoneId,
+                                billing_address_id: billingAddress,
+                                shipping_address_id: shippingAddress,
+                            },
+                            beforeSend: function() {},
+                            success: function() {},
+                        })
+                    }
                 });
             });
         </script>

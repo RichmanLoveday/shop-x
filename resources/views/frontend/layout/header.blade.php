@@ -80,10 +80,10 @@
                                 <a href="#"><span class="lable">Wishlist</span></a>
                             </div>
                             <div class="header-action-icon-2">
-                                <a class="mini-cart-icon" href="#">
+                                <a class="mini-cart-icon" href="{{ route('cart.index') }}">
                                     <img alt="ShopX"
                                         src="{{ asset('assets/frontend/imgs/theme/icons/icon-cart.svg') }}" />
-                                    <span class="pro-count blue">2</span>
+                                    <span class="pro-count blue cart_icon">{{ $cartCount }}</span>
                                 </a>
                                 <a href="{{ route('cart.index') }}"><span class="lable">Cart</span></a>
                             </div>

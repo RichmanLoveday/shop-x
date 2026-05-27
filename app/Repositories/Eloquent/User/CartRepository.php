@@ -4,6 +4,7 @@ namespace App\Repositories\Eloquent\User;
 
 use App\Models\Cart;
 use App\Repositories\Contracts\User\CartRepositoryInterface;
+use Illuminate\Database\Eloquent\Collection;
 use Override;
 
 class CartRepository implements CartRepositoryInterface
@@ -39,6 +40,13 @@ class CartRepository implements CartRepositoryInterface
             ->get();
     }
 
+    public function getCartCount(int $userId): int
+    {
+        return Cart::query()
+            ->where('user_id', $userId)
+            ->count();
+    }
+
     public function findCartItemOrFail(int $cartId, int $userId): Cart
     {
         return Cart::with([
@@ -69,5 +77,18 @@ class CartRepository implements CartRepositoryInterface
             ->whereIn('id', $cartIds)
             ->where('user_id', $userId)
             ->delete();
+    }
+
+    public function fetchCartItemsByStore(int $userId): Collection
+    {
+        return Cart::query()
+            ->with([
+                'product',
+                'product.store:id,name',
+                'variant',
+            ])
+            ->where('user_id', $userId)
+            ->get()
+            ->groupBy('product.store_id');
     }
 }

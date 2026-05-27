@@ -7,7 +7,7 @@
             <div class="col-lg-8 mb-40">
                 <h1 class="heading-2 mb-10">Your Cart</h1>
                 <div class="d-flex flex-wrap justify-content-between">
-                    <h6 class="text-body">There are <span class="text-brand">3</span> products in your cart</h6>
+                    <h6 class="text-body">There are <span class="text-brand cart_count">{{ $cartCount }}</span> products in your cart</h6>
                     <h6 class="text-body"><a href="javascript:void(0)" id="delete-selected" class="text-muted"><i
                                 class="fi-rs-trash mr-5"></i>Clear
                             Cart</a></h6>
@@ -202,7 +202,7 @@
             });
 
             // delete item from cart
-            $(document).on('click', '.delete-item', function(event) {
+            $(document).on('click', '.delete-cart-item', function(event) {
                 event.preventDefault();
 
                 let button = $(this);
@@ -246,6 +246,8 @@
                             $('.discount-info').text(`$${res.appliedCoupon?.discount ?? 0.00}`);
                             $('.cart_sub_total').text(`$${cart_sub_total}`);
                             $('.cart_total').text(`$${total}`);
+                            $('.cart_icon').text(res.cart_count);
+                            $('.cart_count').text(res.cart_count);
 
                             notyf.success(res.message);
                         }
@@ -332,6 +334,8 @@
                                         `$${res.appliedCoupon?.discount ?? 0.00}`);
                                     $('.cart_sub_total').text(`$${cart_sub_total}`);
                                     $('.cart_total').text(`$${total}`);
+                                    $('.cart_icon').text(res.cart_count);
+                                    $('.cart_count').text(res.cart_count);
 
                                     // fire sweet alert
                                     Swal.fire(

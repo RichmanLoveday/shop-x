@@ -55,10 +55,15 @@ class CartController extends Controller
                 $request->variant ?? null
             );
 
+            $cartCount = $this->cartService->getCartCount($user);
+
             return response()->json([
                 'status' => true,
                 'message' => 'Product added to cart',
-                'data' => $cart
+                'data' => [
+                    'cart' => $cart,
+                    'cart_count' => $cartCount,
+                ],
             ]);
         } catch (\RuntimeException $e) {
             return response()->json([
@@ -117,6 +122,7 @@ class CartController extends Controller
                 'appliedCoupon' => $appliedCoupon,
                 'total' => $total
             ] = $this->cartService->removeCartItem($user, $id);
+            $cartCount = $this->cartService->getCartCount($user);
             $cartHtml = view('components.frontend.cart-item-component', compact('cartItems'))->render();
 
             return response()->json([
@@ -124,6 +130,7 @@ class CartController extends Controller
                 'message' => 'Cart item removed successfully',
                 'cart_sub_total' => $cartSubTotal,
                 'total' => $total,
+                'cart_count' => $cartCount,
                 'appliedCoupon' => $appliedCoupon,
                 'html' => $cartHtml
             ]);
@@ -156,6 +163,7 @@ class CartController extends Controller
                 'appliedCoupon' => $appliedCoupon,
                 'total' => $total
             ] = $this->cartService->bulkDeleteCartItems($user, $validated['cart_ids']);
+            $cartCount = $this->cartService->getCartCount($user);
             $cartHtml = view('components.frontend.cart-item-component', compact('cartItems'))->render();
 
             return response()->json([
@@ -163,6 +171,7 @@ class CartController extends Controller
                 'message' => 'Cart item removed successfully',
                 'cart_sub_total' => $cartSubTotal,
                 'total' => $total,
+                'cart_count' => $cartCount,
                 'appliedCoupon' => $appliedCoupon,
                 'html' => $cartHtml
             ]);

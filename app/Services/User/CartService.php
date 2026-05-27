@@ -83,6 +83,15 @@ class CartService implements CartServiceInterface
         return $cart;
     }
 
+    public function getCartCount(?User $user): int
+    {
+        if (!$user) {
+            return 0;
+        }
+
+        return $this->cartRepo->getCartCount($user->id);
+    }
+
     private function checkQuantityChange(User $user, int $productID, ?int $variant, int $quantity, int $stock): array
     {
         $cart = $this->cartRepo->findCartVariantProduct($user->id, $productID, $variant);
@@ -340,5 +349,43 @@ class CartService implements CartServiceInterface
         }
 
         return $data;
+    }
+
+    public function getCartItemsByStores(User $user): array
+    {
+        $cartItems = $this->cartRepo->fetchCartItemsByStore($user->id);
+        // dd($cartItems);
+
+        return $cartItems->map(function ($items, $storeId) {
+            $store = $items->first()->product->store;
+
+            $subtotal = $items->sum(function ($item) {
+                return $item->qty * $item->variant_or_product_and_stock['price'];
+            });
+
+            return [
+                'store' => [
+                    'id' => $store->id,
+                    'name' => $store->name,
+                ],
+                'items' => $items->map(function ($item) {
+                    $variant_or_product_and_stock = $item->variant_or_product_and_stock;
+
+                    return [
+                        'id' => $item->id,
+                        'product_id' => $item->product_id,
+                        'name' => $item->product->name,
+                        'slug' => $item->product->slug,
+                        'image' => $item->product->thumbnail,
+                        'qty' => $item->qty,
+                        'price' => $item->price,
+                        'variant' => $item->variant,
+                        'variant_or_product_and_stock' => $variant_or_product_and_stock,
+                        'subtotal' => $item->qty * $variant_or_product_and_stock['price'],
+                    ];
+                })->values(),
+                'subtotal' => $subtotal,
+            ];
+        })->values()->toArray();
     }
 }

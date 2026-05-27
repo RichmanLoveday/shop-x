@@ -131,4 +131,7 @@ class CheckOutService implements CheckOutServiceInterface
 
         return $data;
     }
+
+
+    public function storeBillingAddress(array $data) {}
 }

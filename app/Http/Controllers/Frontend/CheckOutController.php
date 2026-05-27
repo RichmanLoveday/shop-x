@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Frontend;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Frontend\BillingInfoRequest;
 use App\Services\Contracts\User\CartServiceInterface;
 use App\Services\Contracts\AddressServiceInterface;
 use App\Services\Contracts\CheckOutServiceInterface;
@@ -11,6 +12,7 @@ use App\Services\Contracts\ShippingZoneServiceInterface;
 use App\Traits\Alert;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Session;
 
 class CheckOutController extends Controller
 {
@@ -38,6 +40,9 @@ class CheckOutController extends Controller
 
             $shippingMethods = $this->shippingZoneService->getShippingMethodsByCity($user);
             $addresses = $this->addressService->allAddress($user);
+            $cartItems = $this->cartService->getCartItemsByStores($user);
+
+            // dd($cartItems);
 
             // dd($shippingMethods);
 
@@ -78,5 +83,18 @@ class CheckOutController extends Controller
                 'message' => 'Something went wrong'
             ], 500);
         }
+    }
+
+    public function billingInfo(BillingInfoRequest $request)
+    {
+        // dd($request->all());
+
+        // store billing info in session
+        Session::put('billing_info', [
+            'billing_address_id' => $request->billing_address_id,
+            'shipping_address_id' => $request->shipping_address_id,
+            'shipping_method_id' => $request->shipping_method_id,
+            'zone_id' => $request->zone_id,
+        ]);
     }
 }

@@ -19,4 +19,8 @@ interface CartServiceInterface
     public function bulkDeleteCartItems(?User $user, array $cartIds): array;
 
     public function applyCoupon(?User $user, string $code): array;
+
+    public function getCartItemsByStores(User $user): array;
+
+    public function getCartCount(?User $user): int;
 }

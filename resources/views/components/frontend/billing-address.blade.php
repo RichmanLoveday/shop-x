@@ -1,4 +1,4 @@
-   @props(['address', 'class' => 'col-md-6 col-lg-4 col-xl-4', 'showEditDelete' => false])
+   @props(['address', 'class' => 'col-md-6 col-lg-4 col-xl-4', 'showEditDelete' => false, 'defaultAddress' => false])
    @push('styles')
        <style>
            .wsus__shipping_address_item .form-check-input {
@@ -25,8 +25,9 @@
    <div class="{{ $class }}">
        <div class="wsus__shipping_address_item address-card" data-id="{{ $address->id }}">
            <div class="form-check form-check-inline">
-               <input class="form-check-input default-address" data-id="{{ $address->id }}" type="radio"
-                   @checked($address->is_default) name="inlineRadioOptions" value="option1">
+               <input class="form-check-input {{ $defaultAddress ? 'billing_address' : 'shipping_address' }}"
+                   data-id="{{ $address->id }}" type="radio" @checked($address->is_default) name="inlineRadioOptions"
+                   value="{{ $address->id }}">
                <label class="form-check-label" for="inlineRadio1">{{ $address->address }},
                    {{ $address->city?->name }}, {{ $address->state?->name }},
                    {{ $address->country }}

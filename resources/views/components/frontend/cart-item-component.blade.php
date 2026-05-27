@@ -175,7 +175,7 @@
         @endif
 
         <td class="action text-center" data-title="Remove"><a href="#" data-id="{{ $item->id }}"
-                class="text-body delete-item"><i class="fi-rs-trash"></i></a></td>
+                class="text-body delete-cart-item"><i class="fi-rs-trash"></i></a></td>
     </tr>
 @empty
     <tr>

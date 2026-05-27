@@ -242,8 +242,8 @@
                                                         <i class="ti ti-edit fs-1"></i>
                                                     </a>
 
-                                                    <a class="delete-item text-decoration-none"
-                                                        href="{{ route('admin.product.destroy', [$address->id]) }}">
+                                                    <a class="delete-item text-decoration-none text-danger"
+                                                        href="{{ route('admin.product.destroy', [$product->product_type, $product->id]) }}">
                                                         <i class="ti ti-trash fs-1"></i>
                                                     </a>
                                                 </div>
