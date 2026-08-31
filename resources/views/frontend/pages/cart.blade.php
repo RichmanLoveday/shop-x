@@ -7,7 +7,8 @@
             <div class="col-lg-8 mb-40">
                 <h1 class="heading-2 mb-10">Your Cart</h1>
                 <div class="d-flex flex-wrap justify-content-between">
-                    <h6 class="text-body">There are <span class="text-brand cart_count">{{ $cartCount }}</span> products in your cart</h6>
+                    <h6 class="text-body">There are <span class="text-brand cart_count">{{ $cartCount }}</span> products in
+                        your cart</h6>
                     <h6 class="text-body"><a href="javascript:void(0)" id="delete-selected" class="text-muted"><i
                                 class="fi-rs-trash mr-5"></i>Clear
                             Cart</a></h6>
@@ -15,7 +16,7 @@
             </div>
         </div>
         <div class="row">
-            <div class="col-lg-8">
+            <div class="{{ $cartItems->isEmpty() ? 'col-lg-12' : 'col-lg-8' }}">
                 <div class="table-responsive shopping-summery">
                     <table class="table table-wishlist">
                         <thead>
@@ -39,11 +40,11 @@
                 </div>
                 <div class="divider-2 mb-30"></div>
                 <div class="cart-action d-flex justify-content-between">
-                    <a class="btn "><i class="fi-rs-arrow-left mr-10"></i>Continue Shopping</a>
+                    <a href="{{ route('products.index') }}" class="btn "><i class="fi-rs-arrow-left mr-10"></i>Continue Shopping</a>
                     <a class="btn  mr-10 mb-sm-15"><i class="fi-rs-refresh mr-10"></i>Update Cart</a>
                 </div>
             </div>
-            <div class="col-lg-4">
+            <div class="col-lg-4" style="display: {{ $cartItems->isEmpty() ? 'none' : 'block' }}">
 
                 <div class="p-40">
                     <h4 class="mb-10">Apply Coupon</h4>

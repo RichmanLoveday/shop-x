@@ -60,6 +60,11 @@ class ShippingRuleService implements ShippingRuleServiceInterface
                 $this->shippingRuleRepo->resetFallbackShippingRule();
             }
 
+            // if is_fallback is not set, ensure to reset the fallback column to false
+            if (!isset($data['is_fallback'])) {
+                $data['is_fallback'] = false;
+            }
+
             // update shipping rule
             return $this->shippingRuleRepo->createOrUpdateShippingRule($data, $id);
         });

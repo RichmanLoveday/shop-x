@@ -33,6 +33,8 @@ class ShippingZoneResolverService implements ShippingZoneResolverServiceInterfac
                 ];
             }
 
+            // dd($fallbackZone);
+
             return [
                 'zone' => null,
                 'city_id' => $cityId,
@@ -94,7 +96,7 @@ class ShippingZoneResolverService implements ShippingZoneResolverServiceInterfac
             ->first();
 
         return [
-            'zone_name' => $resolvedCity['zone']['name'],
+            'zone_name' => $resolvedCity['zone']['name'] ?? null,
             'cost' => $bestRule['final_charge'],
             'rule_id' => $bestRule['id'],
             'status' => true,

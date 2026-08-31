@@ -14,10 +14,13 @@ use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\CitiesController;
 use App\Http\Controllers\Admin\CouponController;
 use App\Http\Controllers\Admin\kycRequestController;
+use App\Http\Controllers\Admin\PaymentSettingsController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\ProfileController;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\SettingController;
+use App\Http\Controllers\Admin\ShippingMethodsController;
+use App\Http\Controllers\Admin\ShippingRateController;
 use App\Http\Controllers\Admin\ShippingRuleController;
 use App\Http\Controllers\Admin\ShippingZones;
 use App\Http\Controllers\Admin\StatesController;
@@ -126,6 +129,7 @@ Route::middleware('auth:admin')
         Route::controller(SettingController::class)->group(function () {
             Route::get('/settings', 'index')->name('settings.index');
             Route::put('/settings/general-settings', 'generalSettings')->name('settings.general');
+            Route::get('/settings/currency-symbol', 'getCurrencySymbol')->name('settings.currency-symbol');
         });
 
         // Category Controller Routes
@@ -191,6 +195,12 @@ Route::middleware('auth:admin')
         /** Shipping Rule */
         Route::resource('/shipping-rules', ShippingRuleController::class);
 
+        /** Shipping Methods */
+        Route::resource('/shipping-methods', ShippingMethodsController::class);
+
+        /** Shipping Rates */
+        Route::resource('/shipping-rates', ShippingRateController::class);
+
         /* States Controller */
         Route::resource('/cities', CitiesController::class);
 
@@ -201,7 +211,24 @@ Route::middleware('auth:admin')
         /* Shipping Zones */
         Route::get('/shipping-zones/{id}/rules', [ShippingZones::class, 'shippingZonesRules'])->name('shipping-zones.rules');
         Route::put('/shipping-zones/{id}/rules', [ShippingZones::class, 'shippingZonesRulesUpdate'])->name('shipping-zones.rules.update');
+
+        Route::get('/shipping-zone/{name}', [ShippingZones::class, 'getZoneByName'])->name('shipping-zones.name');
         Route::resource('/shipping-zones', ShippingZones::class);
+
+        /** Payment Settings */
+        Route::controller(PaymentSettingsController::class)->group(function () {
+            Route::get('/payment-settings', 'index')->name('payment-settings.index');
+            Route::put('/payment-settings/update', 'update')->name('payment-settings.update');
+
+            Route::get('/payment-settings/stripe', 'stripeSettings')->name('payment-settings.stripe.index');
+            Route::put('/payment-settings/stripe/update', 'updateStripeSettings')->name('payment-settings.stripe.update');
+
+            Route::get('/payment-settings/paystack', 'paystackSettings')->name('payment-settings.paystack.index');
+            Route::put('/payment-settings/paystack/update', 'updatePaystackSettings')->name('payment-settings.paystack.update');
+
+            Route::get('/payment-settings/flutterwave', 'flutterwaveSettings')->name('payment-settings.flutterwave.index');
+            Route::put('/payment-settings/flutterwave/update', 'updateFlutterwaveSettings')->name('payment-settings.flutterwave.update');
+        });
     });
 
 Route::get('/admin/dashboard', function () {

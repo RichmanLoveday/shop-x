@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Exceptions\CartEmptyException;
 use App\Models\Address;
 use App\Models\User;
 use App\Repositories\Contracts\ShippingRuleRepositoryInterface;
@@ -26,6 +27,12 @@ class CheckOutService implements CheckOutServiceInterface
     public function getItems(User $user): array
     {
         $cartItems = $this->cartService->getCartItems($user);
+
+        // check if cart items is empty
+        if ($cartItems['cartItems']->isEmpty()) {
+            throw new CartEmptyException();
+        }
+
         $cartItems['shipping'] = null;
 
         $address = $this->addressService->getDefaultAddress($user);
@@ -131,7 +138,4 @@ class CheckOutService implements CheckOutServiceInterface
 
         return $data;
     }
-
-
-    public function storeBillingAddress(array $data) {}
 }

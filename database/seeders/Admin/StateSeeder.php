@@ -46,14 +46,18 @@ class StateSeeder extends Seeder
             'Taraba',
             'Yobe',
             'Zamfara',
-            'FCT'
+            'FCT',
         ];
 
         foreach ($states as $state) {
-            State::create([
-                'name' => $state,
-                'is_active' => true
-            ]);
+            State::updateOrCreate(
+                [
+                    'name' => $state,
+                ],
+                [
+                    'is_active' => true,
+                ]
+            );
         }
     }
 }

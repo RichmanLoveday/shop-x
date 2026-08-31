@@ -315,11 +315,8 @@ class ProductController extends Controller
     public function uploadDigitalProduct(Request $request, string $type, int $productId)
     {
         try {
-            // dd($request->all());
             $admin = Auth::guard('admin')->user();
             $result = $this->productDigitalFileService->handleChunkUpload($productId, $admin, $type, $request->all());
-
-            // dd($product);
 
             return response()->json([
                 'message' => ProductFilesStatus::from($result['status'])->message(),
@@ -332,7 +329,7 @@ class ProductController extends Controller
             );
 
             return response()->json([
-                'message' => 'An error occurred while uploading digital product',
+                'message' => $e->getMessage(),
                 'status' => 'failed',
             ], 500);
         }

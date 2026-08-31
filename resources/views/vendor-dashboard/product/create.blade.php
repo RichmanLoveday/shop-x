@@ -1,4 +1,4 @@
-@extends('admin.layout.app')
+@extends('vendor-dashboard.layout.app')
 @section('contents')
     <div class="container-xl">
         <form enctype="multipart/form-data" id="product_form">
@@ -176,21 +176,6 @@
                 </div>
 
                 <div class="col-md-4 space-y-3">
-                    <div class="card">
-                        <card class="card-header">
-                            <h3 class="card-title">Store</h3>
-                        </card>
-                        <div class="card-body">
-                            <div class="mb-3">
-                                <select name="store_id" id="select_store" class="form-control select2" required>
-                                    <option value="">--- Select Store ---</option>
-
-                                </select>
-                                <x-input-error :messages="$errors->get('store_id')" class="mt-2" />
-                            </div>
-                        </div>
-                    </div>
-
                     <div class="card">
                         <card class="card-header">
                             <h3 class="card-title">Category</h3>
@@ -642,7 +627,7 @@
                     let form = $(this);
                     let type = "{{ request()->type }}"
                     let formData = new FormData(form[0]);
-                    let url = route('admin.products.store', type);
+                    let url = route('vendor.products.store', type);
 
                     $.ajax({
                         url: url,
@@ -654,8 +639,8 @@
                             if (response.status) {
                                 const product = response.product;
                                 const redirectUrl = type === 'physical' ? route(
-                                    'admin.products.edit', product.id) : route(
-                                    'admin.product.digital.edit', product.id);
+                                    'vendor.products.edit', product.id) : route(
+                                    'vendor.product.digital.edit', product.id);
 
                                 // redirect to edit page of the created product
                                 window.location.href = redirectUrl;

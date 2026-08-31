@@ -36,7 +36,7 @@ class AppServiceProvider extends ServiceProvider
         View::composer('*', function ($view) {
             $count = 0;
 
-            if (auth()->check()) {
+            if (auth()->guard('web')->check()) {
                 $count = app(CartService::class)
                     ->getCartCount(auth()->user());
             }

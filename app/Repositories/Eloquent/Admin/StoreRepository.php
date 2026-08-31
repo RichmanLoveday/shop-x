@@ -24,6 +24,12 @@ class StoreRepository implements StoreRepositoryInterface
 
     public function getStores(): Collection
     {
-        throw new \Exception('Not implemented');
+        return Store::query()
+            ->with('vendor')
+            ->whereHas('vendor', function ($q) {
+                $q->where('status', true);
+            })
+            ->latest()
+            ->get();
     }
 }

@@ -36,11 +36,21 @@
         @import url("https://rsms.me/inter/inter.css");
     </style>
 
+
     @stack('styles')
+
+
+    <script>
+        var pusherKey = "{{ config('settings.pusher_key') }}";
+        var pusherCluster = "{{ config('settings.pusher_cluster') }}";
+        var loggedInAdminId = @json(auth('admin')->id());
+    </script>
 
     <!-- END CUSTOM FONT -->
     @routes
+    @vite(['resources/js/app.js', 'resources/js/admin.js'])
 </head>
+
 
 <body>
     <!-- BEGIN GLOBAL THEME SCRIPT -->

@@ -5,7 +5,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
-     <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Dashboard - Tabler - Premium and Open Source dashboard template with responsive and high quality UI.</title>
     <!-- BEGIN PAGE LEVEL STYLES -->
     <link href="{{ asset('assets/admin/libs/jsvectormap/dist/jsvectormap.css?1750026893') }}" rel="stylesheet" />
@@ -38,8 +38,16 @@
 
     @stack('styles')
 
+    <script>
+        var pusherKey = "{{ config('settings.pusher_key') }}";
+        var pusherCluster = "{{ config('settings.pusher_cluster') }}";
+        var loggedInUserId = @json(auth('web')->id());
+    </script>
+
     <!-- END CUSTOM FONT -->
     @routes
+    @vite(['resources/js/app.js', 'resources/js/vendor.js'])
+
     <link href="{{ asset('assets/admin/preview/css/demo.css?1750026893') }}" rel="stylesheet" />
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <!-- END DEMO STYLES -->

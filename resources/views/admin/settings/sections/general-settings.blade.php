@@ -21,6 +21,25 @@
                     <input type="text" class="form-control" value="{{ $generalSettings->site_phone }}" name="site_phone">
                     <x-input-error :messages="$errors->get('site_phone')" class="mt-2" />
                 </div>
+
+                <div class="col-md-6">
+                    <div class="form-label">Default Currency</div>
+                    <select name="site_currency" id="site_currency" class="form-control select2">
+                        @foreach ($currencies as $currencyCode => $currencyName)
+                            <option value="{{ $currencyCode }}"
+                                {{ $generalSettings->site_currency === $currencyCode ? 'selected' : '' }}>
+                                {{ $currencyName }} ({{ $currencyCode }})
+                            </option>
+                        @endforeach
+                    </select>
+                    <x-input-error :messages="$errors->get('site_currency')" class="mt-2" />
+                </div>
+                <div class="col-md-6">
+                    <div class="form-label">Currency Icon</div>
+                    <input disabled type="text" id="site_currency_icon" class="form-control" value="{{ $generalSettings->site_currency_icon }}"
+                        name="site_currency_icon">
+                    <x-input-error :messages="$errors->get('site_currency_icon')" class="mt-2" />
+                </div>
             </div>
 
             <div class="btn-list justify-content-end mt-4">
@@ -28,4 +47,24 @@
             </div>
         </form>
     </div>
+
+    @push('scripts')
+        <script>
+            $(document).ready(function() {
+                $('#site_currency').change(function() {
+                    var selectedCurrency = $(this).val();
+                    $.ajax({
+                        url: route('admin.settings.currency-symbol'),
+                        method: 'GET',
+                        data: {
+                            currency_code: selectedCurrency
+                        },
+                        success: function(response) {
+                            $('#site_currency_icon').val(response.currency_symbol);
+                        }
+                    });
+                });
+            });
+        </script>
+    @endpush
 @endsection

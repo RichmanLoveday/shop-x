@@ -44,13 +44,13 @@ Route::group(['middleware' => ['auth:web', 'verified', 'role:' . UserRole::USER-
 
     /* Payment Controller */
     Route::controller(PaymentController::class)->group(function () {
-        Route::get('/payment', 'index');
+        Route::get('/payment', 'index')->name('payment.index');
     });
 });
 
 /** Product Page Controller */
 Route::controller(ProductPageController::class)->group(function () {
-    Route::get('/products', 'index');
+    Route::get('/products', 'index')->name('products.index');
     Route::get('/products/{slug}', 'show')->name('products.show');
     Route::get('/product/{type}/{id}', 'getProduct')->name('products.getProduct');
 });

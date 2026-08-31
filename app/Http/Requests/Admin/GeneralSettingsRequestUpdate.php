@@ -26,6 +26,8 @@ class GeneralSettingsRequestUpdate extends FormRequest
             'site_name' => ['required', 'string', 'max:255'],
             'site_email' => ['nullable', 'email', 'max:255'],
             'site_phone' => ['nullable', 'string', 'max:255'],
+            'site_currency' => ['required', 'string', 'max:30'],
+            'site_currency_icon' => ['nullable', 'string', 'max:10'],
         ];
     }
 }

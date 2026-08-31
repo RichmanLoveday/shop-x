@@ -4,6 +4,7 @@ namespace App\Repositories\Contracts;
 
 use App\Models\ShippingZone;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Collection;
 
 interface ShippingZoneRepositoryInterface
 {
@@ -43,4 +44,6 @@ interface ShippingZoneRepositoryInterface
      * Get zone attached to a specific city
      */
     public function fetchZoneByCityId(int $cityId): ?ShippingZone;
+
+    public function fetchZoneByName(string $name): ?Collection;
 }

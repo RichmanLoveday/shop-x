@@ -1181,9 +1181,9 @@
                     chunking: true,
                     forceChunking: true,
                     chunkSize: 2 * 1024 * 1024,
-                    parallelChunkUploads: true,
-                    retryChunks: true,
-                    retryChunksLimit: 3,
+                    parallelChunkUploads: false,
+                    retryChunks: false,
+                    // retryChunksLimit: 1,
                     acceptedFiles: "images/*, application/pdf, video/*, audio/*, application/*",
                     previewTemplate: previewTemplate,
                     previewsContainer: "#digitalPreviewContainer",
@@ -1219,22 +1219,29 @@
 
                         // When upload finishes
                         this.on("success", function(file, response) {
-
-                            let fileId = response?.digitalFile?.id;
-                            let productId = response?.digitalFile?.product_id;
+                            let digitalFile = response?.digitalFile;
                             let el = $(file.previewElement);
 
 
-                            if (response?.digitalFile && response?.digitalFile?.id) {
+                            // update the preview element with the file ID and status
+                            if (digitalFile?.id) {
+                                el.attr("data-file-id", digitalFile.id)
+                                    .attr("data-status", digitalFile.status || "processing")
+                                    .attr("data-product-id", digitalFile.product_id);
+
                                 el.find(".file-remove")
                                     .addClass("delete-file")
-                                    .attr("data-file-id", response.digitalFile.id);
+                                    .attr("data-file-id", digitalFile.id)
+                                    .removeAttr(
+                                        "data-dz-remove"
+                                        ); // remove Dropzone's default remove behavior
                             }
 
-                            checkStatus(productId, fileId, el);
+                            // update the UI based on the status
+                            updateFileUI(el, digitalFile?.status || "processing");
                         });
 
-                        this.on("error", function(file) {
+                        this.on("error", function(file, message, xhr) {
                             let el = $(file.previewElement);
 
                             el.find(".file-status")
@@ -1244,31 +1251,15 @@
                                     </span>
                                 `);
 
-                            notyf.error("Upload failed");
+                            notyf.error(message);
+                            this.removeFile(file);
                         });
                     }
                 });
             });
 
 
-            $(".dz-preview").each(function() {
-
-                let el = $(this);
-                let productId = el.data("product-id");
-                let fileId = el.data("file-id");
-                let status = el.data("status");
-
-                console.log(status, productId, fileId);
-
-                // only poll if still processing
-                if (status === "processing") {
-                    checkStatus(productId, fileId, el);
-                }
-            });
-
-
             function updateFileUI(el, status) {
-
                 const bar = el.find(".file-progress-bar");
                 const percent = el.find(".dz-upload-percent");
                 const fileStatus = el.find(".file-status");
@@ -1322,31 +1313,10 @@
 
 
 
-            function checkStatus(productId = null, fileId = null, el) {
+            $(document).on('click', '.delete-file', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
 
-                let interval = setInterval(() => {
-
-                    if (!fileId) return;
-
-                    $.get(route('admin.product.digital.status', [productId, fileId]), function(response) {
-
-                        updateFileUI(el, response.status);
-
-                        // STOP polling when finished
-                        if (
-                            response.status === "completed" ||
-                            response.status === "failed" ||
-                            response.status === "already_processed"
-                        ) {
-                            clearInterval(interval);
-                        }
-                    });
-
-                }, 2000);
-            }
-
-
-            $(document).on('click', '.delete-file', function() {
                 const button = $(this);
                 const fileId = button.attr('data-file-id');
                 const productId = "{{ $product->id }}";

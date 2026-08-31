@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\User;
 use Database\Seeders\Admin\AdminSeeder;
 use Database\Seeders\Admin\CitySeeder;
+use Database\Seeders\Admin\ShippingZoneSeeder;
 use Database\Seeders\Admin\StateSeeder;
 use Database\Seeders\Frontend\UserSeeder;
 use Database\Seeders\Vender\VendorSeeder;
@@ -28,13 +29,14 @@ class DatabaseSeeder extends Seeder
         // ]);
 
         $this->call([
-            PermissionSeeder::class,
-            RoleSeeder::class,
-            AdminSeeder::class,
-            UserSeeder::class,
-            VendorSeeder::class,
+            // PermissionSeeder::class,
+            // RoleSeeder::class,
+            // AdminSeeder::class,
+            // UserSeeder::class,
+            // VendorSeeder::class,
             StateSeeder::class,
             CitySeeder::class,
+            ShippingZoneSeeder::class,
         ]);
     }
 }

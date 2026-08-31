@@ -15,4 +15,12 @@ interface SettingsServiceInterface
     public function addSetting(array $data): void;
 
     public function forgetCache(): void;
+
+    public function currencies(): array;
+
+    public function countries(): array;
+
+    public function findCurrencySymbol(string $currencyCode): string;
+
+    public function addPaymentSettings(array $settings): void;
 }

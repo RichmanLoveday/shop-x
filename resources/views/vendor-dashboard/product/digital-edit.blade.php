@@ -506,9 +506,7 @@
                                 </div>
 
 
-                                <div class="row"
-                                    style=""
-                                    id="stock-status-field">
+                                <div class="row" style="" id="stock-status-field">
                                     <div class="card">
                                         <div class="card-header">
                                             <h3>Stock Status</h3>
@@ -1165,9 +1163,9 @@
                     chunking: true,
                     forceChunking: true,
                     chunkSize: 2 * 1024 * 1024,
-                    parallelChunkUploads: true,
-                    retryChunks: true,
-                    retryChunksLimit: 3,
+                    parallelChunkUploads: false,
+                    retryChunks: false,
+                    // retryChunksLimit: 1,
                     acceptedFiles: "images/*, application/pdf, video/*, audio/*, application/*",
                     previewTemplate: previewTemplate,
                     previewsContainer: "#digitalPreviewContainer",
@@ -1203,22 +1201,29 @@
 
                         // When upload finishes
                         this.on("success", function(file, response) {
-
-                            let fileId = response?.digitalFile?.id;
-                            let productId = response?.digitalFile?.product_id;
+                            let digitalFile = response?.digitalFile;
                             let el = $(file.previewElement);
 
 
-                            if (response?.digitalFile && response?.digitalFile?.id) {
+                            // update the preview element with the file ID and status
+                            if (digitalFile?.id) {
+                                el.attr("data-file-id", digitalFile.id)
+                                    .attr("data-status", digitalFile.status || "processing")
+                                    .attr("data-product-id", digitalFile.product_id);
+
                                 el.find(".file-remove")
                                     .addClass("delete-file")
-                                    .attr("data-file-id", response.digitalFile.id);
+                                    .attr("data-file-id", digitalFile.id)
+                                    .removeAttr(
+                                        "data-dz-remove"
+                                    ); // remove Dropzone's default remove behavior
                             }
 
-                            checkStatus(productId, fileId, el);
+                            // update the UI based on the status
+                            updateFileUI(el, digitalFile?.status || "processing");
                         });
 
-                        this.on("error", function(file) {
+                        this.on("error", function(file, message, xhr) {
                             let el = $(file.previewElement);
 
                             el.find(".file-status")
@@ -1228,7 +1233,8 @@
                                     </span>
                                 `);
 
-                            notyf.error("Upload failed");
+                            notyf.error(message);
+                            this.removeFile(file);
                         });
                     }
                 });
@@ -1306,31 +1312,64 @@
 
 
 
-            function checkStatus(productId = null, fileId = null, el) {
+            function updateFileUI(el, status) {
+                const bar = el.find(".file-progress-bar");
+                const percent = el.find(".dz-upload-percent");
+                const fileStatus = el.find(".file-status");
 
-                let interval = setInterval(() => {
+                bar.css("width", "100%")
+                    .addClass("stop-animation");
 
-                    if (!fileId) return;
+                if (status === "processing") {
 
-                    $.get(route('vendor.product.digital.status', [productId, fileId]), function(response) {
+                    percent.text("100%");
+                    fileStatus.html(`
+                    <span class="processing-spinner"></span>
+                    Processing file...
+                `);
 
-                        updateFileUI(el, response.status);
+                    el.addClass("processing-state");
 
-                        // STOP polling when finished
-                        if (
-                            response.status === "completed" ||
-                            response.status === "failed" ||
-                            response.status === "already_processed"
-                        ) {
-                            clearInterval(interval);
-                        }
-                    });
+                } else if (status === "completed") {
 
-                }, 2000);
+                    percent.html(`
+                    <span class="upload-complete-badge">
+                        <i class="ti ti-circle-check"></i>
+                        Completed
+                    </span>
+                `);
+
+                    fileStatus.html(`
+                    <span class="completed-text">
+                        Ready for use
+                    </span>
+                `);
+
+                    el.removeClass("processing-state")
+                        .addClass("completed-state");
+
+                } else if (status === "already_processed") {
+
+                    fileStatus.html(`
+                    <span class="completed-text">
+                        Already processed
+                    </span>
+                `);
+                } else if (status === 'failed') {
+                    fileStatus.html(`
+                         <span class="failed-text">
+                            Upload failed
+                        </span>
+                    `);
+                }
             }
 
 
-            $(document).on('click', '.delete-file', function() {
+
+            $(document).on('click', '.delete-file', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+
                 const button = $(this);
                 const fileId = button.attr('data-file-id');
                 const productId = "{{ $product->id }}";
@@ -1350,7 +1389,7 @@
 
                 $.ajax({
                     method: "DELETE",
-                    url: route('vendor.product.digital.product.file.destroy', [productId, fileId]),
+                    url: route('admin.product.digital.product.file.destroy', [productId, fileId]),
                     headers: {
                         'X-CSRF-TOKEN': '{{ csrf_token() }}'
                     },

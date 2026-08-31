@@ -25,6 +25,6 @@ class Store extends Model implements HasMedia
 
     public function vendor(): BelongsTo
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'user_id');
     }
 }

@@ -33,6 +33,7 @@ class ServicesServiceProvider extends ServiceProvider
         \App\Services\Contracts\Admin\ProductDigitalFileServiceInterface::class => \App\Services\Admin\ProductDigitalFileService::class,
         \App\Services\Contracts\Admin\ProductImagesServiceInterface::class => \App\Services\Admin\ProductImagesService::class,
         \App\Services\Contracts\Admin\ProductAttributesVariantsInterface::class => \App\Services\Admin\ProductAttributesVariantsService::class,
+        \App\Services\Contracts\Admin\ShippingMethodInterface::class => \App\Services\Admin\ShippingMethodService::class,
         // User Bindings
         \App\Services\Contracts\User\ProductServiceInterface::class => \App\Services\User\ProductService::class,
         \App\Services\Contracts\User\CartServiceInterface::class => \App\Services\User\CartService::class,
@@ -44,6 +45,9 @@ class ServicesServiceProvider extends ServiceProvider
         \App\Services\Contracts\CitiesServiceInterface::class => \App\Services\CitiesService::class,
         \App\Services\Contracts\ShippingZoneServiceInterface::class => \App\Services\ShippingZoneService::class,
         \App\Services\Contracts\ShippingZoneResolverServiceInterface::class => \App\Services\ShippingZoneResolverService::class,
+        \App\Services\Contracts\PaymentServiceInterface::class => \App\Services\PaymentService::class,
+        \App\Services\Contracts\PaymentSettingsServiceInterface::class => \App\Services\PaymentSettingsService::class,
+        \App\Services\Contracts\ShippingRateServiceInterface::class => \App\Services\ShippingRateService::class,
     ];
 
     /**

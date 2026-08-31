@@ -24,6 +24,7 @@ class RepositoryServiceProvider extends ServiceProvider
             \App\Repositories\Eloquent\Admin\BrandRepository::class,
         \App\Repositories\Contracts\Admin\TagRepositoryInterface::class =>
             \App\Repositories\Eloquent\Admin\TagRepository::class,
+        \App\Repositories\Contracts\Admin\ShippingMethodRepositoryInterface::class => \App\Repositories\Eloquent\Admin\ShippingMethodRepository::class,
         // Vendor Binding
         \App\Repositories\Contracts\Vendor\KycRepositoryInterface::class => \App\Repositories\Eloquent\Vendor\KycRepository::class,
         \App\Repositories\Contracts\Vendor\ProductRepositoryInterface::class => \App\Repositories\Eloquent\Vendor\ProductRepository::class,
@@ -42,6 +43,7 @@ class RepositoryServiceProvider extends ServiceProvider
         \App\Repositories\Contracts\CitiesRepositoryInterface::class => \App\Repositories\Eloquent\CitiesRepository::class,
         \App\Repositories\Contracts\StatesRepositoryInterface::class => \App\Repositories\Eloquent\StatesRepository::class,
         \App\Repositories\Contracts\ShippingZoneRepositoryInterface::class => \App\Repositories\Eloquent\ShippingZoneRepository::class,
+        \App\Repositories\Contracts\ShippingRateRepositoryInterface::class => \App\Repositories\Eloquent\ShippingRateRepository::class,
     ];
 
     /**

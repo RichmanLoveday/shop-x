@@ -59,7 +59,7 @@ class ProductController extends Controller
         // dd($categories);
         $tags = $this->tagService->allTags();
 
-        return view('admin.product.create', compact('brands', 'categories', 'tags', 'statuses'));
+        return view('vendor-dashboard.product.create', compact('brands', 'categories', 'tags', 'statuses'));
     }
 
     public function store(ProductStoreRequest $request, string $type)
@@ -344,7 +344,7 @@ class ProductController extends Controller
             );
 
             return response()->json([
-                'message' => 'An error occurred while uploading digital product',
+                'message' => $e->getMessage(),
                 'status' => 'failed',
             ], 500);
         }
@@ -421,10 +421,10 @@ class ProductController extends Controller
                 'status' => true,
             ], 200);
         } catch (\Exception $e) {
-            logger()->error('Failed to delete product: ' . $e);
+            logger()->error('Failed to delete product: ' . $e->getMessage());
             return response()->json([
                 'status' => false,
-                'message' => 'An error occurred while deleting product',
+                'message' => $e->getMessage(),
             ]);
         }
     }

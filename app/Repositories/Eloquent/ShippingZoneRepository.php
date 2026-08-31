@@ -6,6 +6,7 @@ use App\Models\ShippingZone;
 use App\Repositories\Contracts\ShippingZoneRepositoryInterface;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Collection;
 use Override;
 
 class ShippingZoneRepository implements ShippingZoneRepositoryInterface
@@ -105,5 +106,12 @@ class ShippingZoneRepository implements ShippingZoneRepositoryInterface
                 $q->where('cities.id', $cityId);
             })
             ->first();
+    }
+
+    public function fetchZoneByName(string $name): ?Collection
+    {
+        return ShippingZone::query()
+            ->where('name', 'like', "%{$name}%")
+            ->get();
     }
 }

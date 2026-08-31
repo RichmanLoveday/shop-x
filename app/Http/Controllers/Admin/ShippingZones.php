@@ -132,4 +132,22 @@ class ShippingZones extends Controller
             return redirect()->back();
         }
     }
+
+    
+    public function getZoneByName(string|int $name)
+    {
+        try {
+            $shippingZones = $this->shippingZoneService->getZoneByName($name);
+            return response()->json([
+                'shipping_zones' => $shippingZones,
+                'status' => true,
+                'message' => 'Shipping zones retrieved successfully',
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Unable to retrieve shipping zones',
+            ]);
+        }
+    }
 }

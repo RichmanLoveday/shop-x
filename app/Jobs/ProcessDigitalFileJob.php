@@ -3,7 +3,7 @@
 namespace App\Jobs;
 
 use App\Enums\ProductFilesStatus;
-use App\Events\DigitalProductFileUploadComplete;
+use App\Events\DigitalProductFileStatusUpdated;
 use App\Models\Admin;
 use App\Models\User;
 use App\Repositories\Contracts\Admin\ProductRepositoryInterface;
@@ -64,13 +64,22 @@ class ProcessDigitalFileJob implements ShouldQueue
 
             $file = $file->fresh('product');
 
-            event(new DigitalProductFileUploadComplete($file, $this->user));
+            event(new DigitalProductFileStatusUpdated($file, $this->user));
         } catch (\Throwable $e) {
-            $file?->update([
+            Log::error('Digital file processing failed', [
+                'file_id' => $this->fileId,
+                'error' => $e->getMessage(),
+            ]);
+
+            // Mark as failed (even if $file was partially updated)
+            $file->update([
                 'status' => ProductFilesStatus::FAILED,
             ]);
 
-            logger()->error($e->getMessage());
+            $file = $file->fresh();
+
+            // Always broadcast the failure
+            event(new DigitalProductFileStatusUpdated($file, $this->user));
         }
     }
 }

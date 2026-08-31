@@ -135,6 +135,7 @@ class AddressController extends Controller
     {
         try {
             $estimatedDelivery = $this->shippingZoneResolverService->calculatedEstimatedDeliveryCost($cityId);
+            // dd($estimatedDelivery);
 
             return response()->json($estimatedDelivery);
         } catch (\Exception $e) {

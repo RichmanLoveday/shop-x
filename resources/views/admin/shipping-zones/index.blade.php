@@ -104,7 +104,7 @@
                                         <th>#</th>
                                         <th>Zone</th>
                                         <th>Cities</th>
-                                        <th>Shipping Rules</th>
+                                        {{-- <th>Shipping Rules</th> --}}
                                         <th>Status</th>
                                         <th>Created</th>
                                         <th class="w-1">Action</th>
@@ -151,14 +151,14 @@
                                             </td>
 
                                             {{-- ================= SHIPPING RULES ================= --}}
-                                            <td>
+
                                                 @php
-                                                    $rules = $zone->shippingRules;
-                                                    $visibleRules = $rules->take(2);
-                                                    $remainingRules = $rules->count() - 2;
+                                                    // $rules = $zone->shippingRules;
+                                                    // $visibleRules = $rules->take(2);
+                                                    // $remainingRules = $rules->count() - 2;
                                                 @endphp
 
-                                                <div class="d-flex flex-wrap gap-1">
+                                                {{-- <div class="d-flex flex-wrap gap-1">
                                                     @foreach ($visibleRules as $rule)
                                                         <span class="badge bg-indigo-lt">
                                                             {{ $rule->name }}
@@ -170,8 +170,8 @@
                                                             +{{ $remainingRules }}
                                                         </span>
                                                     @endif
-                                                </div>
-                                            </td>
+                                                </div> --}}
+                                            
 
                                             {{-- ================= STATUS ================= --}}
                                             <td>

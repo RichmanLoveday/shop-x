@@ -2,12 +2,12 @@
 
 namespace App\Http\Middleware;
 
-use Closure;
 use Illuminate\Auth\AuthenticationException;
-use Illuminate\Contracts\Auth\Factory as Auth;
 use Illuminate\Contracts\Auth\Middleware\AuthenticatesRequests;
+use Illuminate\Contracts\Auth\Factory as Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use Closure;
 
 class Authenticate implements AuthenticatesRequests
 {
@@ -99,6 +99,11 @@ class Authenticate implements AuthenticatesRequests
      */
     protected function unauthenticated($request, array $guards)
     {
+        // Force JSON response for broadcasting auth (no redirect)
+        if ($request->is('broadcasting/auth')) {
+            throw new AuthenticationException('Unauthenticated.', $guards, null);
+        }
+
         throw new AuthenticationException(
             'Unauthenticated.',
             $guards,
@@ -131,7 +136,6 @@ class Authenticate implements AuthenticatesRequests
                 }
             }
 
-
             // check if guard is web, if so redirect to user login page
             if ($guard == 'web') {
                 foreach (['login', 'auth.login'] as $uri) {
@@ -142,11 +146,12 @@ class Authenticate implements AuthenticatesRequests
             }
         }
 
-
         // check if the guard is web, if so redirect to user login page
         if (static::$redirectToCallback) {
             return call_user_func(static::$redirectToCallback, $request);
         }
+
+        return null;
     }
 
     /**

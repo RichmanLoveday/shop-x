@@ -43,7 +43,19 @@ class SettingsService implements SettingsServiceInterface
 
     public function addSetting(array $data): void
     {
+        $data['site_currency_icon'] = $this->findCurrencySymbol($data['site_currency']);
         $this->settingsRepo->update($data);
+
+        // Clear old cache
+        $this->forgetCache();
+
+        // Refresh cache and config
+        $this->setSettings();
+    }
+
+    public function addPaymentSettings(array $settings): void
+    {
+        $this->settingsRepo->update($settings);
 
         // Clear old cache
         $this->forgetCache();
@@ -56,5 +68,21 @@ class SettingsService implements SettingsServiceInterface
     {
         $settings = $this->getSettings();
         return $settings[$key] ?? $default;
+    }
+
+    public function currencies(): array
+    {
+        return config('currencies');
+    }
+
+    public function countries(): array
+    {
+        return config('countries');
+    }
+
+    public function findCurrencySymbol(string $currencyCode): string
+    {
+        $symbols = config('currencies-icons');
+        return $symbols[$currencyCode] ?? '';
     }
 }

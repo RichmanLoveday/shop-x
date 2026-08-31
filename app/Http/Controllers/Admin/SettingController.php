@@ -22,11 +22,16 @@ class SettingController extends Controller
             'site_name' => $this->settingsService->getSetting('site_name'),
             'site_email' => $this->settingsService->getSetting('site_email'),
             'site_phone' => $this->settingsService->getSetting('site_phone'),
+            'site_currency' => $this->settingsService->getSetting('site_currency'),
+            'site_currency_icon' => $this->settingsService->getSetting('site_currency_icon'),
         ];
 
-        return view('admin.settings.sections.general-settings', compact('generalSettings'));
-    }
+        $currencies = $this->settingsService->currencies();
 
+        // dd($generalSettings);
+
+        return view('admin.settings.sections.general-settings', compact('generalSettings', 'currencies'));
+    }
 
     public function generalSettings(GeneralSettingsRequestUpdate $request)
     {
@@ -35,5 +40,15 @@ class SettingController extends Controller
         $this->updated('General Settings updated successfully');
 
         return redirect()->back();
+    }
+
+    public function getCurrencySymbol(Request $request)
+    {
+        $currencyCode = $request->query('currency_code');
+        $currencySymbol = $this->settingsService->findCurrencySymbol($currencyCode);
+
+        // dd($currencySymbol);
+
+        return response()->json(['currency_symbol' => $currencySymbol]);
     }
 }

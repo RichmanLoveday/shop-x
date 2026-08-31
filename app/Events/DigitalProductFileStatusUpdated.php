@@ -13,7 +13,7 @@ use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class DigitalProductFileUploadComplete
+class DigitalProductFileStatusUpdated implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
@@ -33,7 +33,22 @@ class DigitalProductFileUploadComplete
     public function broadcastOn(): array
     {
         return [
-            new PrivateChannel('channel-name'),
+            new PrivateChannel(
+                "digital-files.user.{$this->user->id}"
+            ),
+        ];
+    }
+
+    public function broadcastAs(): string
+    {
+        return 'digital-file.status.updated';
+    }
+
+    public function broadcastWith(): array
+    {
+        return [
+            'id' => $this->file->id,
+            'status' => $this->file->status->value,
         ];
     }
 }

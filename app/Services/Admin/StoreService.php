@@ -15,7 +15,7 @@ class StoreService implements StoreServiceInterface
 
     public function allStore(): Collection
     {
-        throw new \Exception('Not implemented');
+        return $this->storeRepo->getStores();
     }
 
     public function getStore(int $id): Store

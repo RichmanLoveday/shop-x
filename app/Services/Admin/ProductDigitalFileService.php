@@ -50,8 +50,6 @@ class ProductDigitalFileService extends BaseService implements ProductDigitalFil
         protected ProductRepositoryInterface $productRepo,
     ) {}
 
-
-
     public function handleChunkUpload(int $productId, User|Admin $user, ProductType|string $type, array $data): array
     {
         $product = $this->productRepo->getProduct($productId, $type);
@@ -117,7 +115,6 @@ class ProductDigitalFileService extends BaseService implements ProductDigitalFil
         ];
     }
 
-    
     public function getDigitalFile(int $productId, int $fileId, ProductType|string $type = ProductType::PHYSICAL): ProductFile
     {
         return $this->productRepo->findDigitalFile($fileId, $productId);
@@ -126,6 +123,8 @@ class ProductDigitalFileService extends BaseService implements ProductDigitalFil
     public function deleteDigitalFile(int $productId, int $fileId): bool
     {
         $file = $this->productRepo->findDigitalFile($fileId, $productId);
+
+        // dd($file);
 
         if (!$file) {
             return false;
@@ -141,8 +140,14 @@ class ProductDigitalFileService extends BaseService implements ProductDigitalFil
         if ($file->path) {
             if ($file->status === ProductFilesStatus::COMPLETED) {
                 // delete from Wasabi
-                if (Storage::disk('wasabi')->exists($file->path)) {
+                // if (Storage::disk('wasabi')->exists($file->path)) {
+                //     Storage::disk('wasabi')->delete($file->path);
+                // }
+
+                try {
                     Storage::disk('wasabi')->delete($file->path);
+                } catch (\Throwable $e) {
+                    Log::warning("Failed to delete file from Wasabi: {$file->path}", ['error' => $e->getMessage()]);
                 }
             } else {
                 // delete local file if exists
@@ -202,6 +207,8 @@ class ProductDigitalFileService extends BaseService implements ProductDigitalFil
         }
 
         $size = filesize($localFilePath);
+
+        // dd($size);
 
         $digitalFile = $this->productRepo->createDigitalFile([
             'product_id' => $productId,

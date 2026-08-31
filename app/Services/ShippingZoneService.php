@@ -9,6 +9,7 @@ use App\Services\Contracts\AddressServiceInterface;
 use App\Services\Contracts\ShippingZoneResolverServiceInterface;
 use App\Services\Contracts\ShippingZoneServiceInterface;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use RuntimeException;
 
@@ -148,5 +149,10 @@ class ShippingZoneService implements ShippingZoneServiceInterface
         $shippingMethods['shipping_error'] = null;
 
         return $shippingMethods;
+    }
+
+    public function getZoneByName(string|int $name): ?Collection
+    {
+        return $this->shippingZoneRepo->fetchZoneByName($name);
     }
 }

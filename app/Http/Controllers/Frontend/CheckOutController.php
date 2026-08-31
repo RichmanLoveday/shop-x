@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Frontend;
 
+use App\Exceptions\CartEmptyException;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Frontend\BillingInfoRequest;
 use App\Services\Contracts\User\CartServiceInterface;
@@ -42,15 +43,13 @@ class CheckOutController extends Controller
             $addresses = $this->addressService->allAddress($user);
             $cartItems = $this->cartService->getCartItemsByStores($user);
 
-            // dd($cartItems);
-
-            // dd($shippingMethods);
-
-            // dd($appliedCoupon);
             return view('frontend.pages.checkout', compact('cartItems',
                 'cartSubTotal',
                 'appliedCoupon', 'total',
                 'shippingMethods', 'shipping', 'addresses'));
+        } catch (CartEmptyException $e) {
+            $this->failed($e->getMessage());
+            return redirect()->route('cart.index');
         } catch (\RuntimeException $e) {
             $this->failed($e->getMessage());
             return redirect()->route('login');
@@ -87,8 +86,6 @@ class CheckOutController extends Controller
 
     public function billingInfo(BillingInfoRequest $request)
     {
-        // dd($request->all());
-
         // store billing info in session
         Session::put('billing_info', [
             'billing_address_id' => $request->billing_address_id,
@@ -96,5 +93,7 @@ class CheckOutController extends Controller
             'shipping_method_id' => $request->shipping_method_id,
             'zone_id' => $request->zone_id,
         ]);
+
+        return response()->json(['status' => true]);
     }
 }
